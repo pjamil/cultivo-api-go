@@ -1,10 +1,10 @@
-version: '3.8'
+version: "3.8"
 
 services:
   app:
-    build:
-      context: .
-      # No target specified - will use final stage
+    image: pjamil/cultivo-api-go:latest
+    container_name: cultivo-api-go
+    env_file: .env-prod
     ports:
       - "8080:8080"
     environment:
@@ -13,16 +13,23 @@ services:
       - DB_PASSWORD=postgres
       - DB_NAME=plant_cultivation
       - DB_PORT=5432
+      - VIRTUAL_HOST=cultivo-api.paulojamil.dev.br
+      - VIRTUAL_PORT=8080
     depends_on:
       - db
     restart: unless-stopped
+    networks:
+      - default
+      - backend
 
   db:
     image: postgres:15-alpine
+    container_name: cultivo-db
+    env_file: .env-prod
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=plant_cultivation
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -31,6 +38,14 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    networks:
+      - backend
+
+networks:
+  default:
+    external: true
+  backend:
+    driver: bridge
 
 volumes:
   postgres-data:

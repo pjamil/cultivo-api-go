@@ -37,7 +37,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # Optional - PGAdmin for database management
+  # Optional - PGAdmin for database management - atualizar imagem para a versão mais recente
   pgadmin:
     image: dpage/pgadmin4
     environment:

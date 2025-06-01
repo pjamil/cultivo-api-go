@@ -1,0 +1,48 @@
+name: Build, Push and Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  # VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+  # VPS_USER: ${{ secrets.VPS_USER }}
+  # VPS_HOST: ${{ secrets.VPS_HOST }}
+  APP_NAME: cultivo-api-go
+
+jobs:
+  build-and-push:
+    runs-on: docker
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        run: echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+
+      - name: Build and push
+        run: |
+          docker build -t $DOCKERHUB_USERNAME/$APP_NAME:latest .
+          docker push $DOCKERHUB_USERNAME/$APP_NAME:latest
+
+  # deploy:
+  #   needs: build-and-push
+  #   runs-on: docker
+  #   steps:
+  #     - name: Install SSH key
+  #       run: |
+  #         mkdir -p ~/.ssh
+  #         echo "$VPS_SSH_KEY" > ~/.ssh/id_rsa
+  #         chmod 600 ~/.ssh/id_rsa
+  #         ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts
+
+  #     - name: Deploy to VPS
+  #       run: |
+  #         ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST << EOF
+  #           docker pull $DOCKERHUB_USERNAME/$APP_NAME:latest
+  #           cd /opt/$APP_NAME
+  #           docker-compose down
+  #           docker-compose up -d
+  #         EOF
