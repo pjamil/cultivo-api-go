@@ -1,0 +1,230 @@
+basePath: /api/v1
+definitions:
+  models.Plant:
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@plantcultivation.com
+    name: API Support
+    url: http://www.example.com/support
+  description: API para gerenciamento de cultivo de plantas
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Plant Cultivation API
+  version: "1.0"
+paths:
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Retorna o status da API e seus componentes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'status": "ok'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Verifica a saúde da aplicação
+      tags:
+      - health
+  /health/live:
+    get:
+      consumes:
+      - application/json
+      description: Verificação simples de que o processo está em execução
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'status": "alive'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Verifica se a aplicação está viva
+      tags:
+      - health
+  /health/ready:
+    get:
+      consumes:
+      - application/json
+      description: Verifica todas as dependências necessárias para a aplicação funcionar
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'status": "ready'
+          schema:
+            additionalProperties: true
+            type: object
+        "503":
+          description: 'status": "not ready'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Verifica se a aplicação está pronta para receber tráfego
+      tags:
+      - health
+  /plants:
+    get:
+      consumes:
+      - application/json
+      description: Get details of all plants
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Plant'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all plants
+      tags:
+      - plants
+    post:
+      consumes:
+      - application/json
+      description: Add a new plant to the cultivation system
+      parameters:
+      - description: Plant object that needs to be added
+        in: body
+        name: plant
+        required: true
+        schema:
+          $ref: '#/definitions/models.Plant'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Plant'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new plant
+      tags:
+      - plants
+  /plants/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an existing plant
+      parameters:
+      - description: Plant ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a plant
+      tags:
+      - plants
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific plant
+      parameters:
+      - description: Plant ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Plant'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get plant by ID
+      tags:
+      - plants
+    put:
+      consumes:
+      - application/json
+      description: Update an existing plant
+      parameters:
+      - description: Plant ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated plant object
+        in: body
+        name: plant
+        required: true
+        schema:
+          $ref: '#/definitions/models.Plant'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Plant'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a plant
+      tags:
+      - plants
+schemes:
+- http
+swagger: "2.0"
