@@ -4,10 +4,6 @@ import (
 	"log"
 	"net/http"
 
-	// "github.com/gin-gonic/gin"
-	// swaggerFiles "github.com/swaggo/files"
-	// ginSwagger "github.com/swaggo/gin-swagger"
-
 	_ "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/docs" // Import the generated Swagger docs
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/config"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/infrastructure/database"

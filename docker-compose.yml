@@ -4,8 +4,10 @@ services:
   app:
     build:
       context: .
-      target: builder  # Use builder stage for development
-    command: go run ./cmd/cultivo-api-go-swagger
+      target: builder
+    command: go run cmd/cultivo-api-go/main.go
+    container_name: cultivo-api-go
+    image: cultivo-api-go:latest
     volumes:
       - .:/app
       - go-mod:/go/pkg/mod
