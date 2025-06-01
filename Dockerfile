@@ -26,7 +26,7 @@ FROM alpine:3.22.0
 WORKDIR /root/
 
 # Copy the pre-built binary file from the previous stage
-COPY --from=builder /app/cultivo-api-go-swagger .
+COPY --from=builder /app/cultivo-api-go .
 COPY --from=builder /app/.env .
 
 # Expose port
