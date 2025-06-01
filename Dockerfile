@@ -18,7 +18,7 @@ COPY . .
 
 # Build the application
 RUN swag init -g cmd/cultivo-api-go-swagger/main.go && \
-CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o cultivo-api-go ./cmd/cultivo-api-go-swagger
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o cultivo-api-go ./cmd/cultivo-api-go
 
 # Runtime stage
 FROM alpine:3.22.0
@@ -27,7 +27,7 @@ WORKDIR /root/
 
 # Copy the pre-built binary file from the previous stage
 COPY --from=builder /app/cultivo-api-go .
-COPY --from=builder /app/.env .
+COPY --from=builder /app/.env-prod .
 
 # Expose port
 EXPOSE 8080
