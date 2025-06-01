@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKERHUB_CREDENTIALS = 'dockerhub-credentials'
+        DOCKERHUB_CREDENTIALS = 'docker-hub'
         DOCKER_IMAGE = 'pjamil/cultivo-api-go'
     }
 
