@@ -1,9 +1,11 @@
 # Build stage
 FROM golang:1.24.3-alpine3.22 AS builder
+
 WORKDIR /app
 
-# Install dependencies
-RUN apk add --no-cache git make gcc musl-dev
+# Install dependencies including swag
+RUN apk add --no-cache git make gcc musl-dev && \
+    go install github.com/swaggo/swag/cmd/swag@latest
 
 # Copy go mod and sum files
 COPY go.mod go.sum ./
@@ -15,7 +17,8 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o cultivo-api-go ./cmd/cultivo-api-go-deepseek
+RUN swag init -g cmd/cultivo-api-go-swagger/main.go && \
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o cultivo-api-go ./cmd/cultivo-api-go-deepseek
 
 # Runtime stage
 FROM alpine:3.22.0
