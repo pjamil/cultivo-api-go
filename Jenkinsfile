@@ -1,34 +1,19 @@
 pipeline {
-    agent any
-
+    agent {
+        docker {
+            image 'golang:1.21'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('docker-hub-creds')
-        // VPS_SSH_CREDENTIALS = credentials('vps-ssh-key')
-        APP_NAME = 'cultivo-api-go'
-        DOCKER_IMAGE = "pjamil/${APP_NAME}:${env.BUILD_NUMBER}"
-        DOCKER_IMAGE_LATEST = "pjamil/${APP_NAME}:latest"
+        DOCKERHUB_CREDENTIALS = 'dockerhub-credentials'
+        DOCKER_IMAGE = 'pjamil/cultivo-api-go'
     }
 
     stages {
-        stage('Checkout') {
+        stage('Docker Build Image') {
             steps {
-                git branch: 'main', 
-                url: 'git@gitea.paulojamil.dev.br:paulojamil.dev.br/cultivo-api-go.git',
-                credentialsId: 'gitea-token'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh 'go test ./...'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    docker.build(DOCKER_IMAGE)
-                }
+                sh 'docker build -t pjamil/cultivo-api-go:latest .'
             }
         }
 
@@ -42,29 +27,18 @@ pipeline {
                 }
             }
         }
-
-        // stage('Deploy to VPS') {
+        // stage('Push to Docker Hub') {
         //     steps {
-        //         sshagent(['vps-ssh-key']) {
-        //             sh """
-        //                 ssh -o StrictHostKeyChecking=no seu-usuario@seu-ip-vps << EOF
-        //                     docker pull ${DOCKER_IMAGE}
-        //                     cd /opt/${APP_NAME}
-        //                     docker-compose down
-        //                     docker-compose up -d
-        //                 EOF
-        //             """
+        //         withCredentials([
+        //             usernamePassword(
+        //                 credentialsId: 'registry-paulojamil',
+        //                 passwordVariable: 'dockerHubPassword',
+        //                 usernameVariable: 'dockerHubUser')
+        //         ]) {
+        //             sh 'docker login -u $dockerHubUser -p $dockerHubPassword registry.paulojamil.dev.br'
+        //             sh 'docker push registry.paulojamil.dev.br/siscompras-api:latest'
         //         }
         //     }
         // }
-    }
-
-    post {
-        success {
-            slackSend color: 'good', message: "Build ${env.BUILD_NUMBER} deployed successfully!"
-        }
-        failure {
-            slackSend color: 'danger', message: "Build ${env.BUILD_NUMBER} failed!"
-        }
     }
 }
