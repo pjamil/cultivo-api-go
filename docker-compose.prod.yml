@@ -42,8 +42,8 @@ services:
 networks:
   default:
     external:
+      name: nginx-proxy
   backend:
-    driver: bridge
 
 volumes:
   postgres-data:
