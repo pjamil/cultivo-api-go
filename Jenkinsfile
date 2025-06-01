@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'golang:1.21'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
     environment {
         DOCKERHUB_CREDENTIALS = 'dockerhub-credentials'
         DOCKER_IMAGE = 'pjamil/cultivo-api-go'
