@@ -33,4 +33,4 @@ COPY --from=builder /app/.env .
 EXPOSE 8080
 
 # Command to run the executable
-CMD ["./cultivo-api-go-swagger"]
+CMD ["./cultivo-api-go"]
