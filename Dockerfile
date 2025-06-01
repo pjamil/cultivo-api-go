@@ -18,7 +18,7 @@ COPY . .
 
 # Build the application
 RUN swag init -g cmd/cultivo-api-go-swagger/main.go && \
-CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o cultivo-api-go ./cmd/cultivo-api-go
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o cultivo-api-go ./cmd/cultivo-api-go-swagger
 
 # Runtime stage
 FROM alpine:3.22.0
