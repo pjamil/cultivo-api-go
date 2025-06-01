@@ -18,7 +18,7 @@ services:
       - db
     restart: unless-stopped
     networks:
-      - default
+      - nginx-proxy
       - backend
 
   db:
@@ -40,10 +40,10 @@ services:
       - backend
 
 networks:
-  default:
-    external:
-      name: nginx-proxy
+  nginx-proxy:
+    external: true
   backend:
+    driver: bridge
 
 volumes:
   postgres-data:
