@@ -7,13 +7,14 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=cultivo-api-go
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
       - VIRTUAL_HOST=cultivo-api.paulojamil.dev.br
       - VIRTUAL_PORT=8080
+    command: go run cmd/cultivo-api-go/main.go
     depends_on:
       - db
     restart: unless-stopped
@@ -25,9 +26,11 @@ services:
     image: postgres:15-alpine
     container_name: cultivo-db
     environment:
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=cultivo-api-go
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5435:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
