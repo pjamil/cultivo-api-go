@@ -11,7 +11,7 @@ services:
       - DB_PORT=5432
       - DB_NAME=cultivo-api-go
       - DB_USER=postgres
-      - DB_PASSWORD=postgres
+      - DB_PASSWORD=753951465827PJamil#*
       - VIRTUAL_HOST=cultivo-api.paulojamil.dev.br
       - VIRTUAL_PORT=8080
     depends_on:
@@ -27,7 +27,7 @@ services:
     environment:
       - POSTGRES_DB=cultivo-api-go
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PASSWORD=753951465827PJamil#*
     ports:
       - "5435:5432"
     volumes:
