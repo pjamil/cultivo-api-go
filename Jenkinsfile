@@ -22,18 +22,5 @@ pipeline {
                 }
             }
         }
-        // stage('Push to Docker Hub') {
-        //     steps {
-        //         withCredentials([
-        //             usernamePassword(
-        //                 credentialsId: 'registry-paulojamil',
-        //                 passwordVariable: 'dockerHubPassword',
-        //                 usernameVariable: 'dockerHubUser')
-        //         ]) {
-        //             sh 'docker login -u $dockerHubUser -p $dockerHubPassword registry.paulojamil.dev.br'
-        //             sh 'docker push registry.paulojamil.dev.br/siscompras-api:latest'
-        //         }
-        //     }
-        // }
     }
 }
