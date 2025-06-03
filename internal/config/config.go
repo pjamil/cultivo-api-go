@@ -18,11 +18,11 @@ type Config struct {
 }
 
 func LoadConfig() *Config {
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load("env"); err != nil {
 		log.Println("No .env file found")
 	}
 
-	return &Config{
+	config := &Config{
 		DBDriver:   getEnv("DB_DRIVER", "postgres"),
 		DBHost:     getEnv("DB_HOST", "localhost"),
 		DBPort:     getEnv("DB_PORT", "5434"),
@@ -31,6 +31,8 @@ func LoadConfig() *Config {
 		DBName:     getEnv("DB_NAME", "cultivo-api-go"),
 		ServerPort: getEnv("SERVER_PORT", "8080"),
 	}
+	log.Println(config)
+	return config
 }
 
 func getEnv(key, defaultValue string) string {
