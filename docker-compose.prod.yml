@@ -11,7 +11,7 @@ services:
       - DB_PORT=${DB_PORT}`
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PASSWORD=753951465827PJamil#*
       - VIRTUAL_HOST=cultivo-api.paulojamil.dev.br
       - VIRTUAL_PORT=8080
       - LETSENCRYPT_HOST=cultivo-api.paulojamil.dev.br
@@ -41,7 +41,6 @@ services:
     networks:
       - backend
 
-  # Optional - PGAdmin for database management - atualizar imagem para a versão mais recente
   pgadmin:
     image: dpage/pgadmin4:9.4
     environment:
