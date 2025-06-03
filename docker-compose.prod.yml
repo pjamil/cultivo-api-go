@@ -43,15 +43,14 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4:9.4
+    expose:
+      - 80
     environment:
       - PGADMIN_DEFAULT_EMAIL=pjamil@pjamil.com
       - PGADMIN_DEFAULT_PASSWORD=152535pj
       - VIRTUAL_HOST=pgadmin.paulojamil.dev.br
-      - VIRTUAL_PORT=5050
       - LETSENCRYPT_HOST=pgadmin.paulojamil.dev.br
       - LETSENCRYPT_paulojamil@gmail.com=paulojamil@gmail.com
-    ports:
-      - 5050:80
     depends_on:
       - db
     networks:
