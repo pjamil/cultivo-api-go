@@ -41,7 +41,7 @@ services:
 
   # Optional - PGAdmin for database management - atualizar imagem para a versão mais recente
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:9.4
     environment:
       - PGADMIN_DEFAULT_EMAIL=pjamil@pjamil.com
       - PGADMIN_DEFAULT_PASSWORD=152535pj
