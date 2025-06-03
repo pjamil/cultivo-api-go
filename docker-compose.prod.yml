@@ -5,7 +5,7 @@ services:
     image: pjamil/cultivo-api-go:latest
     container_name: cultivo-api-go
     ports:
-      - 8082:8080
+      - 8082
     environment:
       - DB_HOST=db
       - DB_PORT=5432
@@ -14,6 +14,8 @@ services:
       - DB_PASSWORD=postgres
       - VIRTUAL_HOST=cultivo-api.paulojamil.dev.br
       - VIRTUAL_PORT=8082
+      - LETSENCRYPT_HOST=cultivo-api.paulojamil.dev.br
+      - LETSENCRYPT_paulojamil@gmail.com=paulojamil@gmail.com
     depends_on:
       - db
     restart: unless-stopped
