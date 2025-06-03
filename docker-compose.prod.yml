@@ -43,10 +43,12 @@ services:
 
 networks:
   default:
+    name: nginx-proxy
     driver: bridge
+    external: true
   backend:
     driver: bridge
-    # internal: true
+    internal: true
     attachable: true
 volumes:
   postgres-data:
