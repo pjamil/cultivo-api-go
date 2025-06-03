@@ -47,9 +47,9 @@ services:
     environment:
       - PGADMIN_DEFAULT_EMAIL=pjamil@pjamil.com
       - PGADMIN_DEFAULT_PASSWORD=152535pj
-      - VIRTUAL_HOST=pgadmin.cultivo-api.paulojamil.dev.br
+      - VIRTUAL_HOST=pgadmin-cultivo-api.paulojamil.dev.br
       - VIRTUAL_PORT=5050
-      - LETSENCRYPT_HOST=pgadmin.cultivo-api.paulojamil.dev.br
+      - LETSENCRYPT_HOST=pgadmin-cultivo-api.paulojamil.dev.br
       - LETSENCRYPT_paulojamil@gmail.com=paulojamil@gmail.com
     ports:
       - "5050:80"
