@@ -565,3 +565,5 @@ Você pode adicionar Swagger para documentação. Adicione o pacote `swaggo` e a
 8. **Documentação**: Adicionar Swagger/OpenAPI
 
 Esta implementação fornece uma base sólida para uma API REST modular e escalável para cultivo de plantas em Go, seguindo boas práticas de desenvolvimento e arquitetura limpa.
+
+teste polling
