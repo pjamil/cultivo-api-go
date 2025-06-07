@@ -8,5 +8,17 @@
 		}
 	],
 	"settings": {
+		"sqltools.connections": [
+			{
+				"previewLimit": 50,
+				"server": "localhost",
+				"port": 5432,
+				"driver": "PostgreSQL",
+				"name": "cultivo-api-go",
+				"database": "cultivo-api-go",
+				"username": "postgres",
+				"password": "postgres"
+			}
+		]
 	}
 }
