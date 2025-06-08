@@ -36,14 +36,12 @@ func (r *PlantRepository) Create(plant *models.Planta) error {
 func (r *PlantRepository) FindAll() ([]models.Planta, error) {
 	var plants []models.Planta
 
-	var plantas []models.Planta
-	if err := r.db.Preload("MeioCultivo").Find(&plantas).Error; err != nil {
+	if err := r.db.
+		Preload("Ambiente").
+		Preload("Genetica").
+		Preload("MeioCultivo").
+		Find(&plants).Error; err != nil {
 		return nil, err
-	}
-
-	result := r.db.Find(&plants)
-	if result.Error != nil {
-		return nil, result.Error
 	}
 
 	return plants, nil

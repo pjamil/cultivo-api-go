@@ -83,3 +83,10 @@ Content-Type: {{contentType}}
   "nome": "Estufa Principal",
   "descricao": "Estufa com controle de temperatura e umidade"
 }
+
+### List all Meios de Cultivo
+GET {{baseUrl}}/meios_cultivo HTTP/1.1
+### List all Ambientes
+GET {{baseUrl}}/ambientes HTTP/1.1
+### Get a specific Genética
+GET {{baseUrl}}/geneticas/1 HTTP/1.1

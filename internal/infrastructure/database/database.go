@@ -27,7 +27,7 @@ func NewDatabase(config *config.Config) (*Database, error) {
 	log.Println("Database connection established")
 
 	// Auto migrate models
-	if err := db.AutoMigrate(&models.Planta{}, &models.Ambiente{}); err != nil {
+	if err := db.AutoMigrate(&models.Planta{}, &models.Ambiente{}, &models.MeioCultivo{}, &models.Genetica{}); err != nil {
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
 	}
 
