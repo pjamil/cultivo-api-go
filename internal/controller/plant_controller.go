@@ -10,17 +10,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// PlantController handles HTTP requests for plants
-type PlantController struct {
-	plantService *service.PlantService
+// PlantaController handles HTTP requests for plants
+type PlantaController struct {
+	plantaService *service.PlantaService
 }
 
-// NewPlantController creates a new PlantController
-func NewPlantController(plantService *service.PlantService) *PlantController {
-	return &PlantController{plantService: plantService}
+// NewPlantaController creates a new PlantController
+func NewPlantaController(plantaService *service.PlantaService) *PlantaController {
+	return &PlantaController{plantaService: plantaService}
 }
 
-// CreatePlant godoc
+// CreatePlanta godoc
 // @Summary Create a new plant
 // @Description Add a new plant to the cultivation system
 // @Tags plants
@@ -31,19 +31,19 @@ func NewPlantController(plantService *service.PlantService) *PlantController {
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /plants [post]
-func (c *PlantController) CreatePlant(ctx *gin.Context) {
-	var plant models.Planta
-	if err := ctx.ShouldBindJSON(&plant); err != nil {
+func (c *PlantaController) CreatePlanta(ctx *gin.Context) {
+	var planta models.Planta
+	if err := ctx.ShouldBindJSON(&planta); err != nil {
 		utils.RespondWithError(ctx, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 
-	if err := c.plantService.CreatePlant(&plant); err != nil {
+	if err := c.plantaService.CreatePlanta(&planta); err != nil {
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(ctx, http.StatusCreated, plant)
+	utils.RespondWithJSON(ctx, http.StatusCreated, planta)
 }
 
 // GetAllPlants godoc
@@ -55,8 +55,8 @@ func (c *PlantController) CreatePlant(ctx *gin.Context) {
 // @Success 200 {array} models.Planta
 // @Failure 500 {object} map[string]interface{}
 // @Router /plants [get]
-func (c *PlantController) GetAllPlants(ctx *gin.Context) {
-	plants, err := c.plantService.GetAllPlants()
+func (c *PlantaController) GetAllPlants(ctx *gin.Context) {
+	plants, err := c.plantaService.GetAllPlants()
 	if err != nil {
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
@@ -96,14 +96,14 @@ const (
 // @Failure 400 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
 // @Router /plants/{id} [get]
-func (c *PlantController) GetPlantByID(ctx *gin.Context) {
+func (c *PlantaController) GetPlantByID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		utils.RespondWithError(ctx, http.StatusBadRequest, "Invalid plant ID")
 		return
 	}
 
-	plant, err := c.plantService.GetPlantByID(uint(id))
+	plant, err := c.plantaService.GetPlantByID(uint(id))
 	if err != nil {
 		utils.RespondWithError(ctx, http.StatusNotFound, "Planta not found")
 		return
@@ -125,7 +125,7 @@ func (c *PlantController) GetPlantByID(ctx *gin.Context) {
 // @Failure 404 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /plants/{id} [put]
-func (c *PlantController) UpdatePlant(ctx *gin.Context) {
+func (c *PlantaController) UpdatePlant(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		utils.RespondWithError(ctx, http.StatusBadRequest, InvalidPlantIDError)
@@ -139,7 +139,7 @@ func (c *PlantController) UpdatePlant(ctx *gin.Context) {
 	}
 
 	plant.ID = uint(id)
-	if err := c.plantService.UpdatePlant(&plant); err != nil {
+	if err := c.plantaService.UpdatePlant(&plant); err != nil {
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -158,14 +158,14 @@ func (c *PlantController) UpdatePlant(ctx *gin.Context) {
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /plants/{id} [delete]
-func (c *PlantController) DeletePlant(ctx *gin.Context) {
+func (c *PlantaController) DeletePlant(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		utils.RespondWithError(ctx, http.StatusBadRequest, InvalidPlantIDError)
 		return
 	}
 
-	if err := c.plantService.DeletePlant(uint(id)); err != nil {
+	if err := c.plantaService.DeletePlant(uint(id)); err != nil {
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}

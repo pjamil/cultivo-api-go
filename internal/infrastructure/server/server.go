@@ -34,12 +34,12 @@ func NewServer(db *database.Database) *Server {
 	// Plant routes
 	plantRepo := database.NewPlantRepository(db.DB)
 	plantService := service.NewPlantService(plantRepo)
-	plantController := controller.NewPlantController(plantService)
+	plantController := controller.NewPlantaController(plantService)
 
 	const plantsRoute = "/api/v1/plants"
 	const plantByIDRoute = "/:id"
 	router.GET(plantsRoute, plantController.GetAllPlants)
-	router.POST(plantsRoute, plantController.CreatePlant)
+	router.POST(plantsRoute, plantController.CreatePlanta)
 	router.GET(plantsRoute+plantByIDRoute, plantController.GetPlantByID)
 	router.PUT(plantsRoute+plantByIDRoute, plantController.UpdatePlant)
 	router.DELETE(plantsRoute+plantByIDRoute, plantController.DeletePlant)
