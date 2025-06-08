@@ -26,13 +26,13 @@ func NewPlantController(plantService *service.PlantService) *PlantController {
 // @Tags plants
 // @Accept  json
 // @Produce  json
-// @Param plant body models.Plant true "Plant object that needs to be added"
-// @Success 201 {object} models.Plant
+// @Param plant body models.Planta true "Planta object that needs to be added"
+// @Success 201 {object} models.Planta
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /plants [post]
 func (c *PlantController) CreatePlant(ctx *gin.Context) {
-	var plant models.Plant
+	var plant models.Planta
 	if err := ctx.ShouldBindJSON(&plant); err != nil {
 		utils.RespondWithError(ctx, http.StatusBadRequest, "Invalid request payload")
 		return
@@ -52,7 +52,7 @@ func (c *PlantController) CreatePlant(ctx *gin.Context) {
 // @Tags plants
 // @Accept  json
 // @Produce  json
-// @Success 200 {array} models.Plant
+// @Success 200 {array} models.Planta
 // @Failure 500 {object} map[string]interface{}
 // @Router /plants [get]
 func (c *PlantController) GetAllPlants(ctx *gin.Context) {
@@ -65,14 +65,34 @@ func (c *PlantController) GetAllPlants(ctx *gin.Context) {
 	utils.RespondWithJSON(ctx, http.StatusOK, plants)
 }
 
+const (
+	InvalidPlantIDError              = "Invalid plant ID"
+	PlantNotFoundError               = "Planta not found"
+	InvalidRequestPayloadError       = "Invalid request payload"
+	PlantUpdateError                 = "Error updating plant"
+	PlantCreationError               = "Error creating plant"
+	PlantRetrievalError              = "Error retrieving plant"
+	PlantDeletionError               = "Error deleting plant"
+	PlantUpdateSuccessMessage        = "Planta updated successfully"
+	PlantCreationSuccessMessage      = "Planta created successfully"
+	PlantRetrievalSuccessMessage     = "Planta retrieved successfully"
+	PlantListRetrievalSuccessMessage = "Plants retrieved successfully"
+	PlantListRetrievalError          = "Error retrieving plants"
+	PlantCreationSuccess             = "Planta created successfully"
+	PlantUpdateSuccess               = "Planta updated successfully"
+	PlantDeletionSuccess             = "Planta deleted successfully"
+	PlantRetrievalSuccess            = "Planta retrieved successfully"
+	PlantListRetrievalSuccess        = "Plants retrieved successfully"
+)
+
 // GetPlantByID godoc
 // @Summary Get plant by ID
 // @Description Get details of a specific plant
 // @Tags plants
 // @Accept  json
 // @Produce  json
-// @Param id path int true "Plant ID"
-// @Success 200 {object} models.Plant
+// @Param id path int true "Planta ID"
+// @Success 200 {object} models.Planta
 // @Failure 400 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
 // @Router /plants/{id} [get]
@@ -85,7 +105,7 @@ func (c *PlantController) GetPlantByID(ctx *gin.Context) {
 
 	plant, err := c.plantService.GetPlantByID(uint(id))
 	if err != nil {
-		utils.RespondWithError(ctx, http.StatusNotFound, "Plant not found")
+		utils.RespondWithError(ctx, http.StatusNotFound, "Planta not found")
 		return
 	}
 
@@ -98,9 +118,9 @@ func (c *PlantController) GetPlantByID(ctx *gin.Context) {
 // @Tags plants
 // @Accept  json
 // @Produce  json
-// @Param id path int true "Plant ID"
-// @Param plant body models.Plant true "Updated plant object"
-// @Success 200 {object} models.Plant
+// @Param id path int true "Planta ID"
+// @Param plant body models.Planta true "Updated plant object"
+// @Success 200 {object} models.Planta
 // @Failure 400 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
@@ -108,13 +128,13 @@ func (c *PlantController) GetPlantByID(ctx *gin.Context) {
 func (c *PlantController) UpdatePlant(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		utils.RespondWithError(ctx, http.StatusBadRequest, "Invalid plant ID")
+		utils.RespondWithError(ctx, http.StatusBadRequest, InvalidPlantIDError)
 		return
 	}
 
-	var plant models.Plant
+	var plant models.Planta
 	if err := ctx.ShouldBindJSON(&plant); err != nil {
-		utils.RespondWithError(ctx, http.StatusBadRequest, "Invalid request payload")
+		utils.RespondWithError(ctx, http.StatusBadRequest, InvalidRequestPayloadError)
 		return
 	}
 
@@ -133,7 +153,7 @@ func (c *PlantController) UpdatePlant(ctx *gin.Context) {
 // @Tags plants
 // @Accept  json
 // @Produce  json
-// @Param id path int true "Plant ID"
+// @Param id path int true "Planta ID"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
@@ -141,7 +161,7 @@ func (c *PlantController) UpdatePlant(ctx *gin.Context) {
 func (c *PlantController) DeletePlant(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		utils.RespondWithError(ctx, http.StatusBadRequest, "Invalid plant ID")
+		utils.RespondWithError(ctx, http.StatusBadRequest, InvalidPlantIDError)
 		return
 	}
 
@@ -150,5 +170,5 @@ func (c *PlantController) DeletePlant(ctx *gin.Context) {
 		return
 	}
 
-	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Plant deleted successfully"})
+	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Planta deleted successfully"})
 }

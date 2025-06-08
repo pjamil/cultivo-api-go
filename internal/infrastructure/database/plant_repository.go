@@ -19,7 +19,7 @@ func NewPlantRepository(db *gorm.DB) *PlantRepository {
 }
 
 // Create insere uma nova planta no banco de dados
-func (r *PlantRepository) Create(plant *models.Plant) error {
+func (r *PlantRepository) Create(plant *models.Planta) error {
 	if plant == nil {
 		return errors.New("plant cannot be nil")
 	}
@@ -33,8 +33,8 @@ func (r *PlantRepository) Create(plant *models.Plant) error {
 }
 
 // FindAll retorna todas as plantas cadastradas
-func (r *PlantRepository) FindAll() ([]models.Plant, error) {
-	var plants []models.Plant
+func (r *PlantRepository) FindAll() ([]models.Planta, error) {
+	var plants []models.Planta
 
 	result := r.db.Find(&plants)
 	if result.Error != nil {
@@ -45,8 +45,8 @@ func (r *PlantRepository) FindAll() ([]models.Plant, error) {
 }
 
 // FindByID busca uma planta pelo ID
-func (r *PlantRepository) FindByID(id uint) (*models.Plant, error) {
-	var plant models.Plant
+func (r *PlantRepository) FindByID(id uint) (*models.Planta, error) {
+	var plant models.Planta
 
 	result := r.db.First(&plant, id)
 	if result.Error != nil {
@@ -60,7 +60,7 @@ func (r *PlantRepository) FindByID(id uint) (*models.Plant, error) {
 }
 
 // Update atualiza uma planta existente
-func (r *PlantRepository) Update(plant *models.Plant) error {
+func (r *PlantRepository) Update(plant *models.Planta) error {
 	if plant == nil {
 		return errors.New("plant cannot be nil")
 	}
@@ -84,7 +84,7 @@ func (r *PlantRepository) Update(plant *models.Plant) error {
 
 // Delete remove uma planta pelo ID
 func (r *PlantRepository) Delete(id uint) error {
-	result := r.db.Delete(&models.Plant{}, id)
+	result := r.db.Delete(&models.Planta{}, id)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -98,8 +98,8 @@ func (r *PlantRepository) Delete(id uint) error {
 }
 
 // FindBySpecies retorna plantas por espécie (método adicional)
-func (r *PlantRepository) FindBySpecies(species models.PlantSpecies) ([]models.Plant, error) {
-	var plants []models.Plant
+func (r *PlantRepository) FindBySpecies(species models.Especie) ([]models.Planta, error) {
+	var plants []models.Planta
 
 	result := r.db.Where("species = ?", species).Find(&plants)
 	if result.Error != nil {
@@ -110,8 +110,8 @@ func (r *PlantRepository) FindBySpecies(species models.PlantSpecies) ([]models.P
 }
 
 // FindByStatus retorna plantas por status (método adicional)
-func (r *PlantRepository) FindByStatus(status string) ([]models.Plant, error) {
-	var plants []models.Plant
+func (r *PlantRepository) FindByStatus(status string) ([]models.Planta, error) {
+	var plants []models.Planta
 
 	result := r.db.Where("status = ?", status).Find(&plants)
 	if result.Error != nil {
