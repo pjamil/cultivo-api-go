@@ -2,6 +2,7 @@ package server
 
 import (
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/controller"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/infrastructure/database"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/middleware"
@@ -36,6 +37,7 @@ func NewServer(db *database.Database) *Server {
 	plantService := service.NewPlantService(plantRepo)
 	plantController := controller.NewPlantaController(plantService)
 
+	const hostRoute = "/api/v1"
 	const plantsRoute = "/api/v1/plants"
 	const plantByIDRoute = "/:id"
 	router.GET(plantsRoute, plantController.GetAllPlants)
@@ -43,6 +45,20 @@ func NewServer(db *database.Database) *Server {
 	router.GET(plantsRoute+plantByIDRoute, plantController.GetPlantByID)
 	router.PUT(plantsRoute+plantByIDRoute, plantController.UpdatePlant)
 	router.DELETE(plantsRoute+plantByIDRoute, plantController.DeletePlant)
+
+	// Ambiente routes
+	router.POST(hostRoute+"/ambientes", controller.CreateAmbiente(db.DB))
+
+	// Genetica routes
+	geneticaRepo := repository.NewGeneticaRepository(db.DB)
+	geneticaService := service.NewGeneticaService(geneticaRepo)
+	geneticaController := controller.NewGeneticaController(geneticaService)
+	router.POST(hostRoute+"/geneticas", geneticaController.Create)
+
+	meioCultivoRepo := repository.NewMeioCultivoRepository(db.DB)
+	meioCultivoService := service.NewMeioCultivoService(meioCultivoRepo)
+	meioCultivoController := controller.NewMeioCultivoController(meioCultivoService)
+	router.POST(hostRoute+"/meios_cultivo", meioCultivoController.Create)
 
 	return &Server{Router: router}
 }

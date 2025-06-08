@@ -25,9 +25,9 @@ func LoadConfig() *Config {
 	config := &Config{
 		DBDriver:   getEnv("DB_DRIVER", "postgres"),
 		DBHost:     getEnv("DB_HOST", "localhost"),
-		DBPort:     getEnv("DB_PORT", "5434"),
+		DBPort:     getEnv("DB_PORT", "5432"),
 		DBUser:     getEnv("DB_USER", "postgres"),
-		DBPassword: getEnv("DB_PASSWORD", "postgres"),
+		DBPassword: getEnv("DB_PASSWORD", "753951465827PJamil"),
 		DBName:     getEnv("DB_NAME", "cultivo-api-go"),
 		ServerPort: getEnv("SERVER_PORT", "8080"),
 	}
