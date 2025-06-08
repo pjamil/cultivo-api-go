@@ -35,7 +35,7 @@ type Planta struct {
 	AmbienteID    uint        `json:"ambiente_id"`
 	Ambiente      Ambiente    `gorm:"foreignKey:AmbienteID"`
 	PlantaMaeID   *uint       `json:"planta_mae_id,omitempty"` // ID da planta mãe, se houver
-	PlantaMae     *Planta     `gorm:"foreignKey:&PlantaMaeID" json:"planta_mae,omitempty"`
+	PlantaMae     *Planta     `gorm:"foreignKey:PlantaMaeID" json:"planta_mae,omitempty"`
 
 	Estagios   []EstagioCrescimento `gorm:"foreignKey:PlantaID"`
 	Registros  []RegistroPlanta     `gorm:"foreignKey:PlantaID"`
