@@ -13,11 +13,11 @@ POST {{baseUrl}}/plants HTTP/1.1
 Content-Type: {{contentType}}
 
 {
-  "nome": "Tomate Cereja",
+  "nome": "Preenseeds x Mimosa",
   "comecando_de": "semente",
   "especie": "sativa",
   "data_plantiu": "2023-05-15T00:00:00Z",
-  "status": "germinando",
+  "status": "florindo",
   "notas": "Planta saudável, sem pragas",
   "genetica_id": 1,
   "meio_cultivo_id": 1,
@@ -52,8 +52,8 @@ POST {{baseUrl}}/geneticas HTTP/1.1
 Content-Type: {{contentType}}
 
 {
-  "nome": "Tomate Sweet Grape",
-  "descricao": "Variedade de tomate cereja doce e produtiva"
+  "nome": "Preen Seeds",
+  "descricao": "Variedade de canabis sativa sem origem definida"
 }
 
 ### Create a new Meio de Cultivo
@@ -61,7 +61,7 @@ POST {{baseUrl}}/meios_cultivo HTTP/1.1
 Content-Type: {{contentType}}
 
 {
-  "nome": "Solo Orgânico",
+  "tipo": "Solo Orgânico",
   "descricao": "Solo rico em matéria orgânica, ideal para tomates"
 }
 
@@ -71,7 +71,7 @@ Content-Type: {{contentType}}
 
 {
   "nome": "Estufa Principal",
-  "descricao": "Estufa com controle de temperatura e umidade"
+  "descricao": "Estufa 60x60 com controle de temperatura e umidade"
 }
 
 ### Health Check
