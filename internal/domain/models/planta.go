@@ -27,11 +27,11 @@ type Planta struct {
 	Notas        string     `gorm:"type:text" json:"notas,omitempty"`
 
 	FotoCapaID    *uint       `json:"foto_capa_id,omitempty"` // ID da foto de capa, se houver
-	FotoCapa      *Foto       `gorm:"foreignKey:&FotoCapaID" json:"foto_capa,omitempty"`
+	FotoCapa      *Foto       `gorm:"foreignKey:FotoCapaID" json:"foto_capa,omitempty"`
 	GeneticaID    uint        `json:"genetica_id"`
-	Genetica      Genetica    `gorm:"foreignKey:&GeneticaID"`
+	Genetica      Genetica    `gorm:"foreignKey:GeneticaID"`
 	MeioCultivoID uint        `json:"meio_cultivo_id"`
-	MeioCultivo   MeioCultivo `gorm:"foreignKey:&MeioCultivoID"`
+	MeioCultivo   MeioCultivo `gorm:"foreignKey:MeioCultivoID"`
 	AmbienteID    uint        `json:"ambiente_id"`
 	Ambiente      Ambiente    `gorm:"foreignKey:&AmbienteID"`
 	PlantaMaeID   *uint       `json:"planta_mae_id,omitempty"` // ID da planta mãe, se houver
