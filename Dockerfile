@@ -31,7 +31,7 @@ ENV TZ=America/Sao_Paulo
 
 # Copy the pre-built binary file from the previous stage
 COPY --from=builder /app/cultivo-api-go .
-COPY --from=builder /app/.env .
+COPY --from=builder /app/.env.prod .
 
 HEALTHCHECK --interval=30s --timeout=3s \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
