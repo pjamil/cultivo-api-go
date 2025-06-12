@@ -41,3 +41,13 @@ func (ctrl *MeioCultivoController) Create(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, meioCultivo)
 }
+
+func (ctrl *MeioCultivoController) GetAll(c *gin.Context) {
+	meioCultivos, err := ctrl.service.GetAllMeioCultivos()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao recuperar meios de cultivo"})
+		return
+	}
+
+	c.JSON(http.StatusOK, meioCultivos)
+}

@@ -7,6 +7,7 @@ import (
 
 type MeioCultivoService interface {
 	CreateMeioCultivo(meioCultivo *models.MeioCultivo) error
+	GetAllMeioCultivos() ([]models.MeioCultivo, error)
 }
 
 type meioCultivoService struct {
@@ -19,4 +20,13 @@ func NewMeioCultivoService(repo repository.MeioCultivoRepository) MeioCultivoSer
 
 func (s *meioCultivoService) CreateMeioCultivo(meioCultivo *models.MeioCultivo) error {
 	return s.repo.Create(meioCultivo)
+}
+
+func (s *meioCultivoService) GetAllMeioCultivos() ([]models.MeioCultivo, error) {
+	var meioCultivos []models.MeioCultivo
+	meioCultivos, err := s.repo.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	return meioCultivos, nil
 }

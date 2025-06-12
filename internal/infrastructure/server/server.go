@@ -57,10 +57,12 @@ func NewServer(db *database.Database) *Server {
 	router.POST(hostRoute+"/geneticas", geneticaController.Create)
 	router.GET(hostRoute+"/geneticas", geneticaController.GetAll)
 
+	// MeioCultivo routes
 	meioCultivoRepo := repository.NewMeioCultivoRepository(db.DB)
 	meioCultivoService := service.NewMeioCultivoService(meioCultivoRepo)
 	meioCultivoController := controller.NewMeioCultivoController(meioCultivoService)
 	router.POST(hostRoute+"/meios_cultivo", meioCultivoController.Create)
+	router.GET(hostRoute+"/meios_cultivo", meioCultivoController.GetAll)
 
 	return &Server{Router: router}
 }
