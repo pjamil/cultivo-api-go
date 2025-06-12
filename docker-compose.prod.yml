@@ -6,8 +6,6 @@ services:
     container_name: cultivo-api-go
     ports:
       - 8080
-    env_file:
-      - .env.prod
     environment:
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
@@ -28,8 +26,6 @@ services:
   db:
     image: postgres:15-alpine
     container_name: cultivo-db
-    env_file:
-      - .env.prod
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
