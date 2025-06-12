@@ -13,7 +13,7 @@ POST {{baseUrl}}/plants HTTP/1.1
 Content-Type: {{contentType}}
 
 {
-  "nome": "Tomate Cereja",
+  "nome": "Preenseeds x Mimosa",
   "comecando_de": "semente",
   "especie": "sativa",
   "data_plantiu": "2023-05-15T00:00:00Z",
@@ -56,14 +56,21 @@ GET {{healthUrl}}/health/ready HTTP/1.1
 ### Health Live Check
 GET {{healthUrl}}/health/live HTTP/1.1
 
+### list all Genéticas
+GET {{baseUrl}}/geneticas HTTP/1.1
 
 ### Create a new Genética
 POST {{baseUrl}}/geneticas HTTP/1.1
 Content-Type: {{contentType}}
 
 {
-  "nome": "Tomate Sweet Grape",
-  "descricao": "Variedade de tomate cereja doce e produtiva"
+  "nome": "Mimosa Evo",
+  "descricao": "Seed Genetics CO, Variedade de cannabis com alto teor de THC",
+  "tipoGenetica": "Sativa",
+  "tipoEspecie": "Feminizada",
+  "tempoFloracao": 60,
+  "origem": "Brasil",
+  "caracteristicas": "Resistência a pragas, sabor citrico de limão, efeito energizante,"
 }
 
 ### Create a new Meio de Cultivo
@@ -86,7 +93,6 @@ Content-Type: {{contentType}}
 
 ### List all Meios de Cultivo
 GET {{baseUrl}}/meios_cultivo HTTP/1.1
+
 ### List all Ambientes
 GET {{baseUrl}}/ambientes HTTP/1.1
-### Get a specific Genética
-GET {{baseUrl}}/geneticas/1 HTTP/1.1

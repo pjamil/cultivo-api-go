@@ -48,12 +48,14 @@ func NewServer(db *database.Database) *Server {
 
 	// Ambiente routes
 	router.POST(hostRoute+"/ambientes", controller.CreateAmbiente(db.DB))
+	router.GET(hostRoute+"/ambientes", controller.ListAmbientes(db.DB))
 
 	// Genetica routes
 	geneticaRepo := repository.NewGeneticaRepository(db.DB)
 	geneticaService := service.NewGeneticaService(geneticaRepo)
 	geneticaController := controller.NewGeneticaController(geneticaService)
 	router.POST(hostRoute+"/geneticas", geneticaController.Create)
+	router.GET(hostRoute+"/geneticas", geneticaController.GetAll)
 
 	meioCultivoRepo := repository.NewMeioCultivoRepository(db.DB)
 	meioCultivoService := service.NewMeioCultivoService(meioCultivoRepo)

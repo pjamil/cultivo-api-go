@@ -7,6 +7,7 @@ import (
 
 type GeneticaRepository interface {
 	Create(genetica *models.Genetica) error
+	GetAll() ([]models.Genetica, error)
 }
 
 type geneticaRepository struct {
@@ -19,4 +20,10 @@ func NewGeneticaRepository(db *gorm.DB) GeneticaRepository {
 
 func (r *geneticaRepository) Create(genetica *models.Genetica) error {
 	return r.db.Create(genetica).Error
+}
+
+func (r *geneticaRepository) GetAll() ([]models.Genetica, error) {
+	var geneticas []models.Genetica
+	err := r.db.Find(&geneticas).Error
+	return geneticas, err
 }

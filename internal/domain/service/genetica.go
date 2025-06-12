@@ -7,6 +7,7 @@ import (
 
 type GeneticaService interface {
 	CreateGenetica(genetica *models.Genetica) error
+	GetAll() ([]models.Genetica, error)
 }
 
 type geneticaService struct {
@@ -19,4 +20,8 @@ func NewGeneticaService(repo repository.GeneticaRepository) GeneticaService {
 
 func (s *geneticaService) CreateGenetica(genetica *models.Genetica) error {
 	return s.repo.Create(genetica)
+}
+
+func (s *geneticaService) GetAll() ([]models.Genetica, error) {
+	return s.repo.GetAll()
 }
