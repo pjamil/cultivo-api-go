@@ -37,7 +37,12 @@ type Planta struct {
 	PlantaMaeID   *uint       `json:"planta_mae_id,omitempty"` // ID da planta mãe, se houver
 	PlantaMae     *Planta     `gorm:"foreignKey:PlantaMaeID" json:"planta_mae,omitempty"`
 
+	UsuarioID uint    `json:"usuario_id"`
+	Usuario   Usuario `gorm:"foreignKey:UsuarioID"`
+	// Relacionamentos
 	Estagios  []EstagioCrescimento `gorm:"foreignKey:PlantaID"`
 	Registros []RegistroPlanta     `gorm:"foreignKey:PlantaID"`
 	Tarefas   []TarefaPlanta       `gorm:"foreignKey:PlantaID"`
+
+	Diarios []DiarioCultivo `gorm:"many2many:diario_plantas;" json:"diarios"`
 }
