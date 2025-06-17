@@ -19,7 +19,7 @@ API RESTful modular e escalável para gerenciamento de cultivo de plantas, desen
 
 ## 📁 Estrutura do Projeto
 
-```txt
+````txt
 /cultivo-api-go
 ├── cmd/
 │   └── api/                # Ponto de entrada da aplicação
@@ -37,10 +37,9 @@ API RESTful modular e escalável para gerenciamento de cultivo de plantas, desen
 │   └── utils/              # Utilitários (respostas, helpers)
 ├── pkg/                    # Pacotes externos ou utilitários
 ├── request/                # Exemplos de requisições HTTP (testes)
-├── go.mod / go.sum         # Dependências Go
-├── Dockerfile / docker-compose.yml
-└── README.md
-```
+├── go.mod                  # Dependências Go
+├── Dockerfile              # Configuração Docker
+└── README.md               # Documentação do projeto
 
 ---
 
