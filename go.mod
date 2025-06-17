@@ -104,6 +104,7 @@ require (
 	github.com/gin-gonic/gin v1.10.1
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/text v0.26.0 // indirect
 	gorm.io/driver/postgres v1.6.0
 )

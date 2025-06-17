@@ -18,12 +18,12 @@ const (
 // Planta representa uma planta no sistema
 type Planta struct {
 	gorm.Model
-	Nome         string     `gorm:"size:255;not null" json:"nome"`
-	ComecandoDe  string     `gorm:"size:100;not null" json:"comecando_de"`
-	Especie      Especie    `gorm:"size:100;not null" json:"especie"`
+	Nome         string     `gorm:"size:255;not null" json:"nome" validate:"required,min=3,max=255"`
+	ComecandoDe  string     `gorm:"size:100;not null" json:"comecando_de" validate:"required,min=3,max=100"`
+	Especie      Especie    `gorm:"size:100;not null" json:"especie" validate:"required,oneof=sativa indica ruderalis"`
 	DataPlantiu  *time.Time `gorm:"not null" json:"data_plantiu"`
 	DataColheita *time.Time `json:"data_colheita,omitempty"`
-	Status       string     `gorm:"size:100;not null" json:"status"`
+	Status       string     `gorm:"size:100;not null" json:"status" validate:"required,oneof=ativa colhida morta"`
 	Notas        string     `gorm:"type:text" json:"notas,omitempty"`
 
 	FotoCapaID    *uint       `json:"foto_capa_id,omitempty"` // ID da foto de capa, se houver

@@ -1,6 +1,8 @@
 package service
 
 import (
+	"errors"
+
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
 )
@@ -14,6 +16,9 @@ func NewPlantService(repo repository.PlantaRepository) *PlantaService {
 }
 
 func (s *PlantaService) CreatePlanta(planta *models.Planta) error {
+	if planta.Nome == "" {
+		return errors.New("plant name cannot be empty")
+	}
 	return s.repo.Create(planta)
 }
 

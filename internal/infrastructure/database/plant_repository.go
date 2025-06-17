@@ -2,6 +2,7 @@ package database
 
 import (
 	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 
@@ -50,15 +51,12 @@ func (r *PlantRepository) FindAll() ([]models.Planta, error) {
 // FindByID busca uma planta pelo ID
 func (r *PlantRepository) FindByID(id uint) (*models.Planta, error) {
 	var plant models.Planta
-
-	result := r.db.First(&plant, id)
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, nil // Retorna nil sem erro quando não encontrado
+	if err := r.db.First(&plant, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("plant with ID %d not found", id)
 		}
-		return nil, result.Error
+		return nil, fmt.Errorf("database error: %v", err)
 	}
-
 	return &plant, nil
 }
 

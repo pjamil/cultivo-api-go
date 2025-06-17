@@ -8,6 +8,9 @@ import (
 )
 
 type Config struct {
+	// Database configuration
+	// These values can be set in a .env file or as environment variables
+	// Default values are provided for local development
 	DBDriver   string
 	DBHost     string
 	DBPort     string

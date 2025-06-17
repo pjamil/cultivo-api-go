@@ -95,3 +95,10 @@ func (c *HealthController) LiveCheck(ctx *gin.Context) {
 		"status": "alive",
 	})
 }
+
+func (c *HealthController) Check(ctx *gin.Context) {
+	ctx.JSON(200, gin.H{
+		"status":  "up",
+		"version": "1.0.0",
+	})
+}

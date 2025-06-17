@@ -8,6 +8,7 @@ import (
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 // PlantaController handles HTTP requests for plants
@@ -97,7 +98,12 @@ const (
 // @Failure 404 {object} map[string]interface{}
 // @Router /plants/{id} [get]
 func (c *PlantaController) GetPlantByID(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
+	// Log the request for fetching a plant by ID
+	logrus.WithFields(logrus.Fields{
+		"id": ctx.Param("id"),
+	}).Info("Fetching plant")
+	// Parse the plant ID from the URL parameter
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		utils.RespondWithError(ctx, http.StatusBadRequest, "Invalid plant ID")
 		return
