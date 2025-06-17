@@ -3,10 +3,20 @@ package service
 import (
 	"errors"
 
+	"context"
+
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
 )
 
+// PlantService defines the methods that a plant service should implement.
+// It provides an interface for managing plants in the system.
+type PlantService interface {
+	GetPlant(ctx context.Context, id uint) (*models.Planta, error)
+}
+
+// PlantaService provides methods to manage plants in the system.
+// It interacts with the PlantaRepository to perform CRUD operations on plants.
 type PlantaService struct {
 	repo repository.PlantaRepository
 }

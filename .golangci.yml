@@ -1,0 +1,47 @@
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - gosimple
+    - unused
+    - deadcode
+    - structcheck
+    - varcheck
+    - ineffassign
+    - typecheck
+    - gofmt
+    - goimports
+    - revive
+    - gocritic
+
+issues:
+  exclude-use-default: false
+
+gofmt:
+  simplify: true
+
+revive:
+  config: |
+    ignoreGeneratedHeader = false
+    severity = "warning"
+    rules = [
+      {name = "var-naming"},
+      {name = "package-comments"},
+      {name = "indent-error-flow"},
+      {name = "error-naming"},
+      {name = "if-return"},
+      {name = "import-shadowing"},
+      {name = "range-val-address"},
+      {name = "unexported-return"},
+      {name = "exported"},
+    ]
+
+# Exclua arquivos/pastas se necessário
+exclude:
+  - vendor
+  - ".*_test.go"

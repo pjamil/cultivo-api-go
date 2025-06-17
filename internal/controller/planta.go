@@ -89,6 +89,7 @@ const (
 // GetPlantByID godoc
 // @Summary Get plant by ID
 // @Description Get details of a specific plant
+// @ID get-plant-by-id
 // @Tags plants
 // @Accept  json
 // @Produce  json

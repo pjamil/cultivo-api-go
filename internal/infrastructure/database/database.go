@@ -53,6 +53,15 @@ func NewDatabase(config *config.Config) (*Database, error) {
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
 	}
 
+	// Check database connection
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get database instance: %w", err)
+	}
+	if err := sqlDB.Ping(); err != nil {
+		return nil, fmt.Errorf("database ping failed: %w", err)
+	}
+
 	return &Database{DB: db}, nil
 }
 
@@ -61,9 +70,6 @@ func SetupRelationships(db *gorm.DB) {
 	// Planta pertence a Ambiente e Vaso
 	db.SetupJoinTable(&models.Planta{}, "Ambiente", &models.Ambiente{})
 	db.SetupJoinTable(&models.Planta{}, "Vaso", &models.Vaso{})
-
-	// Tarefas podem ter múltiplas fotos
-	db.SetupJoinTable(&models.Tarefa{}, "Fotos", &models.Foto{})
 
 	// Índices para melhor performance
 	db.Migrator().CreateIndex(&models.Tarefa{}, "status")
