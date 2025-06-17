@@ -19,7 +19,7 @@ API RESTful modular e escalável para gerenciamento de cultivo de plantas, desen
 
 ## 📁 Estrutura do Projeto
 
-````txt
+```txt
 /cultivo-api-go
 ├── cmd/
 │   └── api/                # Ponto de entrada da aplicação
