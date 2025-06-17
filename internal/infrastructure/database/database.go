@@ -71,6 +71,9 @@ func SetupRelationships(db *gorm.DB) {
 	db.SetupJoinTable(&models.Planta{}, "Ambiente", &models.Ambiente{})
 	db.SetupJoinTable(&models.Planta{}, "Vaso", &models.Vaso{})
 
+	// Tarefas podem ter múltiplas fotos
+	db.SetupJoinTable(&models.Tarefa{}, "Fotos", &models.Foto{})
+
 	// Índices para melhor performance
 	db.Migrator().CreateIndex(&models.Tarefa{}, "status")
 	db.Migrator().CreateIndex(&models.Planta{}, "status")
