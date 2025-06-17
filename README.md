@@ -40,6 +40,7 @@ API RESTful modular e escalável para gerenciamento de cultivo de plantas, desen
 ├── go.mod                  # Dependências Go
 ├── Dockerfile              # Configuração Docker
 └── README.md               # Documentação do projeto
+```
 
 ---
 
