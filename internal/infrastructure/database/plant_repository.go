@@ -41,6 +41,7 @@ func (r *PlantRepository) FindAll() ([]models.Planta, error) {
 		Preload("Ambiente").
 		Preload("Genetica").
 		Preload("MeioCultivo").
+		Preload("Usuario").
 		Find(&plants).Error; err != nil {
 		return nil, err
 	}
