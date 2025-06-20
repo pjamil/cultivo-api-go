@@ -64,5 +64,15 @@ func NewServer(db *database.Database) *Server {
 	router.POST(hostRoute+"/meios_cultivo", meioCultivoController.Create)
 	router.GET(hostRoute+"/meios_cultivo", meioCultivoController.GetAll)
 
+	// Usuario routes
+	usuarioRepo := repository.NewUsuarioRepository(db.DB)
+	usuarioService := service.NewUsuarioService(usuarioRepo)
+	usuarioController := controller.NewUsuarioController(usuarioService)
+	router.POST(hostRoute+"/usuarios", usuarioController.Create)
+	router.GET(hostRoute+"/usuarios/:id", usuarioController.GetByID)
+	router.GET(hostRoute+"/usuarios", usuarioController.GetAll)
+	router.PUT(hostRoute+"/usuarios/:id", usuarioController.Update)
+	router.DELETE(hostRoute+"/usuarios/:id", usuarioController.Delete)
+
 	return &Server{Router: router}
 }

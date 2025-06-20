@@ -12,9 +12,15 @@
         "url": {
           "raw": "http://localhost:8080/api/v1/plants",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "plants"]
+          "path": [
+            "api",
+            "v1",
+            "plants"
+          ]
         }
       }
     },
@@ -26,9 +32,16 @@
         "url": {
           "raw": "http://localhost:8080/api/v1/plants/1",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "plants", "1"]
+          "path": [
+            "api",
+            "v1",
+            "plants",
+            "1"
+          ]
         }
       }
     },
@@ -37,18 +50,27 @@
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"nome\": \"Tomate Cereja\",\n  \"comecando_de\": \"semente\",\n  \"especie\": \"sativa\",\n  \"data_plantio\": \"2023-05-15T00:00:00Z\",\n  \"status\": \"ativa\",\n  \"notas\": \"Planta saudável, sem pragas\",\n  \"genetica_id\": 1,\n  \"meio_cultivo_id\": 1,\n  \"ambiente_id\": 1,\n  \"usuario_id\": 1\n}"
+          "raw": "{\n  \"nome\": \"Mimosa C 1.1.1\",\n  \"comecando_de\": \"clone\",\n  \"especie\": \"sativa\",\n  \"data_plantio\": \"2024-12-27T00:00:00Z\",\n  \"status\": \"ativa\",\n  \"notas\": \"Planta saudável, sem pragas\",\n  \"genetica_id\": 1,\n  \"meio_cultivo_id\": 1,\n  \"ambiente_id\": 1,\n  \"usuario_id\": 1\n}"
         },
         "url": {
           "raw": "http://localhost:8080/api/v1/plants",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "plants"]
+          "path": [
+            "api",
+            "v1",
+            "plants"
+          ]
         }
       }
     },
@@ -57,7 +79,10 @@
       "request": {
         "method": "PUT",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
@@ -66,9 +91,16 @@
         "url": {
           "raw": "http://localhost:8080/api/v1/plants/1",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "plants", "1"]
+          "path": [
+            "api",
+            "v1",
+            "plants",
+            "1"
+          ]
         }
       }
     },
@@ -80,9 +112,16 @@
         "url": {
           "raw": "http://localhost:8080/api/v1/plants/1",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "plants", "1"]
+          "path": [
+            "api",
+            "v1",
+            "plants",
+            "1"
+          ]
         }
       }
     },
@@ -94,9 +133,15 @@
         "url": {
           "raw": "http://localhost:8080/api/v1/geneticas",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "geneticas"]
+          "path": [
+            "api",
+            "v1",
+            "geneticas"
+          ]
         }
       }
     },
@@ -108,9 +153,16 @@
         "url": {
           "raw": "http://localhost:8080/api/v1/geneticas/1",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "geneticas", "1"]
+          "path": [
+            "api",
+            "v1",
+            "geneticas",
+            "1"
+          ]
         }
       }
     },
@@ -119,7 +171,10 @@
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
@@ -128,9 +183,15 @@
         "url": {
           "raw": "http://localhost:8080/api/v1/geneticas",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "geneticas"]
+          "path": [
+            "api",
+            "v1",
+            "geneticas"
+          ]
         }
       }
     },
@@ -139,7 +200,10 @@
       "request": {
         "method": "PUT",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
@@ -148,9 +212,16 @@
         "url": {
           "raw": "http://localhost:8080/api/v1/geneticas/1",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "geneticas", "1"]
+          "path": [
+            "api",
+            "v1",
+            "geneticas",
+            "1"
+          ]
         }
       }
     },
@@ -162,9 +233,16 @@
         "url": {
           "raw": "http://localhost:8080/api/v1/geneticas/1",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "geneticas", "1"]
+          "path": [
+            "api",
+            "v1",
+            "geneticas",
+            "1"
+          ]
         }
       }
     },
@@ -176,9 +254,15 @@
         "url": {
           "raw": "http://localhost:8080/api/v1/meios_cultivo",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "meios_cultivo"]
+          "path": [
+            "api",
+            "v1",
+            "meios_cultivo"
+          ]
         }
       }
     },
@@ -190,9 +274,16 @@
         "url": {
           "raw": "http://localhost:8080/api/v1/meios_cultivo/1",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "meios_cultivo", "1"]
+          "path": [
+            "api",
+            "v1",
+            "meios_cultivo",
+            "1"
+          ]
         }
       }
     },
@@ -201,18 +292,27 @@
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"tipo\": \"solo\",\n  \"descricao\": \"Solo rico em matéria orgânica, ideal para tomates\"\n}"
+          "raw": "{\n  \"tipo\": \"solo\",\n  \"descricao\": \"Solo rico em matéria orgânica, carolina soil, humus de minhoca, perlita, torta mamona, farinha de osso, ideal para tomates\"\n}"
         },
         "url": {
           "raw": "http://localhost:8080/api/v1/meios_cultivo",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "meios_cultivo"]
+          "path": [
+            "api",
+            "v1",
+            "meios_cultivo"
+          ]
         }
       }
     },
@@ -221,7 +321,10 @@
       "request": {
         "method": "PUT",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
@@ -230,9 +333,16 @@
         "url": {
           "raw": "http://localhost:8080/api/v1/meios_cultivo/1",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "meios_cultivo", "1"]
+          "path": [
+            "api",
+            "v1",
+            "meios_cultivo",
+            "1"
+          ]
         }
       }
     },
@@ -244,9 +354,16 @@
         "url": {
           "raw": "http://localhost:8080/api/v1/meios_cultivo/1",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "meios_cultivo", "1"]
+          "path": [
+            "api",
+            "v1",
+            "meios_cultivo",
+            "1"
+          ]
         }
       }
     },
@@ -258,9 +375,15 @@
         "url": {
           "raw": "http://localhost:8080/api/v1/ambientes",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "ambientes"]
+          "path": [
+            "api",
+            "v1",
+            "ambientes"
+          ]
         }
       }
     },
@@ -272,9 +395,16 @@
         "url": {
           "raw": "http://localhost:8080/api/v1/ambientes/1",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "ambientes", "1"]
+          "path": [
+            "api",
+            "v1",
+            "ambientes",
+            "1"
+          ]
         }
       }
     },
@@ -283,18 +413,27 @@
       "request": {
         "method": "POST",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"nome\": \"Estufa Principal\",\n  \"descricao\": \"Estufa com controle de temperatura e umidade\",\n  \"tipo\": \"interno\",\n  \"comprimento\": 500.0,\n  \"altura\": 250.0,\n  \"largura\": 300.0,\n  \"tempo_exposicao\": 12,\n  \"orientacao\": \"norte\"\n}"
+          "raw": "{\n  \"nome\": \"Estufa floração\",\n  \"descricao\": \"Estufa com controle de temperatura e umidade\",\n  \"tipo\": \"interno\",\n  \"comprimento\": 60.0,\n  \"altura\": 160.0,\n  \"largura\": 60.0,\n  \"tempo_exposicao\": 12,\n  \"orientacao\": \"norte\"\n}"
         },
         "url": {
           "raw": "http://localhost:8080/api/v1/ambientes",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "ambientes"]
+          "path": [
+            "api",
+            "v1",
+            "ambientes"
+          ]
         }
       }
     },
@@ -303,7 +442,10 @@
       "request": {
         "method": "PUT",
         "header": [
-          { "key": "Content-Type", "value": "application/json" }
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
         ],
         "body": {
           "mode": "raw",
@@ -312,9 +454,16 @@
         "url": {
           "raw": "http://localhost:8080/api/v1/ambientes/1",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "ambientes", "1"]
+          "path": [
+            "api",
+            "v1",
+            "ambientes",
+            "1"
+          ]
         }
       }
     },
@@ -326,9 +475,16 @@
         "url": {
           "raw": "http://localhost:8080/api/v1/ambientes/1",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["api", "v1", "ambientes", "1"]
+          "path": [
+            "api",
+            "v1",
+            "ambientes",
+            "1"
+          ]
         }
       }
     },
@@ -340,9 +496,134 @@
         "url": {
           "raw": "http://localhost:8080/health",
           "protocol": "http",
-          "host": ["localhost"],
+          "host": [
+            "localhost"
+          ],
           "port": "8080",
-          "path": ["health"]
+          "path": [
+            "health"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Listar todos os usuários",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/v1/usuarios",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "v1",
+            "usuarios"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Buscar usuário por ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/v1/usuarios/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "v1",
+            "usuarios",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Criar novo usuário",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Paulo Jamil\",\n  \"email\": \"paulo@cultivo.com\",\n  \"senha\": \"senhaSuperSecreta123\",\n  \"preferencias\": \"{\\\"tema\\\":\\\"escuro\\\",\\\"idioma\\\":\\\"pt-BR\\\"}\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/usuarios",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "v1",
+            "usuarios"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Atualizar usuário",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Paulo Jamil Atualizado\",\n  \"email\": \"paulo@cultivo.com\",\n  \"preferencias\": \"{\\\"tema\\\":\\\"claro\\\",\\\"idioma\\\":\\\"pt-BR\\\"}\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/usuarios/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "v1",
+            "usuarios",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Deletar usuário",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/v1/usuarios/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "v1",
+            "usuarios",
+            "1"
+          ]
         }
       }
     }
