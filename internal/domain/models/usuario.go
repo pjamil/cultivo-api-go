@@ -6,6 +6,14 @@ import (
 	"gorm.io/gorm"
 )
 
+// Usuario representa um usuário do sistema de jardinagem
+type UsuarioCreateDTO struct {
+	Nome         string `json:"nome" binding:"required"`
+	Email        string `json:"email" binding:"required,email"`
+	Senha        string `json:"senha" binding:"required,min=6"`
+	Preferencias string `json:"preferencias"`
+}
+
 type Usuario struct {
 	gorm.Model
 	Nome         string   `gorm:"size:100;not null" json:"nome"`
