@@ -13,7 +13,7 @@ import (
 // PlantService defines the methods that a plant service should implement.
 // It provides an interface for managing plants in the system.
 type PlantService interface {
-	GetPlant(ctx context.Context, id uint) (*models.Planta, error)
+	GetPlantaById(ctx context.Context, id uint) (*models.Planta, error)
 	CreatePlanta(ctx context.Context, planta *models.Planta) error
 	GetAllPlants(ctx context.Context) ([]models.Planta, error)
 	UpdatePlant(ctx context.Context, plant *models.Planta) error
@@ -49,6 +49,9 @@ func (s *PlantaService) CreatePlanta(planta *models.Planta) error {
 	if planta.Nome == "" {
 		return errors.New("plant name cannot be empty")
 	}
+	if exists := s.repo.ExistsByName(planta.Nome); exists {
+		return errors.New("plant with this name already exists")
+	}
 	// Validação de entidades relacionadas
 	if _, err := s.geneticaRepo.FindByID(planta.GeneticaID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -71,12 +74,19 @@ func (s *PlantaService) CreatePlanta(planta *models.Planta) error {
 	return s.repo.Create(planta)
 }
 
-func (s *PlantaService) GetAllPlants() ([]models.Planta, error) {
-	return s.repo.FindAll()
+func (s *PlantaService) GetPlantaById(ctx context.Context, id uint) (*models.Planta, error) {
+	planta, err := s.repo.FindByID(id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("Planta não encontrada")
+		}
+		return nil, err
+	}
+	return planta, nil
 }
 
-func (s *PlantaService) GetPlantByID(id uint) (*models.Planta, error) {
-	return s.repo.FindByID(id)
+func (s *PlantaService) GetAllPlants() ([]models.Planta, error) {
+	return s.repo.FindAll()
 }
 
 func (s *PlantaService) UpdatePlant(plant *models.Planta) error {

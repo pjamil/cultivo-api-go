@@ -10,4 +10,5 @@ type PlantaRepository interface {
 	Delete(id uint) error
 	FindBySpecies(species models.Especie) ([]models.Planta, error) // Novo método
 	FindByStatus(status string) ([]models.Planta, error)           // Novo método
+	ExistsByName(name string) bool                                 // Verifica se uma planta com o mesmo nome já existe
 }

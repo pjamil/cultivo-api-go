@@ -115,3 +115,13 @@ func (r *PlantRepository) FindByStatus(status string) ([]models.Planta, error) {
 
 	return plants, nil
 }
+
+// ExistsByName verifica se uma planta com o mesmo nome já existe
+func (r *PlantRepository) ExistsByName(name string) bool {
+	var count int64
+	result := r.db.Model(&models.Planta{}).Where("name = ?", name).Count(&count)
+	if result.Error != nil {
+		return false // Erro na consulta, assume que não existe
+	}
+	return count > 0 // Retorna true se existir pelo menos uma planta com o nome
+}

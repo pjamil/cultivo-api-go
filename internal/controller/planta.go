@@ -112,7 +112,7 @@ func (c *PlantaController) GetPlantByID(ctx *gin.Context) {
 		return
 	}
 
-	plant, err := c.plantaService.GetPlantByID(uint(id))
+	plant, err := c.plantaService.GetPlantaById(ctx.Request.Context(), uint(id))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		utils.RespondWithError(ctx, http.StatusNotFound, "Planta não encontrada")
 		return
