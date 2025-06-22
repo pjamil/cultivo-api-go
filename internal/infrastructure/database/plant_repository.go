@@ -68,20 +68,16 @@ func (r *PlantRepository) Update(plant *models.Planta) error {
 	}
 
 	// Verifica se a planta existe
-	existingPlant, err := r.FindByID(plant.ID)
+	_, err := r.FindByID(plant.ID)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return gorm.ErrRecordNotFound
+		}
 		return err
-	}
-	if existingPlant == nil {
-		return errors.New("plant not found")
 	}
 
 	result := r.db.Save(plant)
-	if result.Error != nil {
-		return result.Error
-	}
-
-	return nil
+	return result.Error
 }
 
 // Delete remove uma planta pelo ID
@@ -90,12 +86,9 @@ func (r *PlantRepository) Delete(id uint) error {
 	if result.Error != nil {
 		return result.Error
 	}
-
-	// Verifica se algum registro foi realmente deletado
 	if result.RowsAffected == 0 {
-		return errors.New("no plant found with the given ID")
+		return gorm.ErrRecordNotFound
 	}
-
 	return nil
 }
 

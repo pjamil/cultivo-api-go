@@ -9,6 +9,7 @@ import (
 type MeioCultivoRepository interface {
 	Create(meioCultivo *models.MeioCultivo) error
 	GetAll() ([]models.MeioCultivo, error)
+	FindByID(id uint) (*models.MeioCultivo, error)
 }
 
 type meioCultivoRepository struct {
@@ -30,4 +31,13 @@ func (r *meioCultivoRepository) GetAll() ([]models.MeioCultivo, error) {
 		return nil, err
 	}
 	return meioCultivos, nil
+}
+
+// FindByID retrieves a MeioCultivo record by its ID.
+func (r *meioCultivoRepository) FindByID(id uint) (*models.MeioCultivo, error) {
+	var meioCultivo models.MeioCultivo
+	if err := r.db.First(&meioCultivo, id).Error; err != nil {
+		return nil, err
+	}
+	return &meioCultivo, nil
 }

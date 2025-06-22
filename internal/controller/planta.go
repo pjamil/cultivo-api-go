@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -9,6 +10,7 @@ import (
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // PlantaController handles HTTP requests for plants
@@ -111,11 +113,10 @@ func (c *PlantaController) GetPlantByID(ctx *gin.Context) {
 	}
 
 	plant, err := c.plantaService.GetPlantByID(uint(id))
-	if err != nil {
-		utils.RespondWithError(ctx, http.StatusNotFound, "Planta not found")
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		utils.RespondWithError(ctx, http.StatusNotFound, "Planta não encontrada")
 		return
 	}
-
 	utils.RespondWithJSON(ctx, http.StatusOK, plant)
 }
 
@@ -138,19 +139,25 @@ func (c *PlantaController) UpdatePlant(ctx *gin.Context) {
 		utils.RespondWithError(ctx, http.StatusBadRequest, InvalidPlantIDError)
 		return
 	}
-
 	var plant models.Planta
 	if err := ctx.ShouldBindJSON(&plant); err != nil {
 		utils.RespondWithError(ctx, http.StatusBadRequest, InvalidRequestPayloadError)
 		return
 	}
-
 	plant.ID = uint(id)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Planta não encontrada"})
+		return
+	}
 	if err := c.plantaService.UpdatePlant(&plant); err != nil {
+		logrus.WithFields(logrus.Fields{
+			"operation": "update_plant",
+			"plant_id":  id,
+			"error":     err,
+		}).Error("Erro ao atualizar planta")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	utils.RespondWithJSON(ctx, http.StatusOK, plant)
 }
 
@@ -171,11 +178,17 @@ func (c *PlantaController) DeletePlant(ctx *gin.Context) {
 		utils.RespondWithError(ctx, http.StatusBadRequest, InvalidPlantIDError)
 		return
 	}
-
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Planta não encontrada"})
+		return
+	}
 	if err := c.plantaService.DeletePlant(uint(id)); err != nil {
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
-
+	logrus.WithFields(logrus.Fields{
+		"operation": "delete_plant",
+		"plant_id":  id,
+	}).Info("Planta deletada com sucesso")
 	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Planta deleted successfully"})
 }

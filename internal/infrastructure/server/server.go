@@ -34,12 +34,16 @@ func NewServer(db *database.Database) *Server {
 
 	// Plant routes
 	plantRepo := database.NewPlantRepository(db.DB)
-	plantService := service.NewPlantService(plantRepo)
+	geneticaRepo := repository.NewGeneticaRepository(db.DB)
+	ambienteRepo := repository.NewAmbienteRepository(db.DB)
+	meioCultivoRepo := repository.NewMeioCultivoRepository(db.DB)
+	plantService := service.NewPlantService(plantRepo, geneticaRepo, ambienteRepo, meioCultivoRepo)
 	plantController := controller.NewPlantaController(plantService)
 
 	const hostRoute = "/api/v1"
 	const plantsRoute = "/api/v1/plants"
 	const plantByIDRoute = "/:id"
+	const usuarioByIDRoute = hostRoute + "/usuarios/:id"
 	router.GET(plantsRoute, plantController.GetAllPlants)
 	router.POST(plantsRoute, plantController.CreatePlanta)
 	router.GET(plantsRoute+plantByIDRoute, plantController.GetPlantByID)
@@ -51,14 +55,14 @@ func NewServer(db *database.Database) *Server {
 	router.GET(hostRoute+"/ambientes", controller.ListAmbientes(db.DB))
 
 	// Genetica routes
-	geneticaRepo := repository.NewGeneticaRepository(db.DB)
+	geneticaRepo = repository.NewGeneticaRepository(db.DB)
 	geneticaService := service.NewGeneticaService(geneticaRepo)
 	geneticaController := controller.NewGeneticaController(geneticaService)
 	router.POST(hostRoute+"/geneticas", geneticaController.Create)
 	router.GET(hostRoute+"/geneticas", geneticaController.GetAll)
 
 	// MeioCultivo routes
-	meioCultivoRepo := repository.NewMeioCultivoRepository(db.DB)
+	meioCultivoRepo = repository.NewMeioCultivoRepository(db.DB)
 	meioCultivoService := service.NewMeioCultivoService(meioCultivoRepo)
 	meioCultivoController := controller.NewMeioCultivoController(meioCultivoService)
 	router.POST(hostRoute+"/meios_cultivo", meioCultivoController.Create)
@@ -69,10 +73,10 @@ func NewServer(db *database.Database) *Server {
 	usuarioService := service.NewUsuarioService(usuarioRepo)
 	usuarioController := controller.NewUsuarioController(usuarioService)
 	router.POST(hostRoute+"/usuarios", usuarioController.Create)
-	router.GET(hostRoute+"/usuarios/:id", usuarioController.GetByID)
+	router.GET(usuarioByIDRoute, usuarioController.GetByID)
 	router.GET(hostRoute+"/usuarios", usuarioController.GetAll)
-	router.PUT(hostRoute+"/usuarios/:id", usuarioController.Update)
-	router.DELETE(hostRoute+"/usuarios/:id", usuarioController.Delete)
+	router.PUT(usuarioByIDRoute, usuarioController.Update)
+	router.DELETE(usuarioByIDRoute, usuarioController.Delete)
 
 	return &Server{Router: router}
 }

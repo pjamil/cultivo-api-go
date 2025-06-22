@@ -8,6 +8,7 @@ import (
 type GeneticaRepository interface {
 	Create(genetica *models.Genetica) error
 	GetAll() ([]models.Genetica, error)
+	FindByID(id uint) (*models.Genetica, error)
 }
 
 type geneticaRepository struct {
@@ -26,4 +27,12 @@ func (r *geneticaRepository) GetAll() ([]models.Genetica, error) {
 	var geneticas []models.Genetica
 	err := r.db.Find(&geneticas).Error
 	return geneticas, err
+}
+
+func (r *geneticaRepository) FindByID(id uint) (*models.Genetica, error) {
+	var genetica models.Genetica
+	if err := r.db.First(&genetica, id).Error; err != nil {
+		return nil, err
+	}
+	return &genetica, nil
 }
