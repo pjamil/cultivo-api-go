@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 
 	"gorm.io/gorm"
@@ -36,8 +38,12 @@ func (r *meioCultivoRepository) GetAll() ([]models.MeioCultivo, error) {
 // FindByID retrieves a MeioCultivo record by its ID.
 func (r *meioCultivoRepository) FindByID(id uint) (*models.MeioCultivo, error) {
 	var meioCultivo models.MeioCultivo
-	if err := r.db.First(&meioCultivo, id).Error; err != nil {
-		return nil, err
+	result := r.db.First(&meioCultivo, id)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, gorm.ErrRecordNotFound
+	}
+	if result.Error != nil {
+		return nil, result.Error
 	}
 	return &meioCultivo, nil
 }

@@ -54,7 +54,7 @@ func (r *PlantRepository) FindByID(id uint) (*models.Planta, error) {
 	var plant models.Planta
 	if err := r.db.First(&plant, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("plant with ID %d not found", id)
+			return nil, gorm.ErrRecordNotFound
 		}
 		return nil, fmt.Errorf("database error: %v", err)
 	}

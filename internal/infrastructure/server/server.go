@@ -51,8 +51,12 @@ func NewServer(db *database.Database) *Server {
 	router.DELETE(plantsRoute+plantByIDRoute, plantController.DeletePlant)
 
 	// Ambiente routes
+	ambienteRepo = repository.NewAmbienteRepository(db.DB)
+	ambienteService := service.NewAmbienteService(ambienteRepo)
+	ambienteController := controller.NewAmbienteController(ambienteService)
 	router.POST(hostRoute+"/ambientes", controller.CreateAmbiente(db.DB))
 	router.GET(hostRoute+"/ambientes", controller.ListAmbientes(db.DB))
+	router.GET(hostRoute+"/ambientes/:id", ambienteController.GetAmbienteByID)
 
 	// Genetica routes
 	geneticaRepo = repository.NewGeneticaRepository(db.DB)
@@ -60,6 +64,7 @@ func NewServer(db *database.Database) *Server {
 	geneticaController := controller.NewGeneticaController(geneticaService)
 	router.POST(hostRoute+"/geneticas", geneticaController.Create)
 	router.GET(hostRoute+"/geneticas", geneticaController.GetAll)
+	router.GET(hostRoute+"/geneticas/:id", geneticaController.GetGeneticaByID)
 
 	// MeioCultivo routes
 	meioCultivoRepo = repository.NewMeioCultivoRepository(db.DB)
@@ -67,6 +72,7 @@ func NewServer(db *database.Database) *Server {
 	meioCultivoController := controller.NewMeioCultivoController(meioCultivoService)
 	router.POST(hostRoute+"/meios_cultivo", meioCultivoController.Create)
 	router.GET(hostRoute+"/meios_cultivo", meioCultivoController.GetAll)
+	router.GET(hostRoute+"/meios_cultivo/:id", meioCultivoController.GetByID)
 
 	// Usuario routes
 	usuarioRepo := repository.NewUsuarioRepository(db.DB)

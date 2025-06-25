@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 	"gorm.io/gorm"
 )
@@ -31,8 +33,15 @@ func (r *geneticaRepository) GetAll() ([]models.Genetica, error) {
 
 func (r *geneticaRepository) FindByID(id uint) (*models.Genetica, error) {
 	var genetica models.Genetica
-	if err := r.db.First(&genetica, id).Error; err != nil {
-		return nil, err
+	result := r.db.First(&genetica, id)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, gorm.ErrRecordNotFound
 	}
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
 	return &genetica, nil
 }

@@ -41,7 +41,7 @@ func (c *PlantaController) CreatePlanta(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.plantaService.CreatePlanta(&planta); err != nil {
+	if err := c.plantaService.CreatePlanta(ctx, &planta); err != nil {
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -104,7 +104,7 @@ func (c *PlantaController) GetPlantByID(ctx *gin.Context) {
 	// Log the request for fetching a plant by ID
 	logrus.WithFields(logrus.Fields{
 		"id": ctx.Param("id"),
-	}).Info("Fetching plant")
+	}).Info("Buscando planta por ID")
 	// Parse the plant ID from the URL parameter
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -149,7 +149,7 @@ func (c *PlantaController) UpdatePlant(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Planta não encontrada"})
 		return
 	}
-	if err := c.plantaService.UpdatePlant(&plant); err != nil {
+	if err := c.plantaService.UpdatePlant(ctx, &plant); err != nil {
 		logrus.WithFields(logrus.Fields{
 			"operation": "update_plant",
 			"plant_id":  id,
