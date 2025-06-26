@@ -41,7 +41,7 @@ func (c *PlantaController) CreatePlanta(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.plantaService.CreatePlanta(ctx, &planta); err != nil {
+	if err := c.plantaService.CreatePlanta(&planta); err != nil {
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -112,7 +112,7 @@ func (c *PlantaController) GetPlantByID(ctx *gin.Context) {
 		return
 	}
 
-	plant, err := c.plantaService.GetPlantaById(ctx.Request.Context(), uint(id))
+	plant, err := c.plantaService.GetPlantaById(uint(id))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		utils.RespondWithError(ctx, http.StatusNotFound, "Planta não encontrada")
 		return
@@ -149,7 +149,7 @@ func (c *PlantaController) UpdatePlant(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Planta não encontrada"})
 		return
 	}
-	if err := c.plantaService.UpdatePlant(ctx, &plant); err != nil {
+	if err := c.plantaService.UpdatePlant(&plant); err != nil {
 		logrus.WithFields(logrus.Fields{
 			"operation": "update_plant",
 			"plant_id":  id,

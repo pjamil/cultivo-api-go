@@ -54,8 +54,8 @@ func NewServer(db *database.Database) *Server {
 	ambienteRepo = repository.NewAmbienteRepository(db.DB)
 	ambienteService := service.NewAmbienteService(ambienteRepo)
 	ambienteController := controller.NewAmbienteController(ambienteService)
-	router.POST(hostRoute+"/ambientes", controller.CreateAmbiente(db.DB))
-	router.GET(hostRoute+"/ambientes", controller.ListAmbientes(db.DB))
+	router.POST(hostRoute+"/ambientes", ambienteController.CreateAmbiente)
+	router.GET(hostRoute+"/ambientes", ambienteController.ListAmbientes)
 	router.GET(hostRoute+"/ambientes/:id", ambienteController.GetAmbienteByID)
 
 	// Genetica routes

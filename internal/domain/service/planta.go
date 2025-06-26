@@ -45,7 +45,7 @@ func NewPlantService(
 	}
 }
 
-func (s *PlantaService) CreatePlanta(ctx context.Context, planta *models.Planta) error {
+func (s *PlantaService) CreatePlanta(planta *models.Planta) error {
 	if planta.Nome == "" {
 		return errors.New("plant name cannot be empty")
 	}
@@ -53,13 +53,13 @@ func (s *PlantaService) CreatePlanta(ctx context.Context, planta *models.Planta)
 		return errors.New("plant with this name already exists")
 	}
 	// Validação de entidades relacionadas
-	if _, err := s.geneticaRepo.FindByID(ctx, planta.GeneticaID); err != nil {
+	if _, err := s.geneticaRepo.FindByID(planta.GeneticaID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("genética não encontrada")
 		}
 		return err
 	}
-	if _, err := s.ambienteRepo.FindByID(ctx, planta.AmbienteID); err != nil {
+	if _, err := s.ambienteRepo.FindByID(planta.AmbienteID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("ambiente não encontrado")
 		}
@@ -74,7 +74,7 @@ func (s *PlantaService) CreatePlanta(ctx context.Context, planta *models.Planta)
 	return s.repo.Create(planta)
 }
 
-func (s *PlantaService) GetPlantaById(ctx context.Context, id uint) (*models.Planta, error) {
+func (s *PlantaService) GetPlantaById(id uint) (*models.Planta, error) {
 	planta, err := s.repo.FindByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -89,19 +89,19 @@ func (s *PlantaService) GetAllPlants() ([]models.Planta, error) {
 	return s.repo.FindAll()
 }
 
-func (s *PlantaService) UpdatePlant(ctx context.Context, plant *models.Planta) error {
+func (s *PlantaService) UpdatePlant(plant *models.Planta) error {
 	if _, err := s.repo.FindByID(plant.ID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("Planta não encontrada")
+			return gorm.ErrRecordNotFound
 		}
 	}
 	// Validação de entidades relacionadas
-	if _, err := s.geneticaRepo.FindByID(ctx, plant.GeneticaID); err != nil {
+	if _, err := s.geneticaRepo.FindByID(plant.GeneticaID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("genética não encontrada")
 		}
 	}
-	if _, err := s.ambienteRepo.FindByID(ctx, plant.AmbienteID); err != nil {
+	if _, err := s.ambienteRepo.FindByID(plant.AmbienteID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("ambiente não encontrado")
 		}
