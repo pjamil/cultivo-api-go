@@ -15,20 +15,20 @@ import (
 const invalidIDMsg = "ID inválido, deve ser um número inteiro positivo"
 
 type UsuarioController struct {
-	service service.UsuarioService
+	servico service.UsuarioService
 }
 
-func NewUsuarioController(s service.UsuarioService) *UsuarioController {
-	return &UsuarioController{s}
+func NewUsuarioController(servico service.UsuarioService) *UsuarioController {
+	return &UsuarioController{servico}
 }
 
-func (c *UsuarioController) Create(ctx *gin.Context) {
+func (c *UsuarioController) Criar(ctx *gin.Context) {
 	var dto dto.UsuarioCreateDTO
 	if err := ctx.ShouldBindJSON(&dto); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	usuario, err := c.service.Create(&dto)
+	usuario, err := c.servico.Criar(&dto)
 	if err != nil {
 		// Trate erro de unique constraint (e-mail já cadastrado)
 		if strings.Contains(err.Error(), "duplicate") || strings.Contains(err.Error(), "unique") {
@@ -41,13 +41,13 @@ func (c *UsuarioController) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, usuario)
 }
 
-func (c *UsuarioController) GetByID(ctx *gin.Context) {
+func (c *UsuarioController) BuscarPorID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": invalidIDMsg})
 		return
 	}
-	usuario, err := c.service.GetByID(uint(id))
+	usuario, err := c.servico.BuscarPorID(uint(id))
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Usuário não encontrado"})
 		return
@@ -55,8 +55,8 @@ func (c *UsuarioController) GetByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, usuario)
 }
 
-func (c *UsuarioController) GetAll(ctx *gin.Context) {
-	usuarios, err := c.service.GetAll()
+func (c *UsuarioController) Listar(ctx *gin.Context) {
+	usuarios, err := c.servico.ListarTodos()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -64,7 +64,7 @@ func (c *UsuarioController) GetAll(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, usuarios)
 }
 
-func (c *UsuarioController) Update(ctx *gin.Context) {
+func (c *UsuarioController) Atualizar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": invalidIDMsg})
@@ -75,7 +75,7 @@ func (c *UsuarioController) Update(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err = c.service.Update(uint(id), &dto)
+	err = c.servico.Atualizar(uint(id), &dto)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Usuário não encontrado"})
 		return
@@ -87,13 +87,13 @@ func (c *UsuarioController) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
-func (c *UsuarioController) Delete(ctx *gin.Context) {
+func (c *UsuarioController) Deletar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": invalidIDMsg})
 		return
 	}
-	if err := c.service.Delete(uint(id)); err != nil {
+	if err := c.servico.Deletar(uint(id)); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

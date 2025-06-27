@@ -7,31 +7,31 @@ import (
 	"gorm.io/gorm"
 )
 
-type GeneticaRepository interface {
-	Create(genetica *models.Genetica) error
-	GetAll() ([]models.Genetica, error)
-	FindByID(id uint) (*models.Genetica, error)
+type GeneticaRepositorio interface {
+	Criar(genetica *models.Genetica) error
+	ListarTodos() ([]models.Genetica, error)
+	BuscarPorID(id uint) (*models.Genetica, error)
 }
 
-type geneticaRepository struct {
+type geneticaRepositorio struct {
 	db *gorm.DB
 }
 
-func NewGeneticaRepository(db *gorm.DB) GeneticaRepository {
-	return &geneticaRepository{db}
+func NewGeneticaRepositorio(db *gorm.DB) GeneticaRepositorio {
+	return &geneticaRepositorio{db}
 }
 
-func (r *geneticaRepository) Create(genetica *models.Genetica) error {
+func (r *geneticaRepositorio) Criar(genetica *models.Genetica) error {
 	return r.db.Create(genetica).Error
 }
 
-func (r *geneticaRepository) GetAll() ([]models.Genetica, error) {
+func (r *geneticaRepositorio) ListarTodos() ([]models.Genetica, error) {
 	var geneticas []models.Genetica
 	err := r.db.Find(&geneticas).Error
 	return geneticas, err
 }
 
-func (r *geneticaRepository) FindByID(id uint) (*models.Genetica, error) {
+func (r *geneticaRepositorio) BuscarPorID(id uint) (*models.Genetica, error) {
 	var genetica models.Genetica
 	result := r.db.First(&genetica, id)
 

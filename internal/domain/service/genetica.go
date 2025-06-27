@@ -7,31 +7,31 @@ import (
 )
 
 type GeneticaService interface {
-	CreateGenetica(genetica *models.Genetica) error
-	GetAll() ([]models.Genetica, error)
-	GetGeneticaByID(id uint) (*models.Genetica, error)
+	Criar(genetica *models.Genetica) error
+	ListarTodas() ([]models.Genetica, error)
+	BuscarPorID(id uint) (*models.Genetica, error)
 }
 
 type geneticaService struct {
-	repo repository.GeneticaRepository
+	repositorio repository.GeneticaRepositorio
 }
 
-func NewGeneticaService(repo repository.GeneticaRepository) GeneticaService {
-	return &geneticaService{repo}
+func NewGeneticaService(repositorio repository.GeneticaRepositorio) GeneticaService {
+	return &geneticaService{repositorio}
 }
 
-func (s *geneticaService) CreateGenetica(genetica *models.Genetica) error {
-	return s.repo.Create(genetica)
+func (s *geneticaService) Criar(genetica *models.Genetica) error {
+	return s.repositorio.Criar(genetica)
 }
 
-func (s *geneticaService) GetAll() ([]models.Genetica, error) {
-	return s.repo.GetAll()
+func (s *geneticaService) ListarTodas() ([]models.Genetica, error) {
+	return s.repositorio.ListarTodos()
 }
 
-func (s *geneticaService) GetGeneticaByID(id uint) (*models.Genetica, error) {
+func (s *geneticaService) BuscarPorID(id uint) (*models.Genetica, error) {
 	if id == 0 {
 		return nil, gorm.ErrInvalidValue
 	}
 
-	return s.repo.FindByID(id)
+	return s.repositorio.BuscarPorID(id)
 }

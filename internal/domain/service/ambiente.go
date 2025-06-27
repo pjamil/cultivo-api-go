@@ -10,20 +10,20 @@ import (
 )
 
 type AmbienteService interface {
-	CreateAmbiente(ambienteDto *dto.CreateAmbienteDTO) (*models.Ambiente, error)
-	GetAll() ([]models.Ambiente, error)
-	GetAmbienteByID(id uint) (*models.Ambiente, error)
+	Criar(ambienteDto *dto.CreateAmbienteDTO) (*models.Ambiente, error)
+	ListarTodos() ([]models.Ambiente, error)
+	BuscarPorID(id uint) (*models.Ambiente, error)
 }
 
 type ambienteService struct {
-	repo repository.AmbienteRepository
+	repositorio repository.AmbienteRepositorio
 }
 
-func NewAmbienteService(repo repository.AmbienteRepository) AmbienteService {
-	return &ambienteService{repo}
+func NewAmbienteService(repositorio repository.AmbienteRepositorio) AmbienteService {
+	return &ambienteService{repositorio}
 }
 
-func (s *ambienteService) CreateAmbiente(ambienteDto *dto.CreateAmbienteDTO) (*models.Ambiente, error) {
+func (s *ambienteService) Criar(ambienteDto *dto.CreateAmbienteDTO) (*models.Ambiente, error) {
 	ambiente := models.Ambiente{
 		Nome:           ambienteDto.Nome,
 		Descricao:      ambienteDto.Descricao,
@@ -33,20 +33,20 @@ func (s *ambienteService) CreateAmbiente(ambienteDto *dto.CreateAmbienteDTO) (*m
 		Largura:        ambienteDto.Largura,
 		TempoExposicao: ambienteDto.TempoExposicao,
 	}
-	if err := s.repo.Create(&ambiente); err != nil {
-		return nil, fmt.Errorf("falha ao criar planta com ID %s: %w", ambienteDto.Nome, err)
+	if err := s.repositorio.Criar(&ambiente); err != nil {
+		return nil, fmt.Errorf("falha ao criar ambiente com nome %s: %w", ambienteDto.Nome, err)
 	}
 	return &ambiente, nil
 }
 
-func (s *ambienteService) GetAll() ([]models.Ambiente, error) {
-	return s.repo.GetAll()
+func (s *ambienteService) ListarTodos() ([]models.Ambiente, error) {
+	return s.repositorio.ListarTodos()
 }
 
-func (s *ambienteService) GetAmbienteByID(id uint) (*models.Ambiente, error) {
+func (s *ambienteService) BuscarPorID(id uint) (*models.Ambiente, error) {
 	if id == 0 {
 		return nil, gorm.ErrInvalidValue
 	}
 
-	return s.repo.FindByID(id)
+	return s.repositorio.BuscarPorID(id)
 }

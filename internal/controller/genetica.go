@@ -14,14 +14,14 @@ import (
 )
 
 type GeneticaController struct {
-	service service.GeneticaService
+	servico service.GeneticaService
 }
 
-func NewGeneticaController(service service.GeneticaService) *GeneticaController {
-	return &GeneticaController{service}
+func NewGeneticaController(servico service.GeneticaService) *GeneticaController {
+	return &GeneticaController{servico}
 }
 
-func (ctrl *GeneticaController) Create(c *gin.Context) {
+func (ctrl *GeneticaController) Criar(c *gin.Context) {
 	var dto dto.CreateGeneticaDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -39,7 +39,7 @@ func (ctrl *GeneticaController) Create(c *gin.Context) {
 		Plantas:         dto.Plantas,
 	}
 
-	if err := ctrl.service.CreateGenetica(&genetica); err != nil {
+	if err := ctrl.servico.Criar(&genetica); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao criar genética"})
 		return
 	}
@@ -47,9 +47,9 @@ func (ctrl *GeneticaController) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, genetica)
 }
 
-// GetAll handles GET requests to retrieve all geneticas
-func (c *GeneticaController) GetAll(ctx *gin.Context) {
-	geneticas, err := c.service.GetAll()
+// Listar lida com requisições GET para retornar todas as genéticas
+func (c *GeneticaController) Listar(ctx *gin.Context) {
+	geneticas, err := c.servico.ListarTodas()
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -57,8 +57,8 @@ func (c *GeneticaController) GetAll(ctx *gin.Context) {
 	ctx.JSON(200, geneticas)
 }
 
-// @Summary Get genetica by ID
-// @Description Get detailed information about a genetics strain
+// @Summary Busca uma genética por ID
+// @Description Retorna informações detalhadas de uma genética
 // @Tags genetica
 // @Accept json
 // @Produce json
@@ -68,13 +68,13 @@ func (c *GeneticaController) GetAll(ctx *gin.Context) {
 // @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /genetica/{id} [get]
-func (c *GeneticaController) GetGeneticaByID(ctx *gin.Context) {
+func (c *GeneticaController) BuscarPorID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
-	genetics, err := c.service.GetGeneticaByID(uint(id))
+	genetics, err := c.servico.BuscarPorID(uint(id))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Genética não encontrada"})
 		return

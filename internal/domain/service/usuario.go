@@ -10,22 +10,22 @@ import (
 )
 
 type UsuarioService interface {
-	Create(usuarioDto *dto.UsuarioCreateDTO) (*models.Usuario, error)
-	GetByID(id uint) (*models.Usuario, error)
-	GetAll() ([]models.Usuario, error)
-	Update(id uint, usuarioDto *dto.UsuarioUpdateDTO) error
-	Delete(id uint) error
+	Criar(usuarioDto *dto.UsuarioCreateDTO) (*models.Usuario, error)
+	BuscarPorID(id uint) (*models.Usuario, error)
+	ListarTodos() ([]models.Usuario, error)
+	Atualizar(id uint, usuarioDto *dto.UsuarioUpdateDTO) error
+	Deletar(id uint) error
 }
 
 type usuarioService struct {
-	repo repository.UsuarioRepository
+	repositorio repository.UsuarioRepositorio
 }
 
-func NewUsuarioService(repo repository.UsuarioRepository) UsuarioService {
-	return &usuarioService{repo}
+func NewUsuarioService(repositorio repository.UsuarioRepositorio) UsuarioService {
+	return &usuarioService{repositorio}
 }
 
-func (s *usuarioService) Create(dto *dto.UsuarioCreateDTO) (*models.Usuario, error) {
+func (s *usuarioService) Criar(dto *dto.UsuarioCreateDTO) (*models.Usuario, error) {
 	hash, err := utils.HashPassword(dto.Senha)
 	if err != nil {
 		return nil, fmt.Errorf("falha ao fazer o hash da senha do usuário %s: %w", dto.Nome, err)
@@ -36,26 +36,26 @@ func (s *usuarioService) Create(dto *dto.UsuarioCreateDTO) (*models.Usuario, err
 		SenhaHash:    hash,
 		Preferencias: dto.Preferencias,
 	}
-	if err := s.repo.Create(&usuario); err != nil {
+	if err := s.repositorio.Criar(&usuario); err != nil {
 		return nil, fmt.Errorf("falha ao criar usuário %s: %w", dto.Nome, err)
 	}
 	return &usuario, nil
 }
 
-func (s *usuarioService) GetByID(id uint) (*models.Usuario, error) {
-	return s.repo.FindByID(id)
+func (s *usuarioService) BuscarPorID(id uint) (*models.Usuario, error) {
+	return s.repositorio.BuscarPorID(id)
 }
 
-func (s *usuarioService) GetAll() ([]models.Usuario, error) {
-	return s.repo.FindAll()
+func (s *usuarioService) ListarTodos() ([]models.Usuario, error) {
+	return s.repositorio.ListarTodos()
 }
 
-// Update atualiza os campos do usuário informados no DTO.
+// Atualizar atualiza os campos do usuário informados no DTO.
 // Apenas os campos enviados (não vazios) serão atualizados.
 // Se nenhum campo for enviado (todos vazios), nada será alterado no registro.
 // Retorna gorm.ErrRecordNotFound se o usuário não existir.
-func (s *usuarioService) Update(id uint, dto *dto.UsuarioUpdateDTO) error {
-	usuario, err := s.repo.FindByID(id)
+func (s *usuarioService) Atualizar(id uint, dto *dto.UsuarioUpdateDTO) error {
+	usuario, err := s.repositorio.BuscarPorID(id)
 	if err != nil {
 		return fmt.Errorf("falha ao buscar usuário com ID %d: %w", id, err)
 	}
@@ -65,9 +65,9 @@ func (s *usuarioService) Update(id uint, dto *dto.UsuarioUpdateDTO) error {
 	if dto.Preferencias != "" {
 		usuario.Preferencias = dto.Preferencias
 	}
-	return s.repo.Update(usuario)
+	return s.repositorio.Atualizar(usuario)
 }
 
-func (s *usuarioService) Delete(id uint) error {
-	return s.repo.Delete(id)
+func (s *usuarioService) Deletar(id uint) error {
+	return s.repositorio.Deletar(id)
 }

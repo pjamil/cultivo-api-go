@@ -10,42 +10,42 @@ import (
 )
 
 type MeioCultivoService interface {
-	CreateMeioCultivo(meioCultivoDto *dto.CreateMeioCultivoDTO) (*models.MeioCultivo, error)
-	GetAllMeioCultivos() ([]models.MeioCultivo, error)
-	GetByID(id uint) (*models.MeioCultivo, error)
+	Criar(meioCultivoDto *dto.CreateMeioCultivoDTO) (*models.MeioCultivo, error)
+	ListarTodos() ([]models.MeioCultivo, error)
+	BuscarPorID(id uint) (*models.MeioCultivo, error)
 }
 
 type meioCultivoService struct {
-	repo repository.MeioCultivoRepository
+	repositorio repository.MeioCultivoRepositorio
 }
 
-func NewMeioCultivoService(repo repository.MeioCultivoRepository) MeioCultivoService {
-	return &meioCultivoService{repo}
+func NewMeioCultivoService(repositorio repository.MeioCultivoRepositorio) MeioCultivoService {
+	return &meioCultivoService{repositorio}
 }
 
-func (s *meioCultivoService) CreateMeioCultivo(meioCultivoDto *dto.CreateMeioCultivoDTO) (*models.MeioCultivo, error) {
+func (s *meioCultivoService) Criar(meioCultivoDto *dto.CreateMeioCultivoDTO) (*models.MeioCultivo, error) {
 	meioCultivo := models.MeioCultivo{
 		Tipo:      meioCultivoDto.Tipo,
 		Descricao: meioCultivoDto.Descricao,
 	}
-	if err := s.repo.Create(&meioCultivo); err != nil {
+	if err := s.repositorio.Criar(&meioCultivo); err != nil {
 		return nil, fmt.Errorf("falha ao criar meio de cultivo %s: %w", meioCultivo.Descricao, err)
 	}
 	return &meioCultivo, nil
 }
 
-func (s *meioCultivoService) GetAllMeioCultivos() ([]models.MeioCultivo, error) {
+func (s *meioCultivoService) ListarTodos() ([]models.MeioCultivo, error) {
 	var meioCultivos []models.MeioCultivo
-	meioCultivos, err := s.repo.GetAll()
+	meioCultivos, err := s.repositorio.ListarTodos()
 	if err != nil {
 		return nil, fmt.Errorf("falha ao buscar todos os meio de cultivo %w", err)
 	}
 	return meioCultivos, nil
 }
 
-func (s *meioCultivoService) GetByID(id uint) (*models.MeioCultivo, error) {
+func (s *meioCultivoService) BuscarPorID(id uint) (*models.MeioCultivo, error) {
 	if id == 0 {
 		return nil, gorm.ErrInvalidValue
 	}
-	return s.repo.FindByID(id)
+	return s.repositorio.BuscarPorID(id)
 }

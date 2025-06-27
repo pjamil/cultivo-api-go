@@ -9,34 +9,57 @@ import (
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
 type AmbienteController struct {
-	service service.AmbienteService
+	servico service.AmbienteService
 }
 
-func NewAmbienteController(service service.AmbienteService) *AmbienteController {
-	return &AmbienteController{service}
+func NewAmbienteController(servico service.AmbienteService) *AmbienteController {
+	return &AmbienteController{servico}
 }
 
-// Handler para criar novo ambiente
-func (c *AmbienteController) CreateAmbiente(ctx *gin.Context) {
+// Criar godoc
+// @Summary      Cria um novo ambiente
+// @Description  Cria um novo ambiente com os dados fornecidos
+// @Tags         ambiente
+// @Accept       json
+// @Produce      json
+// @Param        ambiente  body      dto.CreateAmbienteDTO  true  "Dados do Ambiente"
+// @Success      201      {object}  models.Ambiente
+// @Failure      400      {object}  map[string]string
+// @Failure      500      {object}  map[string]string
+// @Router       /ambiente [post]
+func (c *AmbienteController) Criar(ctx *gin.Context) {
 	var dto dto.CreateAmbienteDTO
 	if err := ctx.ShouldBindJSON(&dto); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	ambiente, err := c.service.CreateAmbiente(&dto)
+	ambiente, err := c.servico.Criar(&dto)
 	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"operation": "create_ambiente",
+			"error":     err,
+		}).Error("Erro ao criar ambiente")
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao criar ambiente"})
 		return
 	}
 	ctx.JSON(http.StatusCreated, ambiente)
 }
 
-// Handler para listar todos os ambientes
-func (c *AmbienteController) ListAmbientes(ctx *gin.Context) {
-	ambientes, err := c.service.GetAll()
+// Listar godoc
+// @Summary      Lista todos os ambientes
+// @Description  Retorna uma lista de todos os ambientes cadastrados
+// @Tags         ambiente
+// @Produce      json
+// @Success      200  {array}   models.Ambiente
+// @Failure      500  {object}  map[string]string
+// @Router       /ambiente [get]
+func (c *AmbienteController) Listar(ctx *gin.Context) {
+	ambientes, err := c.servico.ListarTodos()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -45,31 +68,32 @@ func (c *AmbienteController) ListAmbientes(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, ambientes)
 }
 
-// @Summary Get ambiente by ID
-// @Description Get detailed information about a ambiente
-// @Tags ambiente
-// @Accept json
-// @Produce json
-// @Param id path int true "Ambiente ID"
-// @Success 200 {object} models.Ambiente
-// @Failure 400 {object} map[string]string
-// @Failure 404 {object} map[string]string
-// @Failure 500 {object} map[string]string
-// @Router /ambiente/{id} [get]
-func (c *AmbienteController) GetAmbienteByID(ctx *gin.Context) {
+// BuscarPorID godoc
+// @Summary      Busca um ambiente por ID
+// @Description  Retorna os detalhes de um ambiente específico
+// @Tags         ambiente
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID do Ambiente"
+// @Success      200  {object}  models.Ambiente
+// @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /ambiente/{id} [get]
+func (c *AmbienteController) BuscarPorID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
-	ambiente, err := c.service.GetAmbienteByID(uint(id))
+	ambiente, err := c.servico.BuscarPorID(uint(id))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "Genética não encontrada"})
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Ambiente não encontrado"})
 		return
 	}
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar genética"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar ambiente"})
 		return
 	}
 

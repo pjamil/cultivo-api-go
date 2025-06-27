@@ -4,79 +4,77 @@ import (
 	"errors"
 	"fmt"
 
-	"context"
-
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
 	"gorm.io/gorm"
 )
 
-// PlantService defines the methods that a plant service should implement.
-// It provides an interface for managing plants in the system.
-type PlantService interface {
-	GetPlantaById(ctx context.Context, id uint) (*models.Planta, error)
-	CreatePlanta(ctx context.Context, planta *models.Planta) error
-	GetAllPlants(ctx context.Context) ([]models.Planta, error)
-	UpdatePlant(ctx context.Context, plant *models.Planta) error
-	DeletePlant(ctx context.Context, id uint) error
-	GetPlantsBySpecies(ctx context.Context, species models.Especie) ([]models.Planta, error)
-	GetPlantsByStatus(ctx context.Context, status string) ([]models.Planta, error)
+// PlantaService define os métodos que um serviço de planta deve implementar.
+// Fornece uma interface para gerenciar plantas no sistema.
+type PlantaService interface {
+	BuscarPorID(id uint) (*models.Planta, error)
+	Criar(planta *models.Planta) error
+	ListarTodas() ([]models.Planta, error)
+	Atualizar(planta *models.Planta) error
+	Deletar(id uint) error
+	BuscarPorEspecie(especie models.Especie) ([]models.Planta, error)
+	BuscarPorStatus(status string) ([]models.Planta, error)
 }
 
-// PlantaService provides methods to manage plants in the system.
-// It interacts with the PlantaRepository to perform CRUD operations on plants.
-type PlantaService struct {
-	repo         repository.PlantaRepository
-	geneticaRepo repository.GeneticaRepository
-	ambienteRepo repository.AmbienteRepository
-	meioRepo     repository.MeioCultivoRepository
+// PlantaService fornece métodos para gerenciar plantas no sistema.
+// Ele interage com o PlantaRepository para realizar operações CRUD em plantas.
+type plantaService struct {
+	repositorio           repository.PlantaRepositorio
+	geneticaRepositorio   repository.GeneticaRepositorio
+	ambienteRepositorio repository.AmbienteRepositorio
+	meioRepositorio     repository.MeioCultivoRepositorio
 }
 
-func NewPlantService(
-	repo repository.PlantaRepository,
-	geneticaRepo repository.GeneticaRepository,
-	ambienteRepo repository.AmbienteRepository,
-	meioRepo repository.MeioCultivoRepository,
-) *PlantaService {
-	return &PlantaService{
-		repo:         repo,
-		geneticaRepo: geneticaRepo,
-		ambienteRepo: ambienteRepo,
-		meioRepo:     meioRepo,
+func NewPlantaService(
+	repositorio repository.PlantaRepositorio,
+	geneticaRepositorio repository.GeneticaRepositorio,
+	ambienteRepositorio repository.AmbienteRepositorio,
+	meioRepositorio repository.MeioCultivoRepositorio,
+) PlantaService {
+	return &plantaService{
+		repositorio:           repositorio,
+		geneticaRepositorio:   geneticaRepositorio,
+		ambienteRepositorio: ambienteRepositorio,
+		meioRepositorio:     meioRepositorio,
 	}
 }
 
-func (s *PlantaService) CreatePlanta(planta *models.Planta) error {
+func (s *plantaService) Criar(planta *models.Planta) error {
 	if planta.Nome == "" {
-		return errors.New("plant name cannot be empty")
+		return errors.New("o nome da planta não pode estar vazio")
 	}
-	if exists := s.repo.ExistsByName(planta.Nome); exists {
-		return errors.New("plant with this name already exists")
+	if exists := s.repositorio.ExistePorNome(planta.Nome); exists {
+		return errors.New("uma planta com este nome já existe")
 	}
 	// Validação de entidades relacionadas
-	if _, err := s.geneticaRepo.FindByID(planta.GeneticaID); err != nil {
+	if _, err := s.geneticaRepositorio.BuscarPorID(planta.GeneticaID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("genética não encontrada")
 		}
 		return fmt.Errorf("falha ao buscar genética com ID %d: %w", planta.GeneticaID, err)
 	}
-	if _, err := s.ambienteRepo.FindByID(planta.AmbienteID); err != nil {
+	if _, err := s.ambienteRepositorio.BuscarPorID(planta.AmbienteID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("ambiente não encontrado")
 		}
 		return fmt.Errorf("falha ao buscar ambiente com ID %d: %w", planta.AmbienteID, err)
 	}
-	if _, err := s.meioRepo.FindByID(planta.MeioCultivoID); err != nil {
+	if _, err := s.meioRepositorio.BuscarPorID(planta.MeioCultivoID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("meio de cultivo não encontrado")
 		}
 		return fmt.Errorf("falha ao buscar meio de cultivo com ID %d: %w", planta.MeioCultivoID, err)
 	}
-	return s.repo.Create(planta)
+	return s.repositorio.Criar(planta)
 }
 
-func (s *PlantaService) GetPlantaById(id uint) (*models.Planta, error) {
-	planta, err := s.repo.FindByID(id)
+func (s *plantaService) BuscarPorID(id uint) (*models.Planta, error) {
+	planta, err := s.repositorio.BuscarPorID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, gorm.ErrRecordNotFound
@@ -86,48 +84,48 @@ func (s *PlantaService) GetPlantaById(id uint) (*models.Planta, error) {
 	return planta, nil
 }
 
-func (s *PlantaService) GetAllPlants() ([]models.Planta, error) {
-	return s.repo.FindAll()
+func (s *plantaService) ListarTodas() ([]models.Planta, error) {
+	return s.repositorio.ListarTodos()
 }
 
-func (s *PlantaService) UpdatePlant(plant *models.Planta) error {
-	if _, err := s.repo.FindByID(plant.ID); err != nil {
+func (s *plantaService) Atualizar(planta *models.Planta) error {
+	if _, err := s.repositorio.BuscarPorID(planta.ID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return gorm.ErrRecordNotFound
 		}
 	}
 	// Validação de entidades relacionadas
-	if _, err := s.geneticaRepo.FindByID(plant.GeneticaID); err != nil {
+	if _, err := s.geneticaRepositorio.BuscarPorID(planta.GeneticaID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("genética não encontrada")
 		}
 	}
-	if _, err := s.ambienteRepo.FindByID(plant.AmbienteID); err != nil {
+	if _, err := s.ambienteRepositorio.BuscarPorID(planta.AmbienteID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("ambiente não encontrado")
 		}
 	}
-	if _, err := s.meioRepo.FindByID(plant.MeioCultivoID); err != nil {
+	if _, err := s.meioRepositorio.BuscarPorID(planta.MeioCultivoID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("meio de cultivo não encontrado")
 		}
 	}
 
-	return s.repo.Update(plant)
+	return s.repositorio.Atualizar(planta)
 }
 
-func (s *PlantaService) DeletePlant(id uint) error {
-	if _, err := s.repo.FindByID(id); err != nil {
+func (s *plantaService) Deletar(id uint) error {
+	if _, err := s.repositorio.BuscarPorID(id); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("planta não encontrada")
 		}
 	}
-	return s.repo.Delete(id)
+	return s.repositorio.Deletar(id)
 }
 
-func (s *PlantaService) GetPlantsBySpecies(species models.Especie) ([]models.Planta, error) {
-	return s.repo.FindBySpecies(species)
+func (s *plantaService) BuscarPorEspecie(especie models.Especie) ([]models.Planta, error) {
+	return s.repositorio.BuscarPorEspecie(especie)
 }
-func (s *PlantaService) GetPlantsByStatus(status string) ([]models.Planta, error) {
-	return s.repo.FindByStatus(status)
+func (s *plantaService) BuscarPorStatus(status string) ([]models.Planta, error) {
+	return s.repositorio.BuscarPorStatus(status)
 }

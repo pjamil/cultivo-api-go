@@ -40,6 +40,8 @@
 			"titleBar.inactiveForeground": "#e7e7e799"
 		},
 		"peacock.color": "#215732",
-		"postman.settings.dotenv-detection-notification-visibility": false
+		"postman.settings.dotenv-detection-notification-visibility": false,
+		"github.copilot.chat.localeOverride": "auto",
+		"github.copilot.chat.scopeSelection": true
 	}
 }

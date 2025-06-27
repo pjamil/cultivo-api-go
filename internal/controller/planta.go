@@ -13,35 +13,35 @@ import (
 	"gorm.io/gorm"
 )
 
-// PlantaController handles HTTP requests for plants
+// PlantaController lida com as requisições HTTP para plantas
 type PlantaController struct {
-	plantaService *service.PlantaService
+	plantaServico service.PlantaService
 }
 
-// NewPlantaController creates a new PlantController
-func NewPlantaController(plantaService *service.PlantaService) *PlantaController {
-	return &PlantaController{plantaService: plantaService}
+// NewPlantaController cria um novo PlantController
+func NewPlantaController(plantaServico service.PlantaService) *PlantaController {
+	return &PlantaController{plantaServico: plantaServico}
 }
 
-// CreatePlanta godoc
-// @Summary Create a new plant
-// @Description Add a new plant to the cultivation system
-// @Tags plants
-// @Accept  json
-// @Produce  json
-// @Param plant body models.Planta true "Planta object that needs to be added"
-// @Success 201 {object} models.Planta
-// @Failure 400 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
-// @Router /plants [post]
-func (c *PlantaController) CreatePlanta(ctx *gin.Context) {
+// CriarPlanta godoc
+// @Summary      Cria uma nova planta
+// @Description  Adiciona uma nova planta ao sistema de cultivo
+// @Tags         plantas
+// @Accept       json
+// @Produce      json
+// @Param        planta  body      models.Planta  true  "Objeto da planta que precisa ser adicionado"
+// @Success      201    {object}  models.Planta
+// @Failure      400    {object}  map[string]interface{}
+// @Failure      500    {object}  map[string]interface{}
+// @Router       /plantas [post]
+func (c *PlantaController) Criar(ctx *gin.Context) {
 	var planta models.Planta
 	if err := ctx.ShouldBindJSON(&planta); err != nil {
-		utils.RespondWithError(ctx, http.StatusBadRequest, "Invalid request payload")
+		utils.RespondWithError(ctx, http.StatusBadRequest, "Payload da requisição inválido")
 		return
 	}
 
-	if err := c.plantaService.CreatePlanta(&planta); err != nil {
+	if err := c.plantaServico.Criar(&planta); err != nil {
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -49,140 +49,133 @@ func (c *PlantaController) CreatePlanta(ctx *gin.Context) {
 	utils.RespondWithJSON(ctx, http.StatusCreated, planta)
 }
 
-// GetAllPlants godoc
-// @Summary Get all plants
-// @Description Get details of all plants
-// @Tags plants
-// @Accept  json
-// @Produce  json
-// @Success 200 {array} models.Planta
-// @Failure 500 {object} map[string]interface{}
-// @Router /plants [get]
-func (c *PlantaController) GetAllPlants(ctx *gin.Context) {
-	plants, err := c.plantaService.GetAllPlants()
+// ListarPlantas godoc
+// @Summary      Lista todas as plantas
+// @Description  Retorna os detalhes de todas as plantas
+// @Tags         plantas
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}   models.Planta
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /plantas [get]
+func (c *PlantaController) Listar(ctx *gin.Context) {
+	plantas, err := c.plantaServico.ListarTodas()
 	if err != nil {
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(ctx, http.StatusOK, plants)
+	utils.RespondWithJSON(ctx, http.StatusOK, plantas)
 }
 
 const (
-	InvalidPlantIDError              = "Invalid plant ID"
-	PlantNotFoundError               = "Planta not found"
-	InvalidRequestPayloadError       = "Invalid request payload"
-	PlantUpdateError                 = "Error updating plant"
-	PlantCreationError               = "Error creating plant"
-	PlantRetrievalError              = "Error retrieving plant"
-	PlantDeletionError               = "Error deleting plant"
-	PlantUpdateSuccessMessage        = "Planta updated successfully"
-	PlantCreationSuccessMessage      = "Planta created successfully"
-	PlantRetrievalSuccessMessage     = "Planta retrieved successfully"
-	PlantListRetrievalSuccessMessage = "Plants retrieved successfully"
-	PlantListRetrievalError          = "Error retrieving plants"
-	PlantCreationSuccess             = "Planta created successfully"
-	PlantUpdateSuccess               = "Planta updated successfully"
-	PlantDeletionSuccess             = "Planta deleted successfully"
-	PlantRetrievalSuccess            = "Planta retrieved successfully"
-	PlantListRetrievalSuccess        = "Plants retrieved successfully"
+	ErroIDPlantaInvalido             = "ID da planta inválido"
+	ErroPlantaNaoEncontrada          = "Planta não encontrada"
+	ErroPayloadRequisicaoInvalido    = "Payload da requisição inválido"
+	ErroAtualizarPlanta              = "Erro ao atualizar a planta"
+	ErroCriarPlanta                  = "Erro ao criar a planta"
+	ErroRecuperarPlanta              = "Erro ao recuperar a planta"
+	ErroDeletarPlanta                = "Erro ao deletar a planta"
+	SucessoAtualizarPlanta           = "Planta atualizada com sucesso"
+	SucessoCriarPlanta               = "Planta criada com sucesso"
+	SucessoRecuperarPlanta           = "Planta recuperada com sucesso"
+	SucessoListarPlantas             = "Plantas recuperadas com sucesso"
+	ErroListarPlantas                = "Erro ao recuperar as plantas"
 )
 
-// GetPlantByID godoc
-// @Summary Get plant by ID
-// @Description Get details of a specific plant
-// @ID get-plant-by-id
-// @Tags plants
-// @Accept  json
-// @Produce  json
-// @Param id path int true "Planta ID"
-// @Success 200 {object} models.Planta
-// @Failure 400 {object} map[string]interface{}
-// @Failure 404 {object} map[string]interface{}
-// @Router /plants/{id} [get]
-func (c *PlantaController) GetPlantByID(ctx *gin.Context) {
-	// Log the request for fetching a plant by ID
+// BuscarPlantaPorID godoc
+// @Summary      Busca uma planta por ID
+// @Description  Retorna os detalhes de uma planta específica
+// @ID           get-plant-by-id
+// @Tags         plantas
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID da Planta"
+// @Success      200  {object}  models.Planta
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      404  {object}  map[string]interface{}
+// @Router       /plantas/{id} [get]
+func (c *PlantaController) BuscarPorID(ctx *gin.Context) {
 	logrus.WithFields(logrus.Fields{
 		"id": ctx.Param("id"),
 	}).Info("Buscando planta por ID")
-	// Parse the plant ID from the URL parameter
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		utils.RespondWithError(ctx, http.StatusBadRequest, "Invalid plant ID")
+		utils.RespondWithError(ctx, http.StatusBadRequest, ErroIDPlantaInvalido)
 		return
 	}
 
-	plant, err := c.plantaService.GetPlantaById(uint(id))
+	planta, err := c.plantaServico.BuscarPorID(uint(id))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		utils.RespondWithError(ctx, http.StatusNotFound, "Planta não encontrada")
+		utils.RespondWithError(ctx, http.StatusNotFound, ErroPlantaNaoEncontrada)
 		return
 	}
-	utils.RespondWithJSON(ctx, http.StatusOK, plant)
+	utils.RespondWithJSON(ctx, http.StatusOK, planta)
 }
 
-// UpdatePlant godoc
-// @Summary Update a plant
-// @Description Update an existing plant
-// @Tags plants
-// @Accept  json
-// @Produce  json
-// @Param id path int true "Planta ID"
-// @Param plant body models.Planta true "Updated plant object"
-// @Success 200 {object} models.Planta
-// @Failure 400 {object} map[string]interface{}
-// @Failure 404 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
-// @Router /plants/{id} [put]
-func (c *PlantaController) UpdatePlant(ctx *gin.Context) {
+// AtualizarPlanta godoc
+// @Summary      Atualiza uma planta
+// @Description  Atualiza uma planta existente
+// @Tags         plantas
+// @Accept       json
+// @Produce      json
+// @Param        id      path      int            true  "ID da Planta"
+// @Param        planta  body      models.Planta  true  "Objeto da planta atualizado"
+// @Success      200    {object}  models.Planta
+// @Failure      400    {object}  map[string]interface{}
+// @Failure      404    {object}  map[string]interface{}
+// @Failure      500    {object}  map[string]interface{}
+// @Router       /plantas/{id} [put]
+func (c *PlantaController) Atualizar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		utils.RespondWithError(ctx, http.StatusBadRequest, InvalidPlantIDError)
+		utils.RespondWithError(ctx, http.StatusBadRequest, ErroIDPlantaInvalido)
 		return
 	}
-	var plant models.Planta
-	if err := ctx.ShouldBindJSON(&plant); err != nil {
-		utils.RespondWithError(ctx, http.StatusBadRequest, InvalidRequestPayloadError)
+	var planta models.Planta
+	if err := ctx.ShouldBindJSON(&planta); err != nil {
+		utils.RespondWithError(ctx, http.StatusBadRequest, ErroPayloadRequisicaoInvalido)
 		return
 	}
-	plant.ID = uint(id)
+	planta.ID = uint(id)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "Planta não encontrada"})
+		ctx.JSON(http.StatusNotFound, gin.H{"error": ErroPlantaNaoEncontrada})
 		return
 	}
-	if err := c.plantaService.UpdatePlant(&plant); err != nil {
+	if err := c.plantaServico.Atualizar(&planta); err != nil {
 		logrus.WithFields(logrus.Fields{
 			"operation": "update_plant",
 			"plant_id":  id,
 			"error":     err,
-		}).Error("Erro ao atualizar planta")
+		}).Error(ErroAtualizarPlanta)
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
-	utils.RespondWithJSON(ctx, http.StatusOK, plant)
+	utils.RespondWithJSON(ctx, http.StatusOK, planta)
 }
 
-// DeletePlant godoc
-// @Summary Delete a plant
-// @Description Delete an existing plant
-// @Tags plants
-// @Accept  json
-// @Produce  json
-// @Param id path int true "Planta ID"
-// @Success 200 {object} map[string]interface{}
-// @Failure 400 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
-// @Router /plants/{id} [delete]
-func (c *PlantaController) DeletePlant(ctx *gin.Context) {
+// DeletarPlanta godoc
+// @Summary      Deleta uma planta
+// @Description  Deleta uma planta existente
+// @Tags         plantas
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID da Planta"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /plantas/{id} [delete]
+func (c *PlantaController) Deletar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		utils.RespondWithError(ctx, http.StatusBadRequest, InvalidPlantIDError)
+		utils.RespondWithError(ctx, http.StatusBadRequest, ErroIDPlantaInvalido)
 		return
 	}
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "Planta não encontrada"})
+		ctx.JSON(http.StatusNotFound, gin.H{"error": ErroPlantaNaoEncontrada})
 		return
 	}
-	if err := c.plantaService.DeletePlant(uint(id)); err != nil {
+	if err := c.plantaServico.Deletar(uint(id)); err != nil {
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -190,5 +183,5 @@ func (c *PlantaController) DeletePlant(ctx *gin.Context) {
 		"operation": "delete_plant",
 		"plant_id":  id,
 	}).Info("Planta deletada com sucesso")
-	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Planta deleted successfully"})
+	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Planta deletada com sucesso"})
 }

@@ -9,26 +9,26 @@ import (
 	"gorm.io/gorm"
 )
 
-type MeioCultivoRepository interface {
-	Create(meioCultivo *models.MeioCultivo) error
-	GetAll() ([]models.MeioCultivo, error)
-	FindByID(id uint) (*models.MeioCultivo, error)
+type MeioCultivoRepositorio interface {
+	Criar(meioCultivo *models.MeioCultivo) error
+	ListarTodos() ([]models.MeioCultivo, error)
+	BuscarPorID(id uint) (*models.MeioCultivo, error)
 }
 
-type meioCultivoRepository struct {
+type meioCultivoRepositorio struct {
 	db *gorm.DB
 }
 
-func NewMeioCultivoRepository(db *gorm.DB) MeioCultivoRepository {
-	return &meioCultivoRepository{db}
+func NewMeioCultivoRepositorio(db *gorm.DB) MeioCultivoRepositorio {
+	return &meioCultivoRepositorio{db}
 }
 
-func (r *meioCultivoRepository) Create(meioCultivo *models.MeioCultivo) error {
+func (r *meioCultivoRepositorio) Criar(meioCultivo *models.MeioCultivo) error {
 	return r.db.Create(meioCultivo).Error
 }
 
-// GetAll retrieves all MeioCultivo records from the database.
-func (r *meioCultivoRepository) GetAll() ([]models.MeioCultivo, error) {
+// ListarTodos recupera todos os registros de MeioCultivo do banco de dados.
+func (r *meioCultivoRepositorio) ListarTodos() ([]models.MeioCultivo, error) {
 	var meioCultivos []models.MeioCultivo
 	if err := r.db.Find(&meioCultivos).Error; err != nil {
 		return nil, fmt.Errorf("falha ao buscar meio de cultivo %w", err)
@@ -36,8 +36,8 @@ func (r *meioCultivoRepository) GetAll() ([]models.MeioCultivo, error) {
 	return meioCultivos, nil
 }
 
-// FindByID retrieves a MeioCultivo record by its ID.
-func (r *meioCultivoRepository) FindByID(id uint) (*models.MeioCultivo, error) {
+// BuscarPorID recupera um registro de MeioCultivo por seu ID.
+func (r *meioCultivoRepositorio) BuscarPorID(id uint) (*models.MeioCultivo, error) {
 	var meioCultivo models.MeioCultivo
 	result := r.db.First(&meioCultivo, id)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
