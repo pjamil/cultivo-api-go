@@ -43,7 +43,11 @@ func (r *PlantRepository) FindAll() ([]models.Planta, error) {
 		Preload("MeioCultivo").
 		Preload("Usuario").
 		Find(&plants).Error; err != nil {
-		return nil, err
+		return nil, fmt.Errorf("falha ao buscar plantas: %w", err)
+	}
+
+	if len(plants) == 0 {
+		return nil, errors.New("nenhuma planta encontrada")
 	}
 
 	return plants, nil

@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 
 	"context"
 
@@ -57,19 +58,19 @@ func (s *PlantaService) CreatePlanta(planta *models.Planta) error {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("genética não encontrada")
 		}
-		return err
+		return fmt.Errorf("falha ao buscar genética com ID %d: %w", planta.GeneticaID, err)
 	}
 	if _, err := s.ambienteRepo.FindByID(planta.AmbienteID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("ambiente não encontrado")
 		}
-		return err
+		return fmt.Errorf("falha ao buscar ambiente com ID %d: %w", planta.AmbienteID, err)
 	}
 	if _, err := s.meioRepo.FindByID(planta.MeioCultivoID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("meio de cultivo não encontrado")
 		}
-		return err
+		return fmt.Errorf("falha ao buscar meio de cultivo com ID %d: %w", planta.MeioCultivoID, err)
 	}
 	return s.repo.Create(planta)
 }
@@ -80,7 +81,7 @@ func (s *PlantaService) GetPlantaById(id uint) (*models.Planta, error) {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, gorm.ErrRecordNotFound
 		}
-		return nil, err
+		return nil, fmt.Errorf("falha ao obter planta com ID %d: %w", id, err)
 	}
 	return planta, nil
 }
@@ -118,7 +119,7 @@ func (s *PlantaService) UpdatePlant(plant *models.Planta) error {
 func (s *PlantaService) DeletePlant(id uint) error {
 	if _, err := s.repo.FindByID(id); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("Planta não encontrada")
+			return errors.New("planta não encontrada")
 		}
 	}
 	return s.repo.Delete(id)

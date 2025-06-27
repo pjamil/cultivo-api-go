@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 
@@ -30,7 +31,7 @@ func (r *meioCultivoRepository) Create(meioCultivo *models.MeioCultivo) error {
 func (r *meioCultivoRepository) GetAll() ([]models.MeioCultivo, error) {
 	var meioCultivos []models.MeioCultivo
 	if err := r.db.Find(&meioCultivos).Error; err != nil {
-		return nil, err
+		return nil, fmt.Errorf("falha ao buscar meio de cultivo %w", err)
 	}
 	return meioCultivos, nil
 }

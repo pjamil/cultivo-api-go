@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
@@ -32,7 +34,7 @@ func (s *ambienteService) CreateAmbiente(ambienteDto *dto.CreateAmbienteDTO) (*m
 		TempoExposicao: ambienteDto.TempoExposicao,
 	}
 	if err := s.repo.Create(&ambiente); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("falha ao criar planta com ID %s: %w", ambienteDto.Nome, err)
 	}
 	return &ambiente, nil
 }

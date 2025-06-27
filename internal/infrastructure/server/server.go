@@ -41,7 +41,7 @@ func NewServer(db *database.Database) *Server {
 	plantController := controller.NewPlantaController(plantService)
 
 	const hostRoute = "/api/v1"
-	const plantsRoute = "/api/v1/plants"
+	const plantsRoute = "/api/v1/plantas"
 	const plantByIDRoute = "/:id"
 	const usuarioByIDRoute = hostRoute + "/usuarios/:id"
 	router.GET(plantsRoute, plantController.GetAllPlants)
@@ -70,9 +70,9 @@ func NewServer(db *database.Database) *Server {
 	meioCultivoRepo = repository.NewMeioCultivoRepository(db.DB)
 	meioCultivoService := service.NewMeioCultivoService(meioCultivoRepo)
 	meioCultivoController := controller.NewMeioCultivoController(meioCultivoService)
-	router.POST(hostRoute+"/meios_cultivo", meioCultivoController.Create)
-	router.GET(hostRoute+"/meios_cultivo", meioCultivoController.GetAll)
-	router.GET(hostRoute+"/meios_cultivo/:id", meioCultivoController.GetByID)
+	router.POST(hostRoute+"/meios-cultivos", meioCultivoController.Create)
+	router.GET(hostRoute+"/meios-cultivos", meioCultivoController.GetAll)
+	router.GET(hostRoute+"/meios-cultivos/:id", meioCultivoController.GetByID)
 
 	// Usuario routes
 	usuarioRepo := repository.NewUsuarioRepository(db.DB)

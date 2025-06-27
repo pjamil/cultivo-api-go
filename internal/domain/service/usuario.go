@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
@@ -26,7 +28,7 @@ func NewUsuarioService(repo repository.UsuarioRepository) UsuarioService {
 func (s *usuarioService) Create(dto *dto.UsuarioCreateDTO) (*models.Usuario, error) {
 	hash, err := utils.HashPassword(dto.Senha)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("falha ao fazer o hash da senha do usuário %s: %w", dto.Nome, err)
 	}
 	usuario := models.Usuario{
 		Nome:         dto.Nome,
@@ -35,7 +37,7 @@ func (s *usuarioService) Create(dto *dto.UsuarioCreateDTO) (*models.Usuario, err
 		Preferencias: dto.Preferencias,
 	}
 	if err := s.repo.Create(&usuario); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("falha ao criar usuário %s: %w", dto.Nome, err)
 	}
 	return &usuario, nil
 }
@@ -55,7 +57,7 @@ func (s *usuarioService) GetAll() ([]models.Usuario, error) {
 func (s *usuarioService) Update(id uint, dto *dto.UsuarioUpdateDTO) error {
 	usuario, err := s.repo.FindByID(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("falha ao buscar usuário com ID %d: %w", id, err)
 	}
 	if dto.Nome != "" {
 		usuario.Nome = dto.Nome

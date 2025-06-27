@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
@@ -27,7 +29,7 @@ func (s *meioCultivoService) CreateMeioCultivo(meioCultivoDto *dto.CreateMeioCul
 		Descricao: meioCultivoDto.Descricao,
 	}
 	if err := s.repo.Create(&meioCultivo); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("falha ao criar meio de cultivo %s: %w", meioCultivo.Descricao, err)
 	}
 	return &meioCultivo, nil
 }
@@ -36,7 +38,7 @@ func (s *meioCultivoService) GetAllMeioCultivos() ([]models.MeioCultivo, error) 
 	var meioCultivos []models.MeioCultivo
 	meioCultivos, err := s.repo.GetAll()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("falha ao buscar todos os meio de cultivo %w", err)
 	}
 	return meioCultivos, nil
 }
