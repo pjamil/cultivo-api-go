@@ -40,7 +40,7 @@ func NewHealthController() *HealthController {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "status": "ok"
 // @Router /health [get]
-func (c *HealthController) CheckHealth(ctx *gin.Context) {
+func (c *HealthController) VerificarSaude(ctx *gin.Context) {
 	// Você pode adicionar verificações adicionais aqui, como:
 	// - Conexão com banco de dados
 	// - Conexão com serviços externos
@@ -64,7 +64,7 @@ func (c *HealthController) CheckHealth(ctx *gin.Context) {
 // @Success 200 {object} map[string]interface{} "status": "ready"
 // @Failure 503 {object} map[string]interface{} "status": "not ready"
 // @Router /health/ready [get]
-func (c *HealthController) ReadyCheck(ctx *gin.Context) {
+func (c *HealthController) VerificarProntidao(ctx *gin.Context) {
 	// Implemente verificações mais rigorosas aqui
 	// Por exemplo:
 	// if err := c.db.Exec("SELECT 1").Error; err != nil {
@@ -89,7 +89,7 @@ func (c *HealthController) ReadyCheck(ctx *gin.Context) {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "status": "alive"
 // @Router /health/live [get]
-func (c *HealthController) LiveCheck(ctx *gin.Context) {
+func (c *HealthController) VerificarVitalidade(ctx *gin.Context) {
 	// Verificação mínima de que o processo está rodando
 	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{
 		"status": "alive",

@@ -28,61 +28,61 @@ func NewServer(db *database.Database) *Server {
 
 	// Health check routes
 	healthController := controller.NewHealthController()
-	router.GET("/health", healthController.CheckHealth)
-	router.GET("/health/ready", healthController.ReadyCheck)
-	router.GET("/health/live", healthController.LiveCheck)
+	router.GET("/health", healthController.VerificarSaude)
+	router.GET("/health/ready", healthController.VerificarProntidao)
+	router.GET("/health/live", healthController.VerificarVitalidade)
 
-	// Plant routes
-	plantRepo := database.NewPlantRepository(db.DB)
-	geneticaRepo := repository.NewGeneticaRepository(db.DB)
-	ambienteRepo := repository.NewAmbienteRepository(db.DB)
-	meioCultivoRepo := repository.NewMeioCultivoRepository(db.DB)
-	plantService := service.NewPlantService(plantRepo, geneticaRepo, ambienteRepo, meioCultivoRepo)
-	plantController := controller.NewPlantaController(plantService)
+	// Rotas de Planta
+	repositorioPlanta := database.NewPlantaRepositorio(db.DB)
+	geneticaRepo := repository.NewGeneticaRepositorio(db.DB)
+	ambienteRepo := repository.NewAmbienteRepositorio(db.DB)
+	meioCultivoRepo := repository.NewMeioCultivoRepositorio(db.DB)
+	servicoPlanta := service.NewPlantaService(repositorioPlanta, geneticaRepo, ambienteRepo, meioCultivoRepo)
+	controladorPlanta := controller.NewPlantaController(servicoPlanta)
 
 	const hostRoute = "/api/v1"
-	const plantsRoute = "/api/v1/plantas"
-	const plantByIDRoute = "/:id"
-	const usuarioByIDRoute = hostRoute + "/usuarios/:id"
-	router.GET(plantsRoute, plantController.GetAllPlants)
-	router.POST(plantsRoute, plantController.CreatePlanta)
-	router.GET(plantsRoute+plantByIDRoute, plantController.GetPlantByID)
-	router.PUT(plantsRoute+plantByIDRoute, plantController.UpdatePlant)
-	router.DELETE(plantsRoute+plantByIDRoute, plantController.DeletePlant)
+	const rotasPlantas = "/api/v1/plantas"
+	const rotaPlantaPorID = "/:id"
+	const rotaUsuarioPorID = hostRoute + "/usuarios/:id"
+	router.GET(rotasPlantas, controladorPlanta.Listar)
+	router.POST(rotasPlantas, controladorPlanta.Criar)
+	router.GET(rotasPlantas+rotaPlantaPorID, controladorPlanta.BuscarPorID)
+	router.PUT(rotasPlantas+rotaPlantaPorID, controladorPlanta.Atualizar)
+	router.DELETE(rotasPlantas+rotaPlantaPorID, controladorPlanta.Deletar)
 
-	// Ambiente routes
-	ambienteRepo = repository.NewAmbienteRepository(db.DB)
-	ambienteService := service.NewAmbienteService(ambienteRepo)
-	ambienteController := controller.NewAmbienteController(ambienteService)
-	router.POST(hostRoute+"/ambientes", ambienteController.CreateAmbiente)
-	router.GET(hostRoute+"/ambientes", ambienteController.ListAmbientes)
-	router.GET(hostRoute+"/ambientes/:id", ambienteController.GetAmbienteByID)
+	// Rotas de Ambiente
+	repositorioAmbiente := repository.NewAmbienteRepositorio(db.DB)
+	servicoAmbiente := service.NewAmbienteService(repositorioAmbiente)
+	controladorAmbiente := controller.NewAmbienteController(servicoAmbiente)
+	router.POST(hostRoute+"/ambientes", controladorAmbiente.Criar)
+	router.GET(hostRoute+"/ambientes", controladorAmbiente.Listar)
+	router.GET(hostRoute+"/ambientes/:id", controladorAmbiente.BuscarPorID)
 
-	// Genetica routes
-	geneticaRepo = repository.NewGeneticaRepository(db.DB)
-	geneticaService := service.NewGeneticaService(geneticaRepo)
-	geneticaController := controller.NewGeneticaController(geneticaService)
-	router.POST(hostRoute+"/geneticas", geneticaController.Create)
-	router.GET(hostRoute+"/geneticas", geneticaController.GetAll)
-	router.GET(hostRoute+"/geneticas/:id", geneticaController.GetGeneticaByID)
+	// Rotas de Genetica
+	repositorioGenetica := repository.NewGeneticaRepositorio(db.DB)
+	servicoGenetica := service.NewGeneticaService(repositorioGenetica)
+	controladorGenetica := controller.NewGeneticaController(servicoGenetica)
+	router.POST(hostRoute+"/geneticas", controladorGenetica.Criar)
+	router.GET(hostRoute+"/geneticas", controladorGenetica.Listar)
+	router.GET(hostRoute+"/geneticas/:id", controladorGenetica.BuscarPorID)
 
-	// MeioCultivo routes
-	meioCultivoRepo = repository.NewMeioCultivoRepository(db.DB)
-	meioCultivoService := service.NewMeioCultivoService(meioCultivoRepo)
-	meioCultivoController := controller.NewMeioCultivoController(meioCultivoService)
-	router.POST(hostRoute+"/meios-cultivos", meioCultivoController.Create)
-	router.GET(hostRoute+"/meios-cultivos", meioCultivoController.GetAll)
-	router.GET(hostRoute+"/meios-cultivos/:id", meioCultivoController.GetByID)
+	// Rotas de MeioCultivo
+	repositorioMeioCultivo := repository.NewMeioCultivoRepositorio(db.DB)
+	servicoMeioCultivo := service.NewMeioCultivoService(repositorioMeioCultivo)
+	controladorMeioCultivo := controller.NewMeioCultivoController(servicoMeioCultivo)
+	router.POST(hostRoute+"/meios-cultivos", controladorMeioCultivo.Criar)
+	router.GET(hostRoute+"/meios-cultivos", controladorMeioCultivo.Listar)
+	router.GET(hostRoute+"/meios-cultivos/:id", controladorMeioCultivo.BuscarPorID)
 
-	// Usuario routes
-	usuarioRepo := repository.NewUsuarioRepository(db.DB)
-	usuarioService := service.NewUsuarioService(usuarioRepo)
-	usuarioController := controller.NewUsuarioController(usuarioService)
-	router.POST(hostRoute+"/usuarios", usuarioController.Create)
-	router.GET(usuarioByIDRoute, usuarioController.GetByID)
-	router.GET(hostRoute+"/usuarios", usuarioController.GetAll)
-	router.PUT(usuarioByIDRoute, usuarioController.Update)
-	router.DELETE(usuarioByIDRoute, usuarioController.Delete)
+	// Rotas de Usuario
+	repositorioUsuario := repository.NewUsuarioRepositorio(db.DB)
+	servicoUsuario := service.NewUsuarioService(repositorioUsuario)
+	controladorUsuario := controller.NewUsuarioController(servicoUsuario)
+	router.POST(hostRoute+"/usuarios", controladorUsuario.Criar)
+	router.GET(rotaUsuarioPorID, controladorUsuario.BuscarPorID)
+	router.GET(hostRoute+"/usuarios", controladorUsuario.Listar)
+	router.PUT(rotaUsuarioPorID, controladorUsuario.Atualizar)
+	router.DELETE(rotaUsuarioPorID, controladorUsuario.Deletar)
 
 	return &Server{Router: router}
 }

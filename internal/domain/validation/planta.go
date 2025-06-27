@@ -9,7 +9,7 @@ import (
 
 // internal/domain/validation/plant_validator.go
 type PlantValidator struct {
-	repo repository.PlantaRepository
+	repo repository.PlantaRepositorio
 }
 
 func (v *PlantValidator) Validate(dto models.Planta) error {
