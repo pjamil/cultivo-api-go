@@ -1,413 +1,376 @@
 {
-  "info": {
-    "_postman_id": "ebf4db14-bb6c-4254-9580-1544d22190d4",
-    "name": "Cultivo API - VPS",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "7032311"
-  },
-  "item": [
-    {
-      "name": "Listar todas as plantas",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "https://cultivo-api.paulojamil.dev.br/api/v1/plantas",
-          "protocol": "https",
-          "host": [
-            "cultivo-api",
-            "paulojamil",
-            "dev",
-            "br"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "plantas"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Buscar planta por ID",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "https://cultivo-api.paulojamil.dev.br/api/v1/plantas/1",
-          "protocol": "https",
-          "host": [
-            "cultivo-api",
-            "paulojamil",
-            "dev",
-            "br"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "plantas",
-            "1"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Criar nova planta",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{
-  "nome": "Tomate Cereja",
-  "comecando_de": "semente",
-  "especie": "sativa",
-  "data_plantiu": "2023-05-15T00:00:00Z",
-  "status": "germinando",
-  "notas": "Planta saudável, sem pragas",
-  "genetica_id": 1,
-  "meio_cultivo_id": 1,
-  "ambiente_id": 1
-}"
-        },
-        "url": {
-          "raw": "https://cultivo-api.paulojamil.dev.br/api/v1/plantas",
-          "protocol": "https",
-          "host": [
-            "cultivo-api",
-            "paulojamil",
-            "dev",
-            "br"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "plantas"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Atualizar planta",
-      "request": {
-        "method": "PUT",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{
-  "nome": "Tomate Cereja Orgânico",
-  "especie": "tomato",
-  "data_plantiu": "2023-05-15T00:00:00Z",
-  "data_colheita": "2023-08-20T00:00:00Z",
-  "status": "colhida",
-  "estagio_crescimento": "madura",
-  "notas": "Colhido com sucesso"
-}"
-        },
-        "url": {
-          "raw": "https://cultivo-api.paulojamil.dev.br/api/v1/plantas/1",
-          "protocol": "https",
-          "host": [
-            "cultivo-api",
-            "paulojamil",
-            "dev",
-            "br"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "plantas",
-            "1"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Deletar planta",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "https://cultivo-api.paulojamil.dev.br/api/v1/plantas/2",
-          "protocol": "https",
-          "host": [
-            "cultivo-api",
-            "paulojamil",
-            "dev",
-            "br"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "plantas",
-            "2"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Listar todas as genéticas",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "https://cultivo-api.paulojamil.dev.br/api/v1/geneticas",
-          "protocol": "https",
-          "host": [
-            "cultivo-api",
-            "paulojamil",
-            "dev",
-            "br"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "geneticas"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Criar nova genética",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{
-  "nome": "Mimosa Evo",
-  "descricao": "Seed Genetics CO, Variedade de cannabis com alto teor de THC",
-  "tipoGenetica": "Sativa",
-  "tipoEspecie": "Feminizada",
-  "tempoFloracao": 60,
-  "origem": "Europa",
-  "caracteristicas": "Resistência a pragas, sabor citrico de limão, efeito energizante"
-}"
-        },
-        "url": {
-          "raw": "https://cultivo-api.paulojamil.dev.br/api/v1/geneticas",
-          "protocol": "https",
-          "host": [
-            "cultivo-api",
-            "paulojamil",
-            "dev",
-            "br"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "geneticas"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Listar todos os ambientes",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "https://cultivo-api.paulojamil.dev.br/api/v1/ambientes",
-          "protocol": "https",
-          "host": [
-            "cultivo-api",
-            "paulojamil",
-            "dev",
-            "br"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "ambientes"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Criar novo ambiente",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{
-  "nome": "Estufa Principal",
-  "descricao": "Estufa com controle de temperatura e umidade",
-  "tipo": "interno",
-  "comprimento": 500,
-  "largura": 300,
-  "altura": 250,
-  "tempo_exposicao": 12
-}"
-        },
-        "url": {
-          "raw": "https://cultivo-api.paulojamil.dev.br/api/v1/ambientes",
-          "protocol": "https",
-          "host": [
-            "cultivo-api",
-            "paulojamil",
-            "dev",
-            "br"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "ambientes"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Listar todos os meios de cultivo",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "https://cultivo-api.paulojamil.dev.br/api/v1/meios-cultivos",
-          "protocol": "https",
-          "host": [
-            "cultivo-api",
-            "paulojamil",
-            "dev",
-            "br"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "meios-cultivos"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Criar novo meio de cultivo",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{
-  "tipo": "Solo Orgânico",
-  "descricao": "Solo rico em matéria orgânica, humus de minhoca, esterco de frango, farinha de osso, perlita ,ideal para tomates"
-}"
-        },
-        "url": {
-          "raw": "https://cultivo-api.paulojamil.dev.br/api/v1/meios-cultivos",
-          "protocol": "https",
-          "host": [
-            "cultivo-api",
-            "paulojamil",
-            "dev",
-            "br"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "meios-cultivos"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Verificação de Saúde",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "https://cultivo-api.paulojamil.dev.br/health",
-          "protocol": "https",
-          "host": [
-            "cultivo-api",
-            "paulojamil",
-            "dev",
-            "br"
-          ],
-          "path": [
-            "health"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Verificação de Prontidão",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "https://cultivo-api.paulojamil.dev.br/health/ready",
-          "protocol": "https",
-          "host": [
-            "cultivo-api",
-            "paulojamil",
-            "dev",
-            "br"
-          ],
-          "path": [
-            "health",
-            "ready"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Verificação de Vitalidade",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "https://cultivo-api.paulojamil.dev.br/health/live",
-          "protocol": "https",
-          "host": [
-            "cultivo-api",
-            "paulojamil",
-            "dev",
-            "br"
-          ],
-          "path": [
-            "health",
-            "live"
-          ]
-        }
-      },
-      "response": []
-    }
-  ]
+	"info": {
+		"_postman_id": "ebf4db14-bb6c-4254-9580-1544d22190d4",
+		"name": "Cultivo API - VPS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "7032311"
+	},
+	"item": [
+		{
+			"name": "Listar todas as plantas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/plantas",
+					"protocol": "https",
+					"host": [
+						"cultivo-api",
+						"paulojamil",
+						"dev",
+						"br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"plantas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buscar planta por ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/plantas/1",
+					"protocol": "https",
+					"host": [
+						"cultivo-api",
+						"paulojamil",
+						"dev",
+						"br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"plantas",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Criar nova planta",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Tomate Cereja\",\n  \"comecando_de\": \"semente\",\n  \"especie\": \"sativa\",\n  \"data_plantiu\": \"2023-05-15T00:00:00Z\",\n  \"status\": \"germinando\",\n  \"notas\": \"Planta saudável, sem pragas\",\n  \"genetica_id\": 1,\n  \"meio_cultivo_id\": 1,\n  \"ambiente_id\": 1\n}"
+				},
+				"url": {
+					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/plantas",
+					"protocol": "https",
+					"host": [
+						"cultivo-api",
+						"paulojamil",
+						"dev",
+						"br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"plantas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Atualizar planta",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Tomate Cereja Orgânico\",\n  \"especie\": \"tomato\",\n  \"data_plantiu\": \"2023-05-15T00:00:00Z\",\n  \"data_colheita\": \"2023-08-20T00:00:00Z\",\n  \"status\": \"colhida\",\n  \"estagio_crescimento\": \"madura\",\n  \"notas\": \"Colhido com sucesso\"\n}"
+				},
+				"url": {
+					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/plantas/1",
+					"protocol": "https",
+					"host": [
+						"cultivo-api",
+						"paulojamil",
+						"dev",
+						"br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"plantas",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deletar planta",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/plantas/2",
+					"protocol": "https",
+					"host": [
+						"cultivo-api",
+						"paulojamil",
+						"dev",
+						"br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"plantas",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar todas as genéticas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/geneticas",
+					"protocol": "https",
+					"host": [
+						"cultivo-api",
+						"paulojamil",
+						"dev",
+						"br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"geneticas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Criar nova genética",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Mimosa Evo\",\n  \"descricao\": \"Seed Genetics CO, Variedade de cannabis com alto teor de THC\",\n  \"tipoGenetica\": \"Sativa\",\n  \"tipoEspecie\": \"Feminizada\",\n  \"tempoFloracao\": 60,\n  \"origem\": \"Europa\",\n  \"caracteristicas\": \"Resistência a pragas, sabor citrico de limão, efeito energizante\"\n}"
+				},
+				"url": {
+					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/geneticas",
+					"protocol": "https",
+					"host": [
+						"cultivo-api",
+						"paulojamil",
+						"dev",
+						"br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"geneticas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar todos os ambientes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/ambientes",
+					"protocol": "https",
+					"host": [
+						"cultivo-api",
+						"paulojamil",
+						"dev",
+						"br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"ambientes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Criar novo ambiente",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Estufa Principal\",\n  \"descricao\": \"Estufa com controle de temperatura e umidade\",\n  \"tipo\": \"interno\",\n  \"comprimento\": 500,\n  \"largura\": 300,\n  \"altura\": 250,\n  \"tempo_exposicao\": 12\n}"
+				},
+				"url": {
+					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/ambientes",
+					"protocol": "https",
+					"host": [
+						"cultivo-api",
+						"paulojamil",
+						"dev",
+						"br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"ambientes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar todos os meios de cultivo",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/meios_cultivo",
+					"protocol": "https",
+					"host": [
+						"cultivo-api",
+						"paulojamil",
+						"dev",
+						"br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"meios_cultivo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Criar novo meio de cultivo",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"tipo\": \"Solo Orgânico\",\n  \"descricao\": \"Solo rico em matéria orgânica, humus de minhoca, esterco de frango, farinha de osso, perlita ,ideal para tomates\"\n}"
+				},
+				"url": {
+					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/meios_cultivo",
+					"protocol": "https",
+					"host": [
+						"cultivo-api",
+						"paulojamil",
+						"dev",
+						"br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"meios_cultivo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo-api.paulojamil.dev.br/health",
+					"protocol": "https",
+					"host": [
+						"cultivo-api",
+						"paulojamil",
+						"dev",
+						"br"
+					],
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Health Ready Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo-api.paulojamil.dev.br/health/ready",
+					"protocol": "https",
+					"host": [
+						"cultivo-api",
+						"paulojamil",
+						"dev",
+						"br"
+					],
+					"path": [
+						"health",
+						"ready"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Health Live Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo-api.paulojamil.dev.br/health/live",
+					"protocol": "https",
+					"host": [
+						"cultivo-api",
+						"paulojamil",
+						"dev",
+						"br"
+					],
+					"path": [
+						"health",
+						"live"
+					]
+				}
+			},
+			"response": []
+		}
+	]
 }

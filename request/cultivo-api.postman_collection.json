@@ -57,18 +57,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{
-  "nome": "Mimosa C 1.1.1",
-  "comecando_de": "clone",
-  "especie": "sativa",
-  "data_plantio": "2024-12-27T00:00:00Z",
-  "status": "ativa",
-  "notas": "Planta saudável, sem pragas",
-  "genetica_id": 1,
-  "meio_cultivo_id": 1,
-  "ambiente_id": 1,
-  "usuario_id": 1
-}"
+          "raw": "{\n  \"nome\": \"Mimosa C 1.1.1\",\n  \"comecando_de\": \"clone\",\n  \"especie\": \"sativa\",\n  \"data_plantio\": \"2024-12-27T00:00:00Z\",\n  \"status\": \"ativa\",\n  \"notas\": \"Planta saudável, sem pragas\",\n  \"genetica_id\": 1,\n  \"meio_cultivo_id\": 1,\n  \"ambiente_id\": 1,\n  \"usuario_id\": 1\n}"
         },
         "url": {
           "raw": "http://localhost:8080/api/v1/plantas",
@@ -97,603 +86,546 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{
-  "nome": "Tomate Cereja Orgânico",
-  "especie": "sativa",
-  "data_plantio": "2023-05-15T00:00:00Z",
-  "data_colheita": "2023-08-20T00:00:00Z",
-  "status": "colhida",
-  "notas": "Colhido com sucesso",
-  "usuario_id": 1
-}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/api/v1/plantas/1",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "plantas",
-            "1"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Deletar planta",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/api/v1/plantas/1",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "plantas",
-            "1"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Listar todas as genéticas",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/api/v1/geneticas",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "geneticas"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Buscar genética por ID",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/api/v1/geneticas/1",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "geneticas",
-            "1"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Criar nova genética",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
+          "raw": "{\"nome\": \"Tomate Cereja Orgânico\",\"especie\": \"sativa\",\n          \"data_plantio\": \"2023-05-15T00:00:00Z\",\n          \"data_colheita\": \"2023-08-20T00:00:00Z\",\n          \"status\": \"colhida\",\n          \"notas\": \"Colhido com sucesso\",\n          \"usuario_id\": 1\n        }"
+      },
+      "url": {
+        "raw": "http://localhost:8080/api/v1/plantas/1",
+        "protocol": "http",
+        "host": [
+          "localhost"
         ],
-        "body": {
-          "mode": "raw",
-          "raw": "{
-  "nome": "Mimosa Evo",
-  "descricao": "Seed Genetics CO, Variedade de cannabis com alto teor de THC",
-  "tipoGenetica": "sativa",
-  "tipoEspecie": "feminizada",
-  "tempoFloracao": 60,
-  "origem": "Brasil",
-  "caracteristicas": "Resistência a pragas, sabor cítrico de limão, efeito energizante"
-}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/api/v1/geneticas",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "geneticas"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Atualizar genética",
-      "request": {
-        "method": "PUT",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{
-  "nome": "Mimosa Evo+",
-  "descricao": "Seed Genetics CO, Variedade de cannabis com alto teor de THC e CBD",
-  "tipoGenetica": "hibrido",
-  "tipoEspecie": "feminizada",
-  "tempoFloracao": 65,
-  "origem": "Brasil",
-  "caracteristicas": "Resistência a pragas, sabor cítrico de limão, efeito energizante e relaxante"
-}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/api/v1/geneticas/1",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "geneticas",
-            "1"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Deletar genética",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/api/v1/geneticas/1",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "geneticas",
-            "1"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Listar todos os meios de cultivo",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/api/v1/meios-cultivos",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "meios-cultivos"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Buscar meio de cultivo por ID",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/api/v1/meios-cultivos/1",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "meios-cultivos",
-            "1"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Criar novo meio de cultivo",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{
-  "tipo": "solo",
-  "descricao": "Solo rico em matéria orgânica, carolina soil, humus de minhoca, perlita, torta mamona, farinha de osso, ideal para tomates"
-}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/api/v1/meios-cultivos",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "meios-cultivos"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Atualizar meio de cultivo",
-      "request": {
-        "method": "PUT",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{
-  "tipo": "hidroponia",
-  "descricao": "Sistema hidropônico para cultivo de folhas"
-}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/api/v1/meios-cultivos/1",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "meios-cultivos",
-            "1"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Deletar meio de cultivo",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/api/v1/meios-cultivos/1",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "meios-cultivos",
-            "1"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Listar todos os ambientes",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/api/v1/ambientes",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "ambientes"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Buscar ambiente por ID",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/api/v1/ambientes/1",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "ambientes",
-            "1"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Criar novo ambiente",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{
-  "nome": "Estufa floração",
-  "descricao": "Estufa com controle de temperatura e umidade",
-  "tipo": "interno",
-  "comprimento": 60.0,
-  "altura": 160.0,
-  "largura": 60.0,
-  "tempo_exposicao": 12,
-  "orientacao": "norte"
-}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/api/v1/ambientes",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "ambientes"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Atualizar ambiente",
-      "request": {
-        "method": "PUT",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{
-  "nome": "Estufa Secundária",
-  "descricao": "Estufa com iluminação LED e controle de umidade",
-  "tipo": "interno",
-  "comprimento": 400.0,
-  "altura": 200.0,
-  "largura": 250.0,
-  "tempo_exposicao": 10,
-  "orientacao": "sul"
-}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/api/v1/ambientes/1",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "ambientes",
-            "1"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Deletar ambiente",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/api/v1/ambientes/1",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "ambientes",
-            "1"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Verificação de Saúde",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/health",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "health"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Listar todos os usuários",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/api/v1/usuarios",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "usuarios"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Buscar usuário por ID",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/api/v1/usuarios/1",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "usuarios",
-            "1"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Criar novo usuário",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{
-  "nome": "Paulo Jamil",
-  "email": "paulo@cultivo.com",
-  "senha": "senhaSuperSecreta123",
-  "preferencias": "{\"tema\":\"escuro\",\"idioma\":\"pt-BR\"}"
-}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/api/v1/usuarios",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "usuarios"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Atualizar usuário",
-      "request": {
-        "method": "PUT",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{
-  "nome": "Paulo Jamil Atualizado",
-  "email": "paulo@cultivo.com",
-  "preferencias": "{\"tema\":\"claro\",\"idioma\":\"pt-BR\"}"
-}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/api/v1/usuarios/1",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "usuarios",
-            "1"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Deletar usuário",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/api/v1/usuarios/1",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "api",
-            "v1",
-            "usuarios",
-            "1"
-          ]
-        }
+        "port": "8080",
+        "path": [
+          "api",
+          "v1",
+          "plantas",
+          "1"
+        ]
       }
     }
+  },
+  {
+    "name": "Deletar planta",
+    "request": {
+      "method": "DELETE",
+      "header": [],
+      "url": {
+        "raw": "http://localhost:8080/api/v1/plantas/1",
+        "protocol": "http",
+        "host": [
+          "localhost"
+        ],
+        "port": "8080",
+        "path": [
+          "api",
+          "v1",
+          "plantas",
+          "1"
+        ]
+      }
+    }
+  },
+  {
+    "name": "Listar todas as genéticas",
+    "request": {
+      "method": "GET",
+      "header": [],
+      "url": {
+        "raw": "http://localhost:8080/api/v1/geneticas",
+        "protocol": "http",
+        "host": [
+          "localhost"
+        ],
+        "port": "8080",
+        "path": [
+          "api",
+          "v1",
+          "geneticas"
+        ]
+      }
+    }
+  },
+  {
+    "name": "Buscar genética por ID",
+    "request": {
+      "method": "GET",
+      "header": [],
+      "url": {
+        "raw": "http://localhost:8080/api/v1/geneticas/1",
+        "protocol": "http",
+        "host": [
+          "localhost"
+        ],
+        "port": "8080",
+        "path": [
+          "api",
+          "v1",
+          "geneticas",
+          "1"
+        ]
+      }
+    }
+  },
+  {
+    "name": "Criar nova genética",
+    "request": {
+      "method": "POST",
+      "header": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mode": "raw",
+        "raw": "{\"nome\": \"Mimosa Evo\",\"descricao\": \"Seed Genetics CO, Variedade de cannabis com alto teor de THC\",\n        \"tipoGenetica\": \"sativa\",\n        \"tipoEspecie\": \"feminizada\",\n        \"tempoFloracao\": 60,\n        \"origem\": \"Brasil\",\n        \"caracteristicas\": \"Resistência a pragas, sabor cítrico de limão, efeito energizante\"\n      }"
+    },
+    "url": {
+      "raw": "http://localhost:8080/api/v1/geneticas",
+      "protocol": "http",
+      "host": [
+        "localhost"
+      ],
+      "port": "8080",
+      "path": [
+        "api",
+        "v1",
+        "geneticas"
+      ]
+    }
+  }
+},
+{
+  "name": "Atualizar genética",
+  "request": {
+    "method": "PUT",
+    "header": [
+      {
+        "key": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "body": {
+      "mode": "raw",
+      "raw": "{\"nome\": \"Mimosa Evo+\",\"descricao\": \"Seed Genetics CO, Variedade de cannabis com alto teor de THC e CBD\",\n      \"tipoGenetica\": \"hibrido\",\n      \"tipoEspecie\": \"feminizada\",\n      \"tempoFloracao\": 65,\n      \"origem\": \"Brasil\",\n      \"caracteristicas\": \"Resistência a pragas, sabor cítrico de limão, efeito energizante e relaxante\"\n    }"
+  },
+  "url": {
+    "raw": "http://localhost:8080/api/v1/geneticas/1",
+    "protocol": "http",
+    "host": [
+      "localhost"
+    ],
+    "port": "8080",
+    "path": [
+      "api",
+      "v1",
+      "geneticas",
+      "1"
+    ]
+  }
+}
+},
+{
+"name": "Deletar genética",
+"request": {
+  "method": "DELETE",
+  "header": [],
+  "url": {
+    "raw": "http://localhost:8080/api/v1/geneticas/1",
+    "protocol": "http",
+    "host": [
+      "localhost"
+    ],
+    "port": "8080",
+    "path": [
+      "api",
+      "v1",
+      "geneticas",
+      "1"
+    ]
+  }
+}
+},
+{
+"name": "Listar todos os meios de cultivo",
+"request": {
+  "method": "GET",
+  "header": [],
+  "url": {
+    "raw": "http://localhost:8080/api/v1/meios-cultivos",
+    "protocol": "http",
+    "host": [
+      "localhost"
+    ],
+    "port": "8080",
+    "path": [
+      "api",
+      "v1",
+      "meios-cultivos"
+    ]
+  }
+}
+},
+{
+"name": "Buscar meio de cultivo por ID",
+"request": {
+  "method": "GET",
+  "header": [],
+  "url": {
+    "raw": "http://localhost:8080/api/v1/meios-cultivos/1",
+    "protocol": "http",
+    "host": [
+      "localhost"
+    ],
+    "port": "8080",
+    "path": [
+      "api",
+      "v1",
+      "meios-cultivos",
+      "1"
+    ]
+  }
+}
+},
+{
+"name": "Criar novo meio de cultivo",
+"request": {
+  "method": "POST",
+  "header": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    }
+  ],
+  "body": {
+    "mode": "raw",
+    "raw": "{\"tipo\": \"solo\",\"descricao\": \"Solo rico em matéria orgânica, carolina soil, humus de minhoca, perlita, torta mamona, farinha de osso, ideal para tomates\"\n  }"
+},
+"url": {
+  "raw": "http://localhost:8080/api/v1/meios-cultivos",
+  "protocol": "http",
+  "host": [
+    "localhost"
+  ],
+  "port": "8080",
+  "path": [
+    "api",
+    "v1",
+    "meios-cultivos"
   ]
+}
+}
+},
+{
+"name": "Atualizar meio de cultivo",
+"request": {
+"method": "PUT",
+"header": [
+  {
+    "key": "Content-Type",
+    "value": "application/json"
+  }
+],
+"body": {
+  "mode": "raw",
+  "raw": "{\"tipo\": \"hidroponia\",\"descricao\": \"Sistema hidropônico para cultivo de folhas\"\n}"
+},
+"url": {
+"raw": "http://localhost:8080/api/v1/meios-cultivos/1",
+"protocol": "http",
+"host": [
+  "localhost"
+],
+"port": "8080",
+"path": [
+  "api",
+  "v1",
+  "meios-cultivos",
+  "1"
+]
+}
+}
+},
+{
+"name": "Deletar meio de cultivo",
+"request": {
+"method": "DELETE",
+"header": [],
+"url": {
+"raw": "http://localhost:8080/api/v1/meios-cultivos/1",
+"protocol": "http",
+"host": [
+  "localhost"
+],
+"port": "8080",
+"path": [
+  "api",
+  "v1",
+  "meios-cultivos",
+  "1"
+]
+}
+}
+},
+{
+"name": "Listar todos os ambientes",
+"request": {
+"method": "GET",
+"header": [],
+"url": {
+"raw": "http://localhost:8080/api/v1/ambientes",
+"protocol": "http",
+"host": [
+  "localhost"
+],
+"port": "8080",
+"path": [
+  "api",
+  "v1",
+  "ambientes"
+]
+}
+}
+},
+{
+"name": "Buscar ambiente por ID",
+"request": {
+"method": "GET",
+"header": [],
+"url": {
+"raw": "http://localhost:8080/api/v1/ambientes/1",
+"protocol": "http",
+"host": [
+  "localhost"
+],
+"port": "8080",
+"path": [
+  "api",
+  "v1",
+  "ambientes",
+  "1"
+]
+}
+}
+},
+{
+"name": "Criar novo ambiente",
+"request": {
+"method": "POST",
+"header": [
+{
+  "key": "Content-Type",
+  "value": "application/json"
+}
+],
+"body": {
+"mode": "raw",
+"raw": "{\"nome\": \"Estufa floração\",\"descricao\": \"Estufa com controle de temperatura e umidade\",\n\"tipo\": \"interno\",\n\"comprimento\": 60.0,\n\"altura\": 160.0,\n\"largura\": 60.0,\n\"tempo_exposicao\": 12,\n\"orientacao\": \"norte\"\n}"
+},
+"url": {
+"raw": "http://localhost:8080/api/v1/ambientes",
+"protocol": "http",
+"host": [
+"localhost"
+],
+"port": "8080",
+"path": [
+"api",
+"v1",
+"ambientes"
+]
+}
+}
+},
+{
+"name": "Atualizar ambiente",
+"request": {
+"method": "PUT",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+}
+],
+"body": {
+"mode": "raw",
+"raw": "{\"nome\": \"Estufa Secundária\",\"descricao\": \"Estufa com iluminação LED e controle de umidade\",\n\"tipo\": \"interno\",\n\"comprimento\": 400.0,\n\"altura\": 200.0,\n\"largura\": 250.0,\n\"tempo_exposicao\": 10,\n\"orientacao\": \"sul\"\n}"
+},
+"url": {
+"raw": "http://localhost:8080/api/v1/ambientes/1",
+"protocol": "http",
+"host": [
+"localhost"
+],
+"port": "8080",
+"path": [
+"api",
+"v1",
+"ambientes",
+"1"
+]
+}
+}
+},
+{
+"name": "Deletar ambiente",
+"request": {
+"method": "DELETE",
+"header": [],
+"url": {
+"raw": "http://localhost:8080/api/v1/ambientes/1",
+"protocol": "http",
+"host": [
+"localhost"
+],
+"port": "8080",
+"path": [
+"api",
+"v1",
+"ambientes",
+"1"
+]
+}
+}
+},
+{
+"name": "Verificação de Saúde",
+"request": {
+"method": "GET",
+"header": [],
+"url": {
+"raw": "http://localhost:8080/health",
+"protocol": "http",
+"host": [
+"localhost"
+],
+"port": "8080",
+"path": [
+"health"
+]
+}
+}
+},
+{
+"name": "Listar todos os usuários",
+"request": {
+"method": "GET",
+"header": [],
+"url": {
+"raw": "http://localhost:8080/api/v1/usuarios",
+"protocol": "http",
+"host": [
+"localhost"
+],
+"port": "8080",
+"path": [
+"api",
+"v1",
+"usuarios"
+]
+}
+}
+},
+{
+"name": "Buscar usuário por ID",
+"request": {
+"method": "GET",
+"header": [],
+"url": {
+"raw": "http://localhost:8080/api/v1/usuarios/1",
+"protocol": "http",
+"host": [
+"localhost"
+],
+"port": "8080",
+"path": [
+"api",
+"v1",
+"usuarios",
+"1"
+]
+}
+}
+},
+{
+"name": "Criar novo usuário",
+"request": {
+"method": "POST",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+}
+],
+"body": {
+"mode": "raw",
+"raw": "{\"nome\": \"Paulo Jamil\",\"email\": \"paulo@cultivo.com\",\n\"senha\": \"senhaSuperSecreta123\",\n\"preferencias\": \"{\\\"tema\\\":\\\"escuro\\\",\\\"idioma\\\":\\\"pt-BR\\\"}\\"\n}"
+},
+"url": {
+"raw": "http://localhost:8080/api/v1/usuarios",
+"protocol": "http",
+"host": [
+"localhost"
+],
+"port": "8080",
+"path": [
+"api",
+"v1",
+"usuarios"
+]
+}
+}
+},
+{
+"name": "Atualizar usuário",
+"request": {
+"method": "PUT",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+}
+],
+"body": {
+"mode": "raw",
+"raw": "{\"nome\": \"Paulo Jamil Atualizado\",\"email\": \"paulo@cultivo.com\",\n\"preferencias\": \"{\\\"tema\\\":\\\"claro\\\",\\\"idioma\\\":\\\"pt-BR\\\"}\\"\n}"
+},
+"url": {
+"raw": "http://localhost:8080/api/v1/usuarios/1",
+"protocol": "http",
+"host": [
+"localhost"
+],
+"port": "8080",
+"path": [
+"api",
+"v1",
+"usuarios",
+"1"
+]
+}
+}
+},
+{
+"name": "Deletar usuário",
+"request": {
+"method": "DELETE",
+"header": [],
+"url": {
+"raw": "http://localhost:8080/api/v1/usuarios/1",
+"protocol": "http",
+"host": [
+"localhost"
+],
+"port": "8080",
+"path": [
+"api",
+"v1",
+"usuarios",
+"1"
+]
+}
+}
+}
+]
 }
