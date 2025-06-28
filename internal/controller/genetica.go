@@ -150,3 +150,30 @@ func (c *GeneticaController) Atualizar(ctx *gin.Context) {
 
 	utils.RespondWithJSON(ctx, http.StatusOK, geneticaAtualizada)
 }
+
+// Deletar godoc
+// @Summary      Deleta uma genética
+// @Description  Deleta uma genética existente
+// @Tags         genetica
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID da Genética"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /genetica/{id} [delete]
+func (c *GeneticaController) Deletar(ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil || id == 0 {
+		logrus.WithError(err).Error("ID inválido para deletar genética")
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido")
+		return
+	}
+	if err := c.servico.Deletar(uint(id)); err != nil {
+		logrus.WithError(err).Error("Erro ao deletar genética")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro ao deletar genética")
+		return
+	}
+	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Genética deletada com sucesso"})
+}

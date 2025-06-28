@@ -152,3 +152,30 @@ func (c *AmbienteController) Atualizar(ctx *gin.Context) {
 
 	utils.RespondWithJSON(ctx, http.StatusOK, ambienteAtualizado)
 }
+
+// Deletar godoc
+// @Summary      Deleta um ambiente
+// @Description  Deleta um ambiente existente
+// @Tags         ambiente
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID do Ambiente"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /ambiente/{id} [delete]
+func (c *AmbienteController) Deletar(ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil || id == 0 {
+		logrus.WithError(err).Error("ID inválido para deletar ambiente")
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido")
+		return
+	}
+	if err := c.servico.Deletar(uint(id)); err != nil {
+		logrus.WithError(err).Error("Erro ao deletar ambiente")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro ao deletar ambiente")
+		return
+	}
+	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Ambiente deletado com sucesso"})
+}

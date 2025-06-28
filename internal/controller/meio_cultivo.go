@@ -144,3 +144,30 @@ func (c *MeioCultivoController) Atualizar(ctx *gin.Context) {
 
 	utils.RespondWithJSON(ctx, http.StatusOK, meioCultivoAtualizado)
 }
+
+// Deletar godoc
+// @Summary      Deleta um meio de cultivo
+// @Description  Deleta um meio de cultivo existente
+// @Tags         meio_cultivo
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID do Meio de Cultivo"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /meios-cultivos/{id} [delete]
+func (c *MeioCultivoController) Deletar(ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil || id == 0 {
+		logrus.WithError(err).Error("ID inválido para deletar meio de cultivo")
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido")
+		return
+	}
+	if err := c.servico.Deletar(uint(id)); err != nil {
+		logrus.WithError(err).Error("Erro ao deletar meio de cultivo")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro ao deletar meio de cultivo")
+		return
+	}
+	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Meio de cultivo deletado com sucesso"})
+}
