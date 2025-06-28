@@ -28,7 +28,7 @@ func NewGeneticaController(servico service.GeneticaService) *GeneticaController 
 // @Accept       json
 // @Produce      json
 // @Param        genetica  body      dto.CreateGeneticaDTO  true  "Dados da Genética"
-// @Success      201      {object}  map[string]interface{}
+// @Success      201      {object}  dto.GeneticaResponseDTO // Alterado
 // @Failure      400      {object}  map[string]string
 // @Failure      500      {object}  map[string]string
 // @Router       /geneticas [post]
@@ -51,6 +51,13 @@ func (ctrl *GeneticaController) Criar(c *gin.Context) {
 }
 
 // Listar lida com requisições GET para retornar todas as genéticas
+// @Summary      Lista todas as genéticas
+// @Description  Retorna uma lista de todas as genéticas cadastrados
+// @Tags         genetica
+// @Produce      json
+// @Success      200  {array}   dto.GeneticaResponseDTO // Alterado
+// @Failure      500  {object}  map[string]string
+// @Router       /geneticas [get]
 func (c *GeneticaController) Listar(ctx *gin.Context) {
 	geneticas, err := c.servico.ListarTodas()
 	if err != nil {
@@ -68,7 +75,7 @@ func (c *GeneticaController) Listar(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Genetica ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} dto.GeneticaResponseDTO // Alterado
 // @Failure 400 {object} map[string]string
 // @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
@@ -102,7 +109,7 @@ func (c *GeneticaController) BuscarPorID(ctx *gin.Context) {
 // @Produce      json
 // @Param        id        path      int                  true  "ID da Genética"
 // @Param        genetica  body      dto.UpdateGeneticaDTO  true  "Dados da Genética para atualização"
-// @Success      200       {object}  map[string]interface{}
+// @Success      200       {object}  dto.GeneticaResponseDTO // Alterado
 // @Failure      400       {object}  map[string]string
 // @Failure      404       {object}  map[string]string
 // @Failure      500       {object}  map[string]string

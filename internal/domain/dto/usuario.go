@@ -11,3 +11,10 @@ type UsuarioUpdateDTO struct {
     Nome         string `json:"nome"`
     Preferencias string `json:"preferencias"`
 }
+
+type UsuarioResponseDTO struct {
+	ID           uint   `json:"id"`
+	Nome         string `json:"nome"`
+	Email        string `json:"email"`
+	Preferencias string `json:"preferencias"`
+}

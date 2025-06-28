@@ -10,10 +10,10 @@ import (
 )
 
 type UsuarioService interface {
-	Criar(usuarioDto *dto.UsuarioCreateDTO) (*models.Usuario, error)
-	BuscarPorID(id uint) (*models.Usuario, error)
-	ListarTodos() ([]models.Usuario, error)
-	Atualizar(id uint, usuarioDto *dto.UsuarioUpdateDTO) error
+	Criar(usuarioDto *dto.UsuarioCreateDTO) (*dto.UsuarioResponseDTO, error)
+	BuscarPorID(id uint) (*dto.UsuarioResponseDTO, error)
+	ListarTodos() ([]dto.UsuarioResponseDTO, error)
+	Atualizar(id uint, usuarioDto *dto.UsuarioUpdateDTO) (*dto.UsuarioResponseDTO, error)
 	Deletar(id uint) error
 }
 
@@ -25,47 +25,83 @@ func NewUsuarioService(repositorio repository.UsuarioRepositorio) UsuarioService
 	return &usuarioService{repositorio}
 }
 
-func (s *usuarioService) Criar(dto *dto.UsuarioCreateDTO) (*models.Usuario, error) {
-	hash, err := utils.HashPassword(dto.Senha)
+func (s *usuarioService) Criar(usuarioDto *dto.UsuarioCreateDTO) (*dto.UsuarioResponseDTO, error) {
+	hash, err := utils.HashPassword(usuarioDto.Senha)
 	if err != nil {
-		return nil, fmt.Errorf("falha ao fazer o hash da senha do usuário %s: %w", dto.Nome, err)
+		return nil, fmt.Errorf("falha ao fazer o hash da senha do usuário %s: %w", usuarioDto.Nome, err)
 	}
 	usuario := models.Usuario{
-		Nome:         dto.Nome,
-		Email:        dto.Email,
+		Nome:         usuarioDto.Nome,
+		Email:        usuarioDto.Email,
 		SenhaHash:    hash,
-		Preferencias: dto.Preferencias,
+		Preferencias: usuarioDto.Preferencias,
 	}
 	if err := s.repositorio.Criar(&usuario); err != nil {
-		return nil, fmt.Errorf("falha ao criar usuário %s: %w", dto.Nome, err)
+		return nil, fmt.Errorf("falha ao criar usuário %s: %w", usuarioDto.Nome, err)
 	}
-	return &usuario, nil
+	return &dto.UsuarioResponseDTO{
+		ID:           usuario.ID,
+		Nome:         usuario.Nome,
+		Email:        usuario.Email,
+		Preferencias: usuario.Preferencias,
+	}, nil
 }
 
-func (s *usuarioService) BuscarPorID(id uint) (*models.Usuario, error) {
-	return s.repositorio.BuscarPorID(id)
+func (s *usuarioService) BuscarPorID(id uint) (*dto.UsuarioResponseDTO, error) {
+	usuario, err := s.repositorio.BuscarPorID(id)
+	if err != nil {
+		return nil, err
+	}
+	return &dto.UsuarioResponseDTO{
+		ID:           usuario.ID,
+		Nome:         usuario.Nome,
+		Email:        usuario.Email,
+		Preferencias: usuario.Preferencias,
+	}, nil
 }
 
-func (s *usuarioService) ListarTodos() ([]models.Usuario, error) {
-	return s.repositorio.ListarTodos()
+func (s *usuarioService) ListarTodos() ([]dto.UsuarioResponseDTO, error) {
+	usuarios, err := s.repositorio.ListarTodos()
+	if err != nil {
+		return nil, err
+	}
+
+	var responseDTOs []dto.UsuarioResponseDTO
+	for _, usuario := range usuarios {
+		responseDTOs = append(responseDTOs, dto.UsuarioResponseDTO{
+			ID:           usuario.ID,
+			Nome:         usuario.Nome,
+			Email:        usuario.Email,
+			Preferencias: usuario.Preferencias,
+		})
+	}
+	return responseDTOs, nil
 }
 
 // Atualizar atualiza os campos do usuário informados no DTO.
 // Apenas os campos enviados (não vazios) serão atualizados.
 // Se nenhum campo for enviado (todos vazios), nada será alterado no registro.
 // Retorna gorm.ErrRecordNotFound se o usuário não existir.
-func (s *usuarioService) Atualizar(id uint, dto *dto.UsuarioUpdateDTO) error {
+func (s *usuarioService) Atualizar(id uint, usuarioDto *dto.UsuarioUpdateDTO) (*dto.UsuarioResponseDTO, error) {
 	usuario, err := s.repositorio.BuscarPorID(id)
 	if err != nil {
-		return fmt.Errorf("falha ao buscar usuário com ID %d: %w", id, err)
+		return nil, fmt.Errorf("falha ao buscar usuário com ID %d: %w", id, err)
 	}
-	if dto.Nome != "" {
-		usuario.Nome = dto.Nome
+	if usuarioDto.Nome != "" {
+		usuario.Nome = usuarioDto.Nome
 	}
-	if dto.Preferencias != "" {
-		usuario.Preferencias = dto.Preferencias
+	if usuarioDto.Preferencias != "" {
+		usuario.Preferencias = usuarioDto.Preferencias
 	}
-	return s.repositorio.Atualizar(usuario)
+	if err := s.repositorio.Atualizar(usuario); err != nil {
+		return nil, err
+	}
+	return &dto.UsuarioResponseDTO{
+		ID:           usuario.ID,
+		Nome:         usuario.Nome,
+		Email:        usuario.Email,
+		Preferencias: usuario.Preferencias,
+	}, nil
 }
 
 func (s *usuarioService) Deletar(id uint) error {

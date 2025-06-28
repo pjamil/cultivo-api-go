@@ -22,3 +22,14 @@ type UpdateGeneticaDTO struct {
 	Origem          string `json:"origem"`
 	Caracteristicas string `json:"caracteristicas"`
 }
+
+type GeneticaResponseDTO struct {
+	ID              uint   `json:"id"`
+	Nome            string `json:"nome"`
+	Descricao       string `json:"descricao"`
+	TipoGenetica    string `json:"tipoGenetica"`
+	TipoEspecie     string `json:"tipoEspecie"`
+	TempoFloracao   int    `json:"tempoFloracao"`
+	Origem          string `json:"origem"`
+	Caracteristicas string `json:"caracteristicas"`
+}

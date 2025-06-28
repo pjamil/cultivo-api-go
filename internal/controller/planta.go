@@ -31,7 +31,7 @@ func NewPlantaController(plantaServico service.PlantaService) *PlantaController 
 // @Accept       json
 // @Produce      json
 // @Param        planta  body      dto.CreatePlantaDTO  true  "Dados para criação da planta"
-// @Success      201    {object}  map[string]interface{}
+// @Success      201    {object}  dto.PlantaResponseDTO
 // @Failure      400    {object}  map[string]interface{}
 // @Failure      500    {object}  map[string]interface{}
 // @Router       /plantas [post]
@@ -57,7 +57,7 @@ func (c *PlantaController) Criar(ctx *gin.Context) {
 // @Tags         plantas
 // @Accept       json
 // @Produce      json
-// @Success      200  {array}   map[string]interface{}
+// @Success      200  {array}   dto.PlantaResponseDTO
 // @Failure      500  {object}  map[string]interface{}
 // @Router       /plantas [get]
 func (c *PlantaController) Listar(ctx *gin.Context) {
@@ -94,7 +94,7 @@ const (
 // @Accept       json
 // @Produce      json
 // @Param        id   path      int  true  "ID da Planta"
-// @Success      200  {object}  map[string]interface{}
+// @Success      200  {object}  dto.PlantaResponseDTO
 // @Failure      400  {object}  map[string]interface{}
 // @Failure      404  {object}  map[string]interface{}
 // @Router       /plantas/{id} [get]
@@ -126,7 +126,7 @@ func (c *PlantaController) BuscarPorID(ctx *gin.Context) {
 // @Produce      json
 // @Param        id      path      int            true  "ID da Planta"
 // @Param        planta  body      dto.UpdatePlantaDTO  true  "Dados para atualização da planta"
-// @Success      200    {object}  map[string]interface{}
+// @Success      200    {object}  dto.PlantaResponseDTO
 // @Failure      400    {object}  map[string]interface{}
 // @Failure      404    {object}  map[string]interface{}
 // @Failure      500    {object}  map[string]interface{}
@@ -145,55 +145,14 @@ func (c *PlantaController) Atualizar(ctx *gin.Context) {
 		return
 	}
 
-	plantaExistente, err := c.plantaServico.BuscarPorID(uint(id))
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			logrus.WithError(err).Error("Planta não encontrada para atualização")
-			ctx.JSON(http.StatusNotFound, gin.H{"error": ErroPlantaNaoEncontrada})
-			return
-		}
-		logrus.WithError(err).Error("Erro ao buscar planta para atualização")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
+	// A chamada ao serviço de atualização agora retorna o DTO de resposta
+	plantaAtualizada, err := c.plantaServico.Atualizar(uint(id), &updateDto)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		logrus.WithError(err).Error("Planta não encontrada para atualização")
+		ctx.JSON(http.StatusNotFound, gin.H{"error": ErroPlantaNaoEncontrada})
 		return
 	}
-
-	// Atualiza os campos da planta existente com os dados do DTO
-	if updateDto.Nome != "" {
-		plantaExistente.Nome = updateDto.Nome
-	}
-	if updateDto.ComecandoDe != "" {
-		plantaExistente.ComecandoDe = updateDto.ComecandoDe
-	}
-	if updateDto.Especie != "" {
-		plantaExistente.Especie = models.Especie(updateDto.Especie)
-	}
-	if !updateDto.DataPlantio.IsZero() {
-		plantaExistente.DataPlantio = &updateDto.DataPlantio
-	}
-	if !updateDto.DataColheita.IsZero() {
-		plantaExistente.DataColheita = &updateDto.DataColheita
-	}
-	if updateDto.Status != "" {
-		plantaExistente.Status = models.PlantaStatus(updateDto.Status)
-	}
-	// Removido: plantaExistente.EstagioCrescimento não existe em models.Planta
-	if updateDto.Notas != "" {
-		plantaExistente.Notas = &updateDto.Notas
-	}
-	if updateDto.GeneticaID != 0 {
-		plantaExistente.GeneticaID = updateDto.GeneticaID
-	}
-	if updateDto.MeioCultivoID != 0 {
-		plantaExistente.MeioCultivoID = updateDto.MeioCultivoID
-	}
-	if updateDto.AmbienteID != 0 {
-		plantaExistente.AmbienteID = updateDto.AmbienteID
-	}
-	if updateDto.UsuarioID != 0 {
-		plantaExistente.UsuarioID = updateDto.UsuarioID
-	}
-
-	if err := c.plantaServico.Atualizar(uint(id), &updateDto); err != nil {
+	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"operation": "update_plant",
 			"plant_id":  id,
@@ -203,13 +162,6 @@ func (c *PlantaController) Atualizar(ctx *gin.Context) {
 		return
 	}
 
-	// Busca a planta atualizada para retornar na resposta
-	plantaAtualizada, err := c.plantaServico.BuscarPorID(uint(id))
-	if err != nil {
-		logrus.WithError(err).Error("Erro ao buscar planta atualizada após atualização")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
-		return
-	}
 	utils.RespondWithJSON(ctx, http.StatusOK, plantaAtualizada)
 }
 

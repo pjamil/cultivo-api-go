@@ -21,6 +21,17 @@ func NewMeioCultivoController(servico service.MeioCultivoService) *MeioCultivoCo
 	return &MeioCultivoController{servico}
 }
 
+// Criar godoc
+// @Summary      Cria um novo meio de cultivo
+// @Description  Cria um novo meio de cultivo com os dados fornecidos
+// @Tags         meio_cultivo
+// @Accept       json
+// @Produce      json
+// @Param        meioCultivo  body      dto.CreateMeioCultivoDTO  true  "Dados do Meio de Cultivo"
+// @Success      201       {object}  dto.MeioCultivoResponseDTO // Alterado
+// @Failure      400       {object}  map[string]string
+// @Failure      500       {object}  map[string]string
+// @Router       /meios-cultivos [post]
 func (c *MeioCultivoController) Criar(ctx *gin.Context) {
 	var dto dto.CreateMeioCultivoDTO
 	if err := ctx.ShouldBindJSON(&dto); err != nil {
@@ -38,6 +49,14 @@ func (c *MeioCultivoController) Criar(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, meioCultivo)
 }
 
+// Listar godoc
+// @Summary      Lista todos os meios de cultivo
+// @Description  Retorna uma lista de todos os meios de cultivo cadastrados
+// @Tags         meio_cultivo
+// @Produce      json
+// @Success      200  {array}   dto.MeioCultivoResponseDTO // Alterado
+// @Failure      500  {object}  map[string]string
+// @Router       /meios-cultivos [get]
 func (c *MeioCultivoController) Listar(ctx *gin.Context) {
 	meioCultivos, err := c.servico.ListarTodos()
 	if err != nil {
@@ -49,6 +68,18 @@ func (c *MeioCultivoController) Listar(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, meioCultivos)
 }
 
+// BuscarPorID godoc
+// @Summary      Busca um meio de cultivo por ID
+// @Description  Retorna os detalhes de um meio de cultivo específico
+// @Tags         meio_cultivo
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID do Meio de Cultivo"
+// @Success      200  {object}  dto.MeioCultivoResponseDTO // Alterado
+// @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /meios-cultivos/{id} [get]
 func (c *MeioCultivoController) BuscarPorID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -56,13 +87,13 @@ func (c *MeioCultivoController) BuscarPorID(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID Inválido"})
 		return
 	}
-	usuario, err := c.servico.BuscarPorID(uint(id))
+	meioCultivo, err := c.servico.BuscarPorID(uint(id))
 	if err != nil {
 		logrus.WithError(err).Error("Meio de cultivo não encontrado ao buscar por ID")
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Usuário não encontrado"})
 		return
 	}
-	ctx.JSON(http.StatusOK, usuario)
+	ctx.JSON(http.StatusOK, meioCultivo)
 }
 
 // Atualizar godoc
@@ -73,7 +104,7 @@ func (c *MeioCultivoController) BuscarPorID(ctx *gin.Context) {
 // @Produce      json
 // @Param        id        path      int                     true  "ID do Meio de Cultivo"
 // @Param        meioCultivo  body      dto.UpdateMeioCultivoDTO  true  "Dados do Meio de Cultivo para atualização"
-// @Success      200       {object}  map[string]interface{}
+// @Success      200       {object}  dto.MeioCultivoResponseDTO // Alterado
 // @Failure      400       {object}  map[string]string
 // @Failure      404       {object}  map[string]string
 // @Failure      500       {object}  map[string]string

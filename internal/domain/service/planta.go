@@ -13,10 +13,10 @@ import (
 // PlantaService define os métodos que um serviço de planta deve implementar.
 // Fornece uma interface para gerenciar plantas no sistema.
 type PlantaService interface {
-	BuscarPorID(id uint) (*models.Planta, error)
-	Criar(plantaDto *dto.CreatePlantaDTO) (*models.Planta, error)
-	ListarTodas() ([]models.Planta, error)
-	Atualizar(id uint, plantaDto *dto.UpdatePlantaDTO) error
+	BuscarPorID(id uint) (*dto.PlantaResponseDTO, error)
+	Criar(plantaDto *dto.CreatePlantaDTO) (*dto.PlantaResponseDTO, error)
+	ListarTodas() ([]dto.PlantaResponseDTO, error)
+	Atualizar(id uint, plantaDto *dto.UpdatePlantaDTO) (*dto.PlantaResponseDTO, error)
 	Deletar(id uint) error
 	BuscarPorEspecie(especie models.Especie) ([]models.Planta, error)
 	BuscarPorStatus(status string) ([]models.Planta, error)
@@ -45,7 +45,7 @@ func NewPlantaService(
 	}
 }
 
-func (s *plantaService) Criar(plantaDto *dto.CreatePlantaDTO) (*models.Planta, error) {
+func (s *plantaService) Criar(plantaDto *dto.CreatePlantaDTO) (*dto.PlantaResponseDTO, error) {
 	if plantaDto.Nome == "" {
 		return nil, errors.New("o nome da planta não pode estar vazio")
 	}
@@ -93,10 +93,25 @@ func (s *plantaService) Criar(plantaDto *dto.CreatePlantaDTO) (*models.Planta, e
 	if err := s.repositorio.Criar(&planta); err != nil {
 		return nil, err
 	}
-	return &planta, nil
+	return &dto.PlantaResponseDTO{
+		ID:            planta.ID,
+		Nome:          planta.Nome,
+		ComecandoDe:   planta.ComecandoDe,
+		Especie:       string(planta.Especie),
+		DataPlantio:   *planta.DataPlantio,
+		DataColheita:  planta.DataColheita,
+		Status:        string(planta.Status),
+		Notas:         *planta.Notas,
+		GeneticaID:    planta.GeneticaID,
+		MeioCultivoID: planta.MeioCultivoID,
+		AmbienteID:    planta.AmbienteID,
+		UsuarioID:     planta.UsuarioID,
+		CreatedAt:     planta.CreatedAt,
+		UpdatedAt:     planta.UpdatedAt,
+	}, nil
 }
 
-func (s *plantaService) BuscarPorID(id uint) (*models.Planta, error) {
+func (s *plantaService) BuscarPorID(id uint) (*dto.PlantaResponseDTO, error) {
 	planta, err := s.repositorio.BuscarPorID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -104,17 +119,56 @@ func (s *plantaService) BuscarPorID(id uint) (*models.Planta, error) {
 		}
 		return nil, fmt.Errorf("falha ao obter planta com ID %d: %w", id, err)
 	}
-	return planta, nil
+	return &dto.PlantaResponseDTO{
+		ID:            planta.ID,
+		Nome:          planta.Nome,
+		ComecandoDe:   planta.ComecandoDe,
+		Especie:       string(planta.Especie),
+		DataPlantio:   *planta.DataPlantio,
+		DataColheita:  planta.DataColheita,
+		Status:        string(planta.Status),
+		Notas:         *planta.Notas,
+		GeneticaID:    planta.GeneticaID,
+		MeioCultivoID: planta.MeioCultivoID,
+		AmbienteID:    planta.AmbienteID,
+		UsuarioID:     planta.UsuarioID,
+		CreatedAt:     planta.CreatedAt,
+		UpdatedAt:     planta.UpdatedAt,
+	}, nil
 }
 
-func (s *plantaService) ListarTodas() ([]models.Planta, error) {
-	return s.repositorio.ListarTodos()
+func (s *plantaService) ListarTodas() ([]dto.PlantaResponseDTO, error) {
+	plantas, err := s.repositorio.ListarTodos()
+	if err != nil {
+		return nil, err
+	}
+
+	var responseDTOs []dto.PlantaResponseDTO
+	for _, planta := range plantas {
+		responseDTOs = append(responseDTOs, dto.PlantaResponseDTO{
+			ID:            planta.ID,
+			Nome:          planta.Nome,
+			ComecandoDe:   planta.ComecandoDe,
+			Especie:       string(planta.Especie),
+			DataPlantio:   *planta.DataPlantio,
+			DataColheita:  planta.DataColheita,
+			Status:        string(planta.Status),
+			Notas:         *planta.Notas,
+			GeneticaID:    planta.GeneticaID,
+			MeioCultivoID: planta.MeioCultivoID,
+			AmbienteID:    planta.AmbienteID,
+			UsuarioID:     planta.UsuarioID,
+			CreatedAt:     planta.CreatedAt,
+			UpdatedAt:     planta.UpdatedAt,
+		})
+	}
+	return responseDTOs, nil
 }
 
-func (s *plantaService) Atualizar(id uint, plantaDto *dto.UpdatePlantaDTO) error {
+func (s *plantaService) Atualizar(id uint, plantaDto *dto.UpdatePlantaDTO) (*dto.PlantaResponseDTO, error) {
 	plantaExistente, err := s.repositorio.BuscarPorID(id)
 	if err != nil {
-		return fmt.Errorf("falha ao buscar planta com ID %d: %w", id, err)
+		return nil, fmt.Errorf("falha ao buscar planta com ID %d: %w", id, err)
 	}
 
 	// Atualiza os campos da planta existente com os dados do DTO
@@ -160,29 +214,48 @@ func (s *plantaService) Atualizar(id uint, plantaDto *dto.UpdatePlantaDTO) error
 	if plantaDto.GeneticaID != 0 {
 		if _, err := s.geneticaRepositorio.BuscarPorID(plantaDto.GeneticaID); err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return errors.New("genética não encontrada")
+				return nil, errors.New("genética não encontrada")
 			}
-			return fmt.Errorf("falha ao buscar genética com ID %d: %w", plantaDto.GeneticaID, err)
+			return nil, fmt.Errorf("falha ao buscar genética com ID %d: %w", plantaDto.GeneticaID, err)
 		}
 	}
 	if plantaDto.AmbienteID != 0 {
 		if _, err := s.ambienteRepositorio.BuscarPorID(plantaDto.AmbienteID); err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return errors.New("ambiente não encontrado")
+				return nil, errors.New("ambiente não encontrado")
 			}
-			return fmt.Errorf("falha ao buscar ambiente com ID %d: %w", plantaDto.AmbienteID, err)
+			return nil, fmt.Errorf("falha ao buscar ambiente com ID %d: %w", plantaDto.AmbienteID, err)
 		}
 	}
 	if plantaDto.MeioCultivoID != 0 {
 		if _, err := s.meioRepositorio.BuscarPorID(plantaDto.MeioCultivoID); err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return errors.New("meio de cultivo não encontrado")
+				return nil, errors.New("meio de cultivo não encontrado")
 			}
-			return fmt.Errorf("falha ao buscar meio de cultivo com ID %d: %w", plantaDto.MeioCultivoID, err)
+			return nil, fmt.Errorf("falha ao buscar meio de cultivo com ID %d: %w", plantaDto.MeioCultivoID, err)
 		}
 	}
 
-	return s.repositorio.Atualizar(plantaExistente)
+	if err := s.repositorio.Atualizar(plantaExistente); err != nil {
+		return nil, err
+	}
+
+	return &dto.PlantaResponseDTO{
+		ID:            plantaExistente.ID,
+		Nome:          plantaExistente.Nome,
+		ComecandoDe:   plantaExistente.ComecandoDe,
+		Especie:       string(plantaExistente.Especie),
+		DataPlantio:   *plantaExistente.DataPlantio,
+		DataColheita:  plantaExistente.DataColheita,
+		Status:        string(plantaExistente.Status),
+		Notas:         *plantaExistente.Notas,
+		GeneticaID:    plantaExistente.GeneticaID,
+		MeioCultivoID: plantaExistente.MeioCultivoID,
+		AmbienteID:    plantaExistente.AmbienteID,
+		UsuarioID:     plantaExistente.UsuarioID,
+		CreatedAt:     plantaExistente.CreatedAt,
+		UpdatedAt:     plantaExistente.UpdatedAt,
+	}, nil
 }
 
 func (s *plantaService) Deletar(id uint) error {

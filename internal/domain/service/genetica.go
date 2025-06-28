@@ -8,10 +8,10 @@ import (
 )
 
 type GeneticaService interface {
-	Criar(geneticaDto *dto.CreateGeneticaDTO) (*models.Genetica, error)
-	ListarTodas() ([]models.Genetica, error)
-	BuscarPorID(id uint) (*models.Genetica, error)
-	Atualizar(id uint, geneticaDto *dto.UpdateGeneticaDTO) (*models.Genetica, error)
+	Criar(geneticaDto *dto.CreateGeneticaDTO) (*dto.GeneticaResponseDTO, error)
+	ListarTodas() ([]dto.GeneticaResponseDTO, error)
+	BuscarPorID(id uint) (*dto.GeneticaResponseDTO, error)
+	Atualizar(id uint, geneticaDto *dto.UpdateGeneticaDTO) (*dto.GeneticaResponseDTO, error)
 }
 
 type geneticaService struct {
@@ -22,7 +22,7 @@ func NewGeneticaService(repositorio repository.GeneticaRepositorio) GeneticaServ
 	return &geneticaService{repositorio}
 }
 
-func (s *geneticaService) Criar(geneticaDto *dto.CreateGeneticaDTO) (*models.Genetica, error) {
+func (s *geneticaService) Criar(geneticaDto *dto.CreateGeneticaDTO) (*dto.GeneticaResponseDTO, error) {
 	genetica := models.Genetica{
 		Nome:            geneticaDto.Nome,
 		Descricao:       geneticaDto.Descricao,
@@ -35,22 +35,62 @@ func (s *geneticaService) Criar(geneticaDto *dto.CreateGeneticaDTO) (*models.Gen
 	if err := s.repositorio.Criar(&genetica); err != nil {
 		return nil, err
 	}
-	return &genetica, nil
+	return &dto.GeneticaResponseDTO{
+		ID:              genetica.ID,
+		Nome:            genetica.Nome,
+		Descricao:       genetica.Descricao,
+		TipoGenetica:    genetica.TipoGenetica,
+		TipoEspecie:     genetica.TipoEspecie,
+		TempoFloracao:   genetica.TempoFloracao,
+		Origem:          genetica.Origem,
+		Caracteristicas: genetica.Caracteristicas,
+	}, nil
 }
 
-func (s *geneticaService) ListarTodas() ([]models.Genetica, error) {
-	return s.repositorio.ListarTodos()
+func (s *geneticaService) ListarTodas() ([]dto.GeneticaResponseDTO, error) {
+	geneticas, err := s.repositorio.ListarTodos()
+	if err != nil {
+		return nil, err
+	}
+
+	var responseDTOs []dto.GeneticaResponseDTO
+	for _, genetica := range geneticas {
+		responseDTOs = append(responseDTOs, dto.GeneticaResponseDTO{
+			ID:              genetica.ID,
+			Nome:            genetica.Nome,
+			Descricao:       genetica.Descricao,
+			TipoGenetica:    genetica.TipoGenetica,
+			TipoEspecie:     genetica.TipoEspecie,
+			TempoFloracao:   genetica.TempoFloracao,
+			Origem:          genetica.Origem,
+			Caracteristicas: genetica.Caracteristicas,
+		})
+	}
+	return responseDTOs, nil
 }
 
-func (s *geneticaService) BuscarPorID(id uint) (*models.Genetica, error) {
+func (s *geneticaService) BuscarPorID(id uint) (*dto.GeneticaResponseDTO, error) {
 	if id == 0 {
 		return nil, gorm.ErrInvalidValue
 	}
 
-	return s.repositorio.BuscarPorID(id)
+	genetica, err := s.repositorio.BuscarPorID(id)
+	if err != nil {
+		return nil, err
+	}
+	return &dto.GeneticaResponseDTO{
+		ID:              genetica.ID,
+		Nome:            genetica.Nome,
+		Descricao:       genetica.Descricao,
+		TipoGenetica:    genetica.TipoGenetica,
+		TipoEspecie:     genetica.TipoEspecie,
+		TempoFloracao:   genetica.TempoFloracao,
+		Origem:          genetica.Origem,
+		Caracteristicas: genetica.Caracteristicas,
+	}, nil
 }
 
-func (s *geneticaService) Atualizar(id uint, geneticaDto *dto.UpdateGeneticaDTO) (*models.Genetica, error) {
+func (s *geneticaService) Atualizar(id uint, geneticaDto *dto.UpdateGeneticaDTO) (*dto.GeneticaResponseDTO, error) {
 	geneticaExistente, err := s.repositorio.BuscarPorID(id)
 	if err != nil {
 		return nil, err
@@ -82,5 +122,14 @@ func (s *geneticaService) Atualizar(id uint, geneticaDto *dto.UpdateGeneticaDTO)
 		return nil, err
 	}
 
-	return geneticaExistente, nil
+	return &dto.GeneticaResponseDTO{
+		ID:              geneticaExistente.ID,
+		Nome:            geneticaExistente.Nome,
+		Descricao:       geneticaExistente.Descricao,
+		TipoGenetica:    geneticaExistente.TipoGenetica,
+		TipoEspecie:     geneticaExistente.TipoEspecie,
+		TempoFloracao:   geneticaExistente.TempoFloracao,
+		Origem:          geneticaExistente.Origem,
+		Caracteristicas: geneticaExistente.Caracteristicas,
+	}, nil
 }

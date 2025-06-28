@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -30,7 +31,7 @@ func NewUsuarioController(servico service.UsuarioService) *UsuarioController {
 // @Accept       json
 // @Produce      json
 // @Param        usuario  body      dto.UsuarioCreateDTO  true  "Dados do Usuário"
-// @Success      201      {object}  map[string]interface{}
+// @Success      201      {object}  dto.UsuarioResponseDTO // Alterado
 // @Failure      400      {object}  map[string]string
 // @Failure      409      {object}  map[string]string
 // @Failure      500      {object}  map[string]string
@@ -63,7 +64,7 @@ func (c *UsuarioController) Criar(ctx *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        id   path      int  true  "ID do Usuário"
-// @Success      200  {object}  map[string]interface{}
+// @Success      200  {object}  dto.UsuarioResponseDTO // Alterado
 // @Failure      400  {object}  map[string]string
 // @Failure      404  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
@@ -88,7 +89,7 @@ func (c *UsuarioController) BuscarPorID(ctx *gin.Context) {
 // @Description  Retorna uma lista de todos os usuários cadastrados
 // @Tags         usuario
 // @Produce      json
-// @Success      200  {array}   map[string]interface{}
+// @Success      200  {array}   dto.UsuarioResponseDTO // Alterado
 // @Failure      500  {object}  map[string]string
 // @Router       /usuarios [get]
 func (c *UsuarioController) Listar(ctx *gin.Context) {
@@ -109,7 +110,7 @@ func (c *UsuarioController) Listar(ctx *gin.Context) {
 // @Produce      json
 // @Param        id       path      int                 true  "ID do Usuário"
 // @Param        usuario  body      dto.UsuarioUpdateDTO  true  "Dados do Usuário para atualização"
-// @Success      200      {object}  map[string]interface{}
+// @Success      200      {object}  dto.UsuarioResponseDTO // Alterado
 // @Failure      400      {object}  map[string]string
 // @Failure      404      {object}  map[string]string
 // @Failure      500      {object}  map[string]string
@@ -127,7 +128,7 @@ func (c *UsuarioController) Atualizar(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err = c.servico.Atualizar(uint(id), &dto)
+	usuarioAtualizado, err := c.servico.Atualizar(uint(id), &dto)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Usuário não encontrado para atualização")
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Usuário não encontrado"})
@@ -138,7 +139,7 @@ func (c *UsuarioController) Atualizar(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.Status(http.StatusOK)
+	ctx.JSON(http.StatusOK, usuarioAtualizado)
 }
 
 // Deletar godoc

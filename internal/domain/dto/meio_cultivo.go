@@ -9,3 +9,9 @@ type UpdateMeioCultivoDTO struct {
 	Tipo      string `json:"tipo"`
 	Descricao string `json:"descricao"`
 }
+
+type MeioCultivoResponseDTO struct {
+	ID        uint   `json:"id"`
+	Tipo      string `json:"tipo"`
+	Descricao string `json:"descricao"`
+}
