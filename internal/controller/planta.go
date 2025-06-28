@@ -67,6 +67,11 @@ func (c *PlantaController) Listar(ctx *gin.Context) {
 		return
 	}
 
+	if len(plantas) == 0 {
+		utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Nenhuma planta encontrada"})
+		return
+	}
+
 	utils.RespondWithJSON(ctx, http.StatusOK, plantas)
 }
 

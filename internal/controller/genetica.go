@@ -7,6 +7,7 @@ import (
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
@@ -28,7 +29,7 @@ func NewGeneticaController(servico service.GeneticaService) *GeneticaController 
 // @Accept       json
 // @Produce      json
 // @Param        genetica  body      dto.CreateGeneticaDTO  true  "Dados da Genética"
-// @Success      201      {object}  dto.GeneticaResponseDTO // Alterado
+// @Success      201      {object}  dto.GeneticaResponseDTO
 // @Failure      400      {object}  map[string]string
 // @Failure      500      {object}  map[string]string
 // @Router       /geneticas [post]
@@ -36,18 +37,18 @@ func (ctrl *GeneticaController) Criar(c *gin.Context) {
 	var dto dto.CreateGeneticaDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		logrus.WithError(err).Error("Payload da requisição inválido para criar genética")
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	geneticaCriada, err := ctrl.servico.Criar(&dto)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao criar genética")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao criar genética"})
+		utils.RespondWithError(c, http.StatusInternalServerError, "Erro ao criar genética")
 		return
 	}
 
-	c.JSON(http.StatusCreated, geneticaCriada)
+	utils.RespondWithJSON(c, http.StatusCreated, geneticaCriada)
 }
 
 // Listar lida com requisições GET para retornar todas as genéticas
@@ -55,17 +56,23 @@ func (ctrl *GeneticaController) Criar(c *gin.Context) {
 // @Description  Retorna uma lista de todas as genéticas cadastrados
 // @Tags         genetica
 // @Produce      json
-// @Success      200  {array}   dto.GeneticaResponseDTO // Alterado
+// @Success      200  {array}   dto.GeneticaResponseDTO
 // @Failure      500  {object}  map[string]string
 // @Router       /geneticas [get]
 func (c *GeneticaController) Listar(ctx *gin.Context) {
 	geneticas, err := c.servico.ListarTodas()
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao listar genéticas")
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
-	ctx.JSON(200, geneticas)
+
+	if len(geneticas) == 0 {
+		utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Nenhuma genética encontrada"})
+		return
+	}
+
+	utils.RespondWithJSON(ctx, http.StatusOK, geneticas)
 }
 
 // BuscarPorID godoc
@@ -75,7 +82,7 @@ func (c *GeneticaController) Listar(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Genetica ID"
-// @Success 200 {object} dto.GeneticaResponseDTO // Alterado
+// @Success 200 {object} dto.GeneticaResponseDTO
 // @Failure 400 {object} map[string]string
 // @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
@@ -84,21 +91,21 @@ func (c *GeneticaController) BuscarPorID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
 		logrus.WithError(err).Error("ID inválido para buscar genética por ID")
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido")
 		return
 	}
 	genetics, err := c.servico.BuscarPorID(uint(id))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Genética não encontrada ao buscar por ID")
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "Genética não encontrada"})
+		utils.RespondWithError(ctx, http.StatusNotFound, "Genética não encontrada")
 		return
 	}
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao buscar genética por ID")
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar genética"})
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro ao buscar genética")
 		return
 	}
-	ctx.JSON(http.StatusOK, genetics)
+	utils.RespondWithJSON(ctx, http.StatusOK, genetics)
 }
 
 // Atualizar godoc
@@ -109,7 +116,7 @@ func (c *GeneticaController) BuscarPorID(ctx *gin.Context) {
 // @Produce      json
 // @Param        id        path      int                  true  "ID da Genética"
 // @Param        genetica  body      dto.UpdateGeneticaDTO  true  "Dados da Genética para atualização"
-// @Success      200       {object}  dto.GeneticaResponseDTO // Alterado
+// @Success      200       {object}  dto.GeneticaResponseDTO
 // @Failure      400       {object}  map[string]string
 // @Failure      404       {object}  map[string]string
 // @Failure      500       {object}  map[string]string
@@ -118,28 +125,28 @@ func (c *GeneticaController) Atualizar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
 		logrus.WithError(err).Error("ID inválido para atualização de genética")
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido")
 		return
 	}
 
 	var updateDto dto.UpdateGeneticaDTO
 	if err := ctx.ShouldBindJSON(&updateDto); err != nil {
 		logrus.WithError(err).Error("Payload da requisição inválido para atualização de genética")
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	geneticaAtualizada, err := c.servico.Atualizar(uint(id), &updateDto)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Genética não encontrada para atualização")
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "Genética não encontrada"})
+		utils.RespondWithError(ctx, http.StatusNotFound, "Genética não encontrada")
 		return
 	}
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao atualizar genética")
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao atualizar genética"})
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro ao atualizar genética")
 		return
 	}
 
-	ctx.JSON(http.StatusOK, geneticaAtualizada)
+	utils.RespondWithJSON(ctx, http.StatusOK, geneticaAtualizada)
 }
