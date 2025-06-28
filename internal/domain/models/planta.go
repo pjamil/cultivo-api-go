@@ -54,3 +54,7 @@ type Planta struct {
 
 	Diarios []DiarioCultivo `gorm:"many2many:diario_plantas;" json:"diarios"`
 }
+
+func (Planta) TableName() string {
+	return "plantas"
+}
