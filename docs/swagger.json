@@ -21,6 +21,420 @@
     "host": "localhost:8080",
     "basePath": "/api/v1",
     "paths": {
+        "/ambiente": {
+            "get": {
+                "description": "Retorna uma lista de todos os ambientes cadastrados",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ambiente"
+                ],
+                "summary": "Lista todos os ambientes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.AmbienteResponseDTO"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Cria um novo ambiente com os dados fornecidos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ambiente"
+                ],
+                "summary": "Cria um novo ambiente",
+                "parameters": [
+                    {
+                        "description": "Dados do Ambiente",
+                        "name": "ambiente",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreateAmbienteDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.AmbienteResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ambiente/{id}": {
+            "get": {
+                "description": "Retorna os detalhes de um ambiente específico",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ambiente"
+                ],
+                "summary": "Busca um ambiente por ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID do Ambiente",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.AmbienteResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Atualiza um ambiente existente com os dados fornecidos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ambiente"
+                ],
+                "summary": "Atualiza um ambiente",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID do Ambiente",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Dados do Ambiente para atualização",
+                        "name": "ambiente",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UpdateAmbienteDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.AmbienteResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/genetica/{id}": {
+            "get": {
+                "description": "Retorna informações detalhadas de uma genética",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "genetica"
+                ],
+                "summary": "Busca uma genética por ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Genetica ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.GeneticaResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Atualiza uma genética existente com os dados fornecidos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "genetica"
+                ],
+                "summary": "Atualiza uma genética",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID da Genética",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Dados da Genética para atualização",
+                        "name": "genetica",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UpdateGeneticaDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.GeneticaResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/geneticas": {
+            "get": {
+                "description": "Retorna uma lista de todas as genéticas cadastrados",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "genetica"
+                ],
+                "summary": "Lista todas as genéticas",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.GeneticaResponseDTO"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Cria uma nova genética com os dados fornecidos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "genetica"
+                ],
+                "summary": "Cria uma nova genética",
+                "parameters": [
+                    {
+                        "description": "Dados da Genética",
+                        "name": "genetica",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreateGeneticaDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.GeneticaResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/health": {
             "get": {
                 "description": "Retorna o status da API e seus componentes",
@@ -100,9 +514,39 @@
                 }
             }
         },
-        "/plants": {
+        "/meios-cultivos": {
             "get": {
-                "description": "Get details of all plants",
+                "description": "Retorna uma lista de todos os meios de cultivo cadastrados",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meio_cultivo"
+                ],
+                "summary": "Lista todos os meios de cultivo",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.MeioCultivoResponseDTO"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Cria um novo meio de cultivo com os dados fornecidos",
                 "consumes": [
                     "application/json"
                 ],
@@ -110,16 +554,193 @@
                     "application/json"
                 ],
                 "tags": [
-                    "plants"
+                    "meio_cultivo"
                 ],
-                "summary": "Get all plants",
+                "summary": "Cria um novo meio de cultivo",
+                "parameters": [
+                    {
+                        "description": "Dados do Meio de Cultivo",
+                        "name": "meioCultivo",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreateMeioCultivoDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.MeioCultivoResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/meios-cultivos/{id}": {
+            "get": {
+                "description": "Retorna os detalhes de um meio de cultivo específico",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meio_cultivo"
+                ],
+                "summary": "Busca um meio de cultivo por ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID do Meio de Cultivo",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.MeioCultivoResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Atualiza um meio de cultivo existente com os dados fornecidos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meio_cultivo"
+                ],
+                "summary": "Atualiza um meio de cultivo",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID do Meio de Cultivo",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Dados do Meio de Cultivo para atualização",
+                        "name": "meioCultivo",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UpdateMeioCultivoDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.MeioCultivoResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/plantas": {
+            "get": {
+                "description": "Retorna os detalhes de todas as plantas",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plantas"
+                ],
+                "summary": "Lista todas as plantas",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Plant"
+                                "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.PlantaResponseDTO"
                             }
                         }
                     },
@@ -133,7 +754,7 @@
                 }
             },
             "post": {
-                "description": "Add a new plant to the cultivation system",
+                "description": "Adiciona uma nova planta ao sistema de cultivo",
                 "consumes": [
                     "application/json"
                 ],
@@ -141,17 +762,17 @@
                     "application/json"
                 ],
                 "tags": [
-                    "plants"
+                    "plantas"
                 ],
-                "summary": "Create a new plant",
+                "summary": "Cria uma nova planta",
                 "parameters": [
                     {
-                        "description": "Plant object that needs to be added",
-                        "name": "plant",
+                        "description": "Dados para criação da planta",
+                        "name": "planta",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Plant"
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreatePlantaDTO"
                         }
                     }
                 ],
@@ -159,7 +780,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Plant"
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.PlantaResponseDTO"
                         }
                     },
                     "400": {
@@ -179,9 +800,9 @@
                 }
             }
         },
-        "/plants/{id}": {
+        "/plantas/{id}": {
             "get": {
-                "description": "Get details of a specific plant",
+                "description": "Retorna os detalhes de uma planta específica",
                 "consumes": [
                     "application/json"
                 ],
@@ -189,13 +810,14 @@
                     "application/json"
                 ],
                 "tags": [
-                    "plants"
+                    "plantas"
                 ],
-                "summary": "Get plant by ID",
+                "summary": "Busca uma planta por ID",
+                "operationId": "get-plant-by-id",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Plant ID",
+                        "description": "ID da Planta",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -205,7 +827,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Plant"
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.PlantaResponseDTO"
                         }
                     },
                     "400": {
@@ -225,7 +847,7 @@
                 }
             },
             "put": {
-                "description": "Update an existing plant",
+                "description": "Atualiza uma planta existente",
                 "consumes": [
                     "application/json"
                 ],
@@ -233,24 +855,24 @@
                     "application/json"
                 ],
                 "tags": [
-                    "plants"
+                    "plantas"
                 ],
-                "summary": "Update a plant",
+                "summary": "Atualiza uma planta",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Plant ID",
+                        "description": "ID da Planta",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Updated plant object",
-                        "name": "plant",
+                        "description": "Dados para atualização da planta",
+                        "name": "planta",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Plant"
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UpdatePlantaDTO"
                         }
                     }
                 ],
@@ -258,7 +880,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Plant"
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.PlantaResponseDTO"
                         }
                     },
                     "400": {
@@ -285,7 +907,7 @@
                 }
             },
             "delete": {
-                "description": "Delete an existing plant",
+                "description": "Deleta uma planta existente",
                 "consumes": [
                     "application/json"
                 ],
@@ -293,13 +915,13 @@
                     "application/json"
                 ],
                 "tags": [
-                    "plants"
+                    "plantas"
                 ],
-                "summary": "Delete a plant",
+                "summary": "Deleta uma planta",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Plant ID",
+                        "description": "ID da Planta",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -329,11 +951,1545 @@
                     }
                 }
             }
+        },
+        "/usuarios": {
+            "get": {
+                "description": "Retorna uma lista de todos os usuários cadastrados",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "usuario"
+                ],
+                "summary": "Lista todos os usuários",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UsuarioResponseDTO"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Cria um novo usuário com os dados fornecidos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "usuario"
+                ],
+                "summary": "Cria um novo usuário",
+                "parameters": [
+                    {
+                        "description": "Dados do Usuário",
+                        "name": "usuario",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UsuarioCreateDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UsuarioResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/usuarios/{id}": {
+            "get": {
+                "description": "Retorna os detalhes de um usuário específico",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "usuario"
+                ],
+                "summary": "Busca um usuário por ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID do Usuário",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UsuarioResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Atualiza um usuário existente com os dados fornecidos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "usuario"
+                ],
+                "summary": "Atualiza um usuário",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID do Usuário",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Dados do Usuário para atualização",
+                        "name": "usuario",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UsuarioUpdateDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UsuarioResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deleta um usuário existente",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "usuario"
+                ],
+                "summary": "Deleta um usuário",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID do Usuário",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "models.Plant": {
-            "type": "object"
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.AmbienteResponseDTO": {
+            "type": "object",
+            "properties": {
+                "altura": {
+                    "type": "number"
+                },
+                "comprimento": {
+                    "type": "number"
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "largura": {
+                    "type": "number"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "orientacao": {
+                    "type": "string"
+                },
+                "tempo_exposicao": {
+                    "type": "integer"
+                },
+                "tipo": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreateAmbienteDTO": {
+            "type": "object",
+            "required": [
+                "altura",
+                "comprimento",
+                "largura",
+                "nome",
+                "tempo_exposicao",
+                "tipo"
+            ],
+            "properties": {
+                "altura": {
+                    "description": "em centímetros",
+                    "type": "number"
+                },
+                "comprimento": {
+                    "description": "em centímetros",
+                    "type": "number"
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "largura": {
+                    "description": "em centímetros",
+                    "type": "number"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "tempo_exposicao": {
+                    "description": "em horas",
+                    "type": "integer"
+                },
+                "tipo": {
+                    "description": "Ex: \"interno\", \"externo\", \"húmido\", \"seco\"",
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreateGeneticaDTO": {
+            "type": "object",
+            "required": [
+                "nome",
+                "origem",
+                "tempoFloracao",
+                "tipoEspecie",
+                "tipoGenetica"
+            ],
+            "properties": {
+                "caracteristicas": {
+                    "type": "string"
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "origem": {
+                    "type": "string"
+                },
+                "plantas": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Planta"
+                    }
+                },
+                "tempoFloracao": {
+                    "type": "integer"
+                },
+                "tipoEspecie": {
+                    "type": "string"
+                },
+                "tipoGenetica": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreateMeioCultivoDTO": {
+            "type": "object",
+            "required": [
+                "tipo"
+            ],
+            "properties": {
+                "descricao": {
+                    "type": "string"
+                },
+                "tipo": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreatePlantaDTO": {
+            "type": "object",
+            "required": [
+                "especie",
+                "nome"
+            ],
+            "properties": {
+                "ambiente_id": {
+                    "type": "integer"
+                },
+                "comecando_de": {
+                    "type": "string"
+                },
+                "data_plantio": {
+                    "type": "string"
+                },
+                "especie": {
+                    "type": "string"
+                },
+                "genetica_id": {
+                    "type": "integer"
+                },
+                "meio_cultivo_id": {
+                    "type": "integer"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "notas": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "usuario_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.GeneticaResponseDTO": {
+            "type": "object",
+            "properties": {
+                "caracteristicas": {
+                    "type": "string"
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "origem": {
+                    "type": "string"
+                },
+                "tempoFloracao": {
+                    "type": "integer"
+                },
+                "tipoEspecie": {
+                    "type": "string"
+                },
+                "tipoGenetica": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.MeioCultivoResponseDTO": {
+            "type": "object",
+            "properties": {
+                "descricao": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "tipo": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.PlantaResponseDTO": {
+            "type": "object",
+            "properties": {
+                "ambiente_id": {
+                    "type": "integer"
+                },
+                "comecando_de": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "data_colheita": {
+                    "type": "string"
+                },
+                "data_plantio": {
+                    "type": "string"
+                },
+                "especie": {
+                    "type": "string"
+                },
+                "genetica_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "meio_cultivo_id": {
+                    "type": "integer"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "notas": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "usuario_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UpdateAmbienteDTO": {
+            "type": "object",
+            "properties": {
+                "altura": {
+                    "type": "number"
+                },
+                "comprimento": {
+                    "type": "number"
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "largura": {
+                    "type": "number"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "tempo_exposicao": {
+                    "type": "integer"
+                },
+                "tipo": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UpdateGeneticaDTO": {
+            "type": "object",
+            "properties": {
+                "caracteristicas": {
+                    "type": "string"
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "origem": {
+                    "type": "string"
+                },
+                "tempoFloracao": {
+                    "type": "integer"
+                },
+                "tipoEspecie": {
+                    "type": "string"
+                },
+                "tipoGenetica": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UpdateMeioCultivoDTO": {
+            "type": "object",
+            "properties": {
+                "descricao": {
+                    "type": "string"
+                },
+                "tipo": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UpdatePlantaDTO": {
+            "type": "object",
+            "properties": {
+                "ambiente_id": {
+                    "type": "integer"
+                },
+                "comecando_de": {
+                    "type": "string"
+                },
+                "data_colheita": {
+                    "type": "string"
+                },
+                "data_plantio": {
+                    "type": "string"
+                },
+                "especie": {
+                    "type": "string"
+                },
+                "estagio_crescimento": {
+                    "type": "string"
+                },
+                "genetica_id": {
+                    "type": "integer"
+                },
+                "meio_cultivo_id": {
+                    "type": "integer"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "notas": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "usuario_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UsuarioCreateDTO": {
+            "type": "object",
+            "required": [
+                "email",
+                "nome",
+                "senha"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "preferencias": {
+                    "type": "string"
+                },
+                "senha": {
+                    "type": "string",
+                    "minLength": 6
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UsuarioResponseDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "preferencias": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UsuarioUpdateDTO": {
+            "type": "object",
+            "properties": {
+                "nome": {
+                    "type": "string"
+                },
+                "preferencias": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Ambiente": {
+            "type": "object",
+            "required": [
+                "altura",
+                "comprimento",
+                "largura",
+                "nome",
+                "orientacao",
+                "tempo_exposicao",
+                "tipo"
+            ],
+            "properties": {
+                "altura": {
+                    "description": "em centímetros",
+                    "type": "number"
+                },
+                "comprimento": {
+                    "description": "em centímetros",
+                    "type": "number"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "fotos": {
+                    "description": "Fotos do ambiente",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Foto"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "largura": {
+                    "description": "em centímetros",
+                    "type": "number"
+                },
+                "microclima": {
+                    "description": "Microclimas do ambiente",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Microclima"
+                    }
+                },
+                "nome": {
+                    "description": "Nome do ambiente",
+                    "type": "string"
+                },
+                "orientacao": {
+                    "description": "norte, sul, etc.",
+                    "type": "string",
+                    "enum": [
+                        "norte",
+                        "sul",
+                        "leste",
+                        "oeste"
+                    ]
+                },
+                "plantas": {
+                    "description": "Plantas associadas a este ambiente",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Planta"
+                    }
+                },
+                "tempo_exposicao": {
+                    "description": "em horas",
+                    "type": "integer"
+                },
+                "tipo": {
+                    "description": "Tipo do ambiente (interno, externo, úmido, seco)",
+                    "type": "string",
+                    "enum": [
+                        "interno",
+                        "externo",
+                        "humido",
+                        "seco"
+                    ]
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.ClimaRegistro": {
+            "type": "object",
+            "properties": {
+                "luminosidade": {
+                    "description": "lux",
+                    "type": "number"
+                },
+                "precipitacao": {
+                    "description": "mm",
+                    "type": "number"
+                },
+                "temperatura": {
+                    "description": "°C",
+                    "type": "number"
+                },
+                "umidade": {
+                    "description": "%",
+                    "type": "number"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.ColecaoMidia": {
+            "type": "object",
+            "properties": {
+                "capa_url": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "diario_cultivo_id": {
+                    "description": "\u003c-- Adicione esta linha",
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "itens": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Midia"
+                    }
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "tipo": {
+                    "description": "evolucao, colheita, etc.",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.DiarioCultivo": {
+            "type": "object",
+            "properties": {
+                "ambientes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Ambiente"
+                    }
+                },
+                "ativo": {
+                    "type": "boolean"
+                },
+                "colecoes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.ColecaoMidia"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "data_fim": {
+                    "type": "string"
+                },
+                "data_inicio": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "plantas": {
+                    "description": "Relacionamentos",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Planta"
+                    }
+                },
+                "privacidade": {
+                    "description": "Configurações",
+                    "type": "string"
+                },
+                "registros": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroDiario"
+                    }
+                },
+                "tags": {
+                    "description": "separadas por vírgula",
+                    "type": "string"
+                },
+                "tarefas": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Tarefa"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "usuario_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Especie": {
+            "type": "string",
+            "enum": [
+                "sativa",
+                "indica",
+                "ruderalis"
+            ],
+            "x-enum-varnames": [
+                "EspecieSativa",
+                "EspecieIndica",
+                "EspecieRuderalis"
+            ]
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.EstagioCrescimento": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "data_fim": {
+                    "type": "string"
+                },
+                "data_inicio": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "estagio": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "planta_id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Foto": {
+            "type": "object",
+            "properties": {
+                "ambiente_id": {
+                    "description": "\u003c-- Adicione esta linha",
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "owner_id": {
+                    "type": "integer"
+                },
+                "owner_type": {
+                    "description": "\"planta\", \"tarefa\", etc.",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "usuario_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Genetica": {
+            "type": "object",
+            "required": [
+                "nome",
+                "origem",
+                "tempoFloracao",
+                "tipoEspecie",
+                "tipoGenetica"
+            ],
+            "properties": {
+                "caracteristicas": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "nome": {
+                    "description": "Nome da genética",
+                    "type": "string"
+                },
+                "origem": {
+                    "description": "Origem da genética",
+                    "type": "string"
+                },
+                "plantas": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Planta"
+                    }
+                },
+                "tempoFloracao": {
+                    "description": "em dias",
+                    "type": "integer"
+                },
+                "tipoEspecie": {
+                    "description": "TipoEspecie representa o tipo de espécie, como regular, feminizada, automatica.",
+                    "type": "string",
+                    "enum": [
+                        "regular",
+                        "feminizada",
+                        "automatica"
+                    ]
+                },
+                "tipoGenetica": {
+                    "description": "TipoGenetica representa o tipo de genética, como sativa, indica, ruderalis e hibrido.",
+                    "type": "string",
+                    "enum": [
+                        "sativa",
+                        "indica",
+                        "ruderalis",
+                        "hibrido"
+                    ]
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.MeioCultivo": {
+            "type": "object",
+            "required": [
+                "tipo"
+            ],
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "plantas": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Planta"
+                    }
+                },
+                "tipo": {
+                    "description": "Tipo do meio de cultivo (solo, hidroponia, aeroponia, substrato)",
+                    "type": "string",
+                    "enum": [
+                        "solo",
+                        "hidroponia",
+                        "aeroponia",
+                        "substrato"
+                    ]
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Microclima": {
+            "type": "object",
+            "properties": {
+                "ambiente_id": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "data_medicao": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "luminosidade": {
+                    "description": "lux",
+                    "type": "number"
+                },
+                "temperatura": {
+                    "description": "°C",
+                    "type": "number"
+                },
+                "umidade": {
+                    "description": "%",
+                    "type": "number"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Midia": {
+            "type": "object",
+            "properties": {
+                "autor_id": {
+                    "type": "integer"
+                },
+                "colecao_midia_id": {
+                    "description": "ID da coleção de mídia associada",
+                    "type": "integer"
+                },
+                "coordenadas": {
+                    "description": "formato \"lat,long\"",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "data_captura": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "thumbnail_url": {
+                    "type": "string"
+                },
+                "tipo": {
+                    "description": "foto, video, audio",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Planta": {
+            "type": "object",
+            "required": [
+                "comecando_de",
+                "data_plantio",
+                "especie",
+                "nome",
+                "status"
+            ],
+            "properties": {
+                "ambiente": {
+                    "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Ambiente"
+                },
+                "ambiente_id": {
+                    "type": "integer"
+                },
+                "comecando_de": {
+                    "type": "string",
+                    "enum": [
+                        "semente",
+                        "clone"
+                    ]
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "data_colheita": {
+                    "type": "string"
+                },
+                "data_plantio": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "diarios": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.DiarioCultivo"
+                    }
+                },
+                "especie": {
+                    "enum": [
+                        "sativa",
+                        "indica",
+                        "ruderalis"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Especie"
+                        }
+                    ]
+                },
+                "estagios": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.EstagioCrescimento"
+                    }
+                },
+                "foto_capa": {
+                    "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Foto"
+                },
+                "foto_capa_id": {
+                    "type": "integer"
+                },
+                "genetica": {
+                    "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Genetica"
+                },
+                "genetica_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "meio_cultivo": {
+                    "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.MeioCultivo"
+                },
+                "meio_cultivo_id": {
+                    "type": "integer"
+                },
+                "nome": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 3
+                },
+                "notas": {
+                    "type": "string"
+                },
+                "planta_mae": {
+                    "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Planta"
+                },
+                "planta_mae_id": {
+                    "type": "integer"
+                },
+                "registros": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroPlanta"
+                    }
+                },
+                "status": {
+                    "enum": [
+                        "ativa",
+                        "colhida",
+                        "morta"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.PlantaStatus"
+                        }
+                    ]
+                },
+                "tarefas": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.TarefaPlanta"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "usuario": {
+                    "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Usuario"
+                },
+                "usuario_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.PlantaStatus": {
+            "type": "string",
+            "enum": [
+                "ativa",
+                "colhida",
+                "morta"
+            ],
+            "x-enum-varnames": [
+                "StatusGerminating",
+                "StatusVegetative",
+                "StatusFlowering"
+            ]
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroDiario": {
+            "type": "object",
+            "properties": {
+                "clima": {
+                    "description": "Métricas opcionais",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.ClimaRegistro"
+                        }
+                    ]
+                },
+                "conteudo": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "diario_cultivo_id": {
+                    "type": "integer"
+                },
+                "fotos": {
+                    "description": "Mídia",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Foto"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "referencia_id": {
+                    "description": "ID de planta/tarefa relacionada",
+                    "type": "integer"
+                },
+                "referencia_tipo": {
+                    "description": "\"planta\", \"tarefa\", etc.",
+                    "type": "string"
+                },
+                "tipo": {
+                    "description": "observacao, evento, aprendizado",
+                    "type": "string"
+                },
+                "titulo": {
+                    "description": "Campos polimórficos",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroPlanta": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "data_registro": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "observacao": {
+                    "type": "string"
+                },
+                "planta_id": {
+                    "type": "integer"
+                },
+                "tipo": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "valor": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Tarefa": {
+            "type": "object",
+            "properties": {
+                "ambiente_id": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "data_agendada": {
+                    "type": "string"
+                },
+                "data_conclusao": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "diario_cultivo_id": {
+                    "type": "integer"
+                },
+                "fotos": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Foto"
+                    }
+                },
+                "frequencia_dias": {
+                    "description": "NULL para tarefas únicas",
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "planta_id": {
+                    "description": "NULL para tarefas gerais",
+                    "type": "integer"
+                },
+                "prioridade": {
+                    "description": "baixa, média, alta",
+                    "type": "string"
+                },
+                "recorrente": {
+                    "type": "boolean"
+                },
+                "status": {
+                    "description": "pendente, concluída, atrasada",
+                    "type": "string"
+                },
+                "tipo": {
+                    "description": "regar, adubar, podar, etc.",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "usuario_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.TarefaPlanta": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "data_prevista": {
+                    "type": "string"
+                },
+                "data_realizada": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "planta_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Usuario": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "plantas": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Planta"
+                    }
+                },
+                "preferencias": {
+                    "description": "Configurações em JSON",
+                    "type": "string"
+                },
+                "tarefas": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Tarefa"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "gorm.DeletedAt": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
+                }
+            }
         }
     }
 }
