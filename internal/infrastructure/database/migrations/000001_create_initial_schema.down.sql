@@ -1,4 +1,18 @@
 -- 000001_create_initial_schema.down.sql
+DROP TABLE IF EXISTS diario_plantas;
+DROP TABLE IF EXISTS diario_ambientes;
+DROP TABLE IF EXISTS tarefa_plantas;
+DROP TABLE IF EXISTS registro_plantas;
+DROP TABLE IF EXISTS registro_diarios;
+DROP TABLE IF EXISTS registro_crescimentos;
+DROP TABLE IF EXISTS estagio_crescimentos;
+DROP TABLE IF EXISTS colecao_midias;
+DROP TABLE IF EXISTS diario_cultivos;
+DROP TABLE IF EXISTS midias;
+DROP TABLE IF EXISTS tarefas;
+DROP TABLE IF EXISTS tipo_tarefas;
+DROP TABLE IF EXISTS substratos;
+DROP TABLE IF EXISTS vasos;
 DROP TABLE IF EXISTS plantas;
 DROP TABLE IF EXISTS meio_cultivos;
 DROP TABLE IF EXISTS geneticas;
@@ -6,3 +20,4 @@ DROP TABLE IF EXISTS usuarios;
 DROP TABLE IF EXISTS micro_climas;
 DROP TABLE IF EXISTS fotos;
 DROP TABLE IF EXISTS ambientes;
+DROP TABLE IF EXISTS anotacoes;
