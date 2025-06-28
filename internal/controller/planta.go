@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 	"github.com/gin-gonic/gin"
@@ -72,18 +71,18 @@ func (c *PlantaController) Listar(ctx *gin.Context) {
 }
 
 const (
-	ErroIDPlantaInvalido             = "ID da planta inválido"
-	ErroPlantaNaoEncontrada          = "Planta não encontrada"
-	ErroPayloadRequisicaoInvalido    = "Payload da requisição inválido"
-	ErroAtualizarPlanta              = "Erro ao atualizar a planta"
-	ErroCriarPlanta                  = "Erro ao criar a planta"
-	ErroRecuperarPlanta              = "Erro ao recuperar a planta"
-	ErroDeletarPlanta                = "Erro ao deletar a planta"
-	SucessoAtualizarPlanta           = "Planta atualizada com sucesso"
-	SucessoCriarPlanta               = "Planta criada com sucesso"
-	SucessoRecuperarPlanta           = "Planta recuperada com sucesso"
-	SucessoListarPlantas             = "Plantas recuperadas com sucesso"
-	ErroListarPlantas                = "Erro ao recuperar as plantas"
+	ErroIDPlantaInvalido          = "ID da planta inválido"
+	ErroPlantaNaoEncontrada       = "Planta não encontrada"
+	ErroPayloadRequisicaoInvalido = "Payload da requisição inválido"
+	ErroAtualizarPlanta           = "Erro ao atualizar a planta"
+	ErroCriarPlanta               = "Erro ao criar a planta"
+	ErroRecuperarPlanta           = "Erro ao recuperar a planta"
+	ErroDeletarPlanta             = "Erro ao deletar a planta"
+	SucessoAtualizarPlanta        = "Planta atualizada com sucesso"
+	SucessoCriarPlanta            = "Planta criada com sucesso"
+	SucessoRecuperarPlanta        = "Planta recuperada com sucesso"
+	SucessoListarPlantas          = "Plantas recuperadas com sucesso"
+	ErroListarPlantas             = "Erro ao recuperar as plantas"
 )
 
 // BuscarPlantaPorID godoc

@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
