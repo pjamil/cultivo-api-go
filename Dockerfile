@@ -1,14 +1,15 @@
 # Build stage
-FROM golang:1.24.3-alpine3.22 AS builder
+FROM golang:1.22.4-alpine3.20 AS builder
 
 WORKDIR /app
 
 # Copy the source code
 COPY . .
 
-# Install dependencies including swag
+# Install dependencies including swag and migrate
 RUN apk add --no-cache gcc git make musl-dev && \
-    go install github.com/swaggo/swag/cmd/swag@latest
+    go install github.com/swaggo/swag/cmd/swag@latest && \
+    go install -v github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
 # Copy go mod and sum files
 COPY go.mod go.sum ./

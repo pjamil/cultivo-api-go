@@ -5,7 +5,8 @@ services:
     build:
       context: .
       target: builder
-    command: go run cmd/cultivo-api-go/main.go
+    command: ["./cultivo-api-go"]
+    entrypoint: ["/app/entrypoint.sh"]
     container_name: cultivo-api-go
     image: cultivo-api-go:latest
     volumes:

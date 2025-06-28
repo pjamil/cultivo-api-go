@@ -4,6 +4,8 @@ services:
   app:
     image: pjamil/cultivo-api-go:latest
     container_name: cultivo-api-go
+    entrypoint: ["/app/entrypoint.sh"]
+    command: ["./cultivo-api-go"]
     ports:
       - 8080
     environment:
