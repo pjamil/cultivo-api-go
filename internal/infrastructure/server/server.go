@@ -57,6 +57,7 @@ func NewServer(db *database.Database) *Server {
 	router.POST(hostRoute+"/ambientes", controladorAmbiente.Criar)
 	router.GET(hostRoute+"/ambientes", controladorAmbiente.Listar)
 	router.GET(hostRoute+"/ambientes/:id", controladorAmbiente.BuscarPorID)
+	router.PUT(hostRoute+"/ambientes/:id", controladorAmbiente.Atualizar)
 
 	// Rotas de Genetica
 	repositorioGenetica := repository.NewGeneticaRepositorio(db.DB)
@@ -65,6 +66,7 @@ func NewServer(db *database.Database) *Server {
 	router.POST(hostRoute+"/geneticas", controladorGenetica.Criar)
 	router.GET(hostRoute+"/geneticas", controladorGenetica.Listar)
 	router.GET(hostRoute+"/geneticas/:id", controladorGenetica.BuscarPorID)
+	router.PUT(hostRoute+"/geneticas/:id", controladorGenetica.Atualizar)
 
 	// Rotas de MeioCultivo
 	repositorioMeioCultivo := repository.NewMeioCultivoRepositorio(db.DB)
@@ -73,6 +75,7 @@ func NewServer(db *database.Database) *Server {
 	router.POST(hostRoute+"/meios-cultivos", controladorMeioCultivo.Criar)
 	router.GET(hostRoute+"/meios-cultivos", controladorMeioCultivo.Listar)
 	router.GET(hostRoute+"/meios-cultivos/:id", controladorMeioCultivo.BuscarPorID)
+	router.PUT(hostRoute+"/meios-cultivos/:id", controladorMeioCultivo.Atualizar)
 
 	// Rotas de Usuario
 	repositorioUsuario := repository.NewUsuarioRepositorio(db.DB)
