@@ -2,14 +2,14 @@
 @healthUrl = http://localhost:8080
 @contentType = application/json
 
-### List all plants
-GET {{baseUrl}}/plants HTTP/1.1
+### Listar todas as plantas
+GET {{baseUrl}}/plantas HTTP/1.1
 
-### Get a specific plant
-GET {{baseUrl}}/plants/1 HTTP/1.1
+### Buscar planta específica
+GET {{baseUrl}}/plantas/1 HTTP/1.1
 
-### Create a new plant
-POST {{baseUrl}}/plants HTTP/1.1
+### Criar nova planta
+POST {{baseUrl}}/plantas HTTP/1.1
 Content-Type: {{contentType}}
 
 {
@@ -24,8 +24,8 @@ Content-Type: {{contentType}}
   "ambiente_id": 1
 }
 
-### Update a plant
-PUT {{baseUrl}}/plants/1 HTTP/1.1
+### Atualizar planta
+PUT {{baseUrl}}/plantas/1 HTTP/1.1
 Content-Type: {{contentType}}
 
 {
@@ -38,28 +38,28 @@ Content-Type: {{contentType}}
   "notes": "Colhido com sucesso"
 }
 
-### Delete a plant
-DELETE {{baseUrl}}/plants/2 HTTP/1.1
+### Deletar planta
+DELETE {{baseUrl}}/plantas/2 HTTP/1.1
 
-### Get plants by species
-GET {{baseUrl}}/plants?species=tomato HTTP/1.1
+### Buscar plantas por espécie
+GET {{baseUrl}}/plantas?species=tomato HTTP/1.1
 
-### Get plants by status
-GET {{baseUrl}}/plants?status=growing HTTP/1.1
+### Buscar plantas por status
+GET {{baseUrl}}/plantas?status=growing HTTP/1.1
 
-### Health Check
+### Verificação de Saúde
 GET {{healthUrl}}/health HTTP/1.1
 
-### Health Ready Check
+### Verificação de Prontidão
 GET {{healthUrl}}/health/ready HTTP/1.1
 
-### Health Live Check
+### Verificação de Vitalidade
 GET {{healthUrl}}/health/live HTTP/1.1
 
-### list all Genéticas
+### Listar todas as Genéticas
 GET {{baseUrl}}/geneticas HTTP/1.1
 
-### Create a new Genética
+### Criar nova Genética
 POST {{baseUrl}}/geneticas HTTP/1.1
 Content-Type: {{contentType}}
 
@@ -73,8 +73,8 @@ Content-Type: {{contentType}}
   "caracteristicas": "Resistência a pragas, sabor citrico de limão, efeito energizante,"
 }
 
-### Create a new Meio de Cultivo
-POST {{baseUrl}}/meios_cultivo HTTP/1.1
+### Criar novo Meio de Cultivo
+POST {{baseUrl}}/meios-cultivos HTTP/1.1
 Content-Type: {{contentType}}
 
 {
@@ -82,7 +82,7 @@ Content-Type: {{contentType}}
   "descricao": "Solo rico em matéria orgânica, ideal para tomates"
 }
 
-### Create a new Ambiente
+### Criar novo Ambiente
 POST {{baseUrl}}/ambientes HTTP/1.1
 Content-Type: {{contentType}}
 
@@ -91,8 +91,8 @@ Content-Type: {{contentType}}
   "descricao": "Estufa com controle de temperatura e umidade"
 }
 
-### List all Meios de Cultivo
-GET {{baseUrl}}/meios_cultivo HTTP/1.1
+### Listar todos os Meios de Cultivo
+GET {{baseUrl}}/meios-cultivos HTTP/1.1
 
-### List all Ambientes
+### Listar todos os Ambientes
 GET {{baseUrl}}/ambientes HTTP/1.1
