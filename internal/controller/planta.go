@@ -31,7 +31,7 @@ func NewPlantaController(plantaServico service.PlantaService) *PlantaController 
 // @Accept       json
 // @Produce      json
 // @Param        planta  body      dto.CreatePlantaDTO  true  "Dados para criação da planta"
-// @Success      201    {object}  models.Planta
+// @Success      201    {object}  map[string]interface{}
 // @Failure      400    {object}  map[string]interface{}
 // @Failure      500    {object}  map[string]interface{}
 // @Router       /plantas [post]
@@ -57,7 +57,7 @@ func (c *PlantaController) Criar(ctx *gin.Context) {
 // @Tags         plantas
 // @Accept       json
 // @Produce      json
-// @Success      200  {array}   models.Planta
+// @Success      200  {array}   map[string]interface{}
 // @Failure      500  {object}  map[string]interface{}
 // @Router       /plantas [get]
 func (c *PlantaController) Listar(ctx *gin.Context) {
@@ -94,7 +94,7 @@ const (
 // @Accept       json
 // @Produce      json
 // @Param        id   path      int  true  "ID da Planta"
-// @Success      200  {object}  models.Planta
+// @Success      200  {object}  map[string]interface{}
 // @Failure      400  {object}  map[string]interface{}
 // @Failure      404  {object}  map[string]interface{}
 // @Router       /plantas/{id} [get]
@@ -126,7 +126,7 @@ func (c *PlantaController) BuscarPorID(ctx *gin.Context) {
 // @Produce      json
 // @Param        id      path      int            true  "ID da Planta"
 // @Param        planta  body      dto.UpdatePlantaDTO  true  "Dados para atualização da planta"
-// @Success      200    {object}  models.Planta
+// @Success      200    {object}  map[string]interface{}
 // @Failure      400    {object}  map[string]interface{}
 // @Failure      404    {object}  map[string]interface{}
 // @Failure      500    {object}  map[string]interface{}

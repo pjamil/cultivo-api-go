@@ -73,7 +73,7 @@ func (c *MeioCultivoController) BuscarPorID(ctx *gin.Context) {
 // @Produce      json
 // @Param        id        path      int                     true  "ID do Meio de Cultivo"
 // @Param        meioCultivo  body      dto.UpdateMeioCultivoDTO  true  "Dados do Meio de Cultivo para atualização"
-// @Success      200       {object}  models.MeioCultivo
+// @Success      200       {object}  map[string]interface{}
 // @Failure      400       {object}  map[string]string
 // @Failure      404       {object}  map[string]string
 // @Failure      500       {object}  map[string]string

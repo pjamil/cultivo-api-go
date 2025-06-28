@@ -28,7 +28,7 @@ func NewAmbienteController(servico service.AmbienteService) *AmbienteController 
 // @Accept       json
 // @Produce      json
 // @Param        ambiente  body      dto.CreateAmbienteDTO  true  "Dados do Ambiente"
-// @Success      201      {object}  models.Ambiente
+// @Success      201      {object}  map[string]interface{}
 // @Failure      400      {object}  map[string]string
 // @Failure      500      {object}  map[string]string
 // @Router       /ambiente [post]
@@ -56,7 +56,7 @@ func (c *AmbienteController) Criar(ctx *gin.Context) {
 // @Description  Retorna uma lista de todos os ambientes cadastrados
 // @Tags         ambiente
 // @Produce      json
-// @Success      200  {array}   models.Ambiente
+// @Success      200  {array}   map[string]interface{}
 // @Failure      500  {object}  map[string]string
 // @Router       /ambiente [get]
 func (c *AmbienteController) Listar(ctx *gin.Context) {
@@ -77,7 +77,7 @@ func (c *AmbienteController) Listar(ctx *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        id   path      int  true  "ID do Ambiente"
-// @Success      200  {object}  models.Ambiente
+// @Success      200  {object}  map[string]interface{}
 // @Failure      400  {object}  map[string]string
 // @Failure      404  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
@@ -113,7 +113,7 @@ func (c *AmbienteController) BuscarPorID(ctx *gin.Context) {
 // @Produce      json
 // @Param        id        path      int                  true  "ID do Ambiente"
 // @Param        ambiente  body      dto.UpdateAmbienteDTO  true  "Dados do Ambiente para atualização"
-// @Success      200       {object}  models.Ambiente
+// @Success      200       {object}  map[string]interface{}
 // @Failure      400       {object}  map[string]string
 // @Failure      404       {object}  map[string]string
 // @Failure      500       {object}  map[string]string

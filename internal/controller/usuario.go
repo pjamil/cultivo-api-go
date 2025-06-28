@@ -23,6 +23,18 @@ func NewUsuarioController(servico service.UsuarioService) *UsuarioController {
 	return &UsuarioController{servico}
 }
 
+// Criar godoc
+// @Summary      Cria um novo usuário
+// @Description  Cria um novo usuário com os dados fornecidos
+// @Tags         usuario
+// @Accept       json
+// @Produce      json
+// @Param        usuario  body      dto.UsuarioCreateDTO  true  "Dados do Usuário"
+// @Success      201      {object}  map[string]interface{}
+// @Failure      400      {object}  map[string]string
+// @Failure      409      {object}  map[string]string
+// @Failure      500      {object}  map[string]string
+// @Router       /usuarios [post]
 func (c *UsuarioController) Criar(ctx *gin.Context) {
 	var dto dto.UsuarioCreateDTO
 	if err := ctx.ShouldBindJSON(&dto); err != nil {
@@ -44,6 +56,18 @@ func (c *UsuarioController) Criar(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, usuario)
 }
 
+// BuscarPorID godoc
+// @Summary      Busca um usuário por ID
+// @Description  Retorna os detalhes de um usuário específico
+// @Tags         usuario
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID do Usuário"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /usuarios/{id} [get]
 func (c *UsuarioController) BuscarPorID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -59,6 +83,14 @@ func (c *UsuarioController) BuscarPorID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, usuario)
 }
 
+// Listar godoc
+// @Summary      Lista todos os usuários
+// @Description  Retorna uma lista de todos os usuários cadastrados
+// @Tags         usuario
+// @Produce      json
+// @Success      200  {array}   map[string]interface{}
+// @Failure      500  {object}  map[string]string
+// @Router       /usuarios [get]
 func (c *UsuarioController) Listar(ctx *gin.Context) {
 	usuarios, err := c.servico.ListarTodos()
 	if err != nil {
@@ -69,6 +101,19 @@ func (c *UsuarioController) Listar(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, usuarios)
 }
 
+// Atualizar godoc
+// @Summary      Atualiza um usuário
+// @Description  Atualiza um usuário existente com os dados fornecidos
+// @Tags         usuario
+// @Accept       json
+// @Produce      json
+// @Param        id       path      int                 true  "ID do Usuário"
+// @Param        usuario  body      dto.UsuarioUpdateDTO  true  "Dados do Usuário para atualização"
+// @Success      200      {object}  map[string]interface{}
+// @Failure      400      {object}  map[string]string
+// @Failure      404      {object}  map[string]string
+// @Failure      500      {object}  map[string]string
+// @Router       /usuarios/{id} [put]
 func (c *UsuarioController) Atualizar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -96,6 +141,17 @@ func (c *UsuarioController) Atualizar(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
+// Deletar godoc
+// @Summary      Deleta um usuário
+// @Description  Deleta um usuário existente
+// @Tags         usuario
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID do Usuário"
+// @Success      204  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /usuarios/{id} [delete]
 func (c *UsuarioController) Deletar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
