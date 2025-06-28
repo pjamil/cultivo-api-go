@@ -21,3 +21,16 @@ type UpdateAmbienteDTO struct {
 	Largura        float64 `json:"largura"`
 	TempoExposicao int     `json:"tempo_exposicao"`
 }
+
+// DTO para resposta de ambiente
+type AmbienteResponseDTO struct {
+	ID             uint    `json:"id"`
+	Nome           string  `json:"nome"`
+	Descricao      string  `json:"descricao,omitempty"`
+	Tipo           string  `json:"tipo"`
+	Comprimento    float64 `json:"comprimento"`
+	Altura         float64 `json:"altura"`
+	Largura        float64 `json:"largura"`
+	TempoExposicao int     `json:"tempo_exposicao"`
+	Orientacao     string  `json:"orientacao"`
+}
