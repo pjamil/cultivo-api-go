@@ -2,7 +2,7 @@ build: swagger-gen
 	go build -o bin/cultivo-api ./cmd/cultivo-api-go
 
 swagger-gen:
-	GO111MODULE=on swag init -g cmd/cultivo-api-go/main.go -parseDependency
+	GO111MODULE=on swag init -g cmd/cultivo-api-go/main.go -parseDependency -dir ./
 
 migrate-create:
 	@read -p "Enter migration name: " name; \
