@@ -3,10 +3,10 @@ build:
 
 migrate-create:
 	@read -p "Enter migration name: " name; \
-	/go/bin/migrate create -ext sql -dir internal/infrastructure/database/migrations -seq $name
+	migrate create -ext sql -dir internal/infrastructure/database/migrations -seq $name
 
 migrate-up:
-	/go/bin/migrate -path internal/infrastructure/database/migrations -database "postgres://postgres:postgres@localhost:5434/cultivo-api-go?sslmode=disable" -verbose up
+	/go/bin/migrate -path internal/infrastructure/database/migrations -database "postgres://postgres:postgres@localhost:5432/cultivo-api-go?sslmode=disable" -verbose up
 
 migrate-down:
-	/go/bin/migrate -path internal/infrastructure/database/migrations -database "postgres://postgres:postgres@localhost:5434/cultivo-api-go?sslmode=disable" -verbose down
+	/go/bin/migrate -path internal/infrastructure/database/migrations -database "postgres://postgres:postgres@localhost:5432/cultivo-api-go?sslmode=disable" -verbose down
