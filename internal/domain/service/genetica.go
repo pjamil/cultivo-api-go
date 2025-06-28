@@ -12,6 +12,12 @@ type GeneticaService interface {
 	ListarTodas() ([]dto.GeneticaResponseDTO, error)
 	BuscarPorID(id uint) (*dto.GeneticaResponseDTO, error)
 	Atualizar(id uint, geneticaDto *dto.UpdateGeneticaDTO) (*dto.GeneticaResponseDTO, error)
+	Deletar(id uint) error
+}
+
+// Implementação do serviço
+func (s *geneticaService) Deletar(id uint) error {
+	return s.repositorio.Deletar(id)
 }
 
 type geneticaService struct {

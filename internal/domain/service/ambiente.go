@@ -14,6 +14,12 @@ type AmbienteService interface {
 	ListarTodos() ([]models.Ambiente, error)
 	BuscarPorID(id uint) (*models.Ambiente, error)
 	Atualizar(id uint, ambienteDto *dto.UpdateAmbienteDTO) (*models.Ambiente, error)
+	Deletar(id uint) error
+}
+
+// Implementação do serviço
+func (s *ambienteService) Deletar(id uint) error {
+	return s.repositorio.Deletar(id)
 }
 
 type ambienteService struct {

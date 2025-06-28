@@ -14,6 +14,12 @@ type MeioCultivoService interface {
 	ListarTodos() ([]dto.MeioCultivoResponseDTO, error)
 	BuscarPorID(id uint) (*dto.MeioCultivoResponseDTO, error)
 	Atualizar(id uint, meioCultivoDto *dto.UpdateMeioCultivoDTO) (*dto.MeioCultivoResponseDTO, error)
+	Deletar(id uint) error
+}
+
+// Implementação do serviço
+func (s *meioCultivoService) Deletar(id uint) error {
+	return s.repositorio.Deletar(id)
 }
 
 type meioCultivoService struct {

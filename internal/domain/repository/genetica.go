@@ -12,6 +12,19 @@ type GeneticaRepositorio interface {
 	ListarTodos() ([]models.Genetica, error)
 	BuscarPorID(id uint) (*models.Genetica, error)
 	Atualizar(genetica *models.Genetica) error
+	Deletar(id uint) error
+}
+
+// Implementação do repositório
+func (r *geneticaRepositorio) Deletar(id uint) error {
+	result := r.db.Delete(&models.Genetica{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }
 
 type geneticaRepositorio struct {

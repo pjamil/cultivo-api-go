@@ -12,6 +12,19 @@ type AmbienteRepositorio interface {
 	ListarTodos() ([]models.Ambiente, error)
 	BuscarPorID(id uint) (*models.Ambiente, error)
 	Atualizar(ambiente *models.Ambiente) error
+	Deletar(id uint) error
+}
+
+// Implementação do repositório
+func (r *ambienteRepositorio) Deletar(id uint) error {
+	result := r.db.Delete(&models.Ambiente{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }
 
 type ambienteRepositorio struct {

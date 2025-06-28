@@ -14,6 +14,19 @@ type MeioCultivoRepositorio interface {
 	ListarTodos() ([]models.MeioCultivo, error)
 	BuscarPorID(id uint) (*models.MeioCultivo, error)
 	Atualizar(meioCultivo *models.MeioCultivo) error
+	Deletar(id uint) error
+}
+
+// Implementação do repositório
+func (r *meioCultivoRepositorio) Deletar(id uint) error {
+	result := r.db.Delete(&models.MeioCultivo{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }
 
 type meioCultivoRepositorio struct {
