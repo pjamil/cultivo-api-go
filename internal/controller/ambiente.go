@@ -35,6 +35,7 @@ func NewAmbienteController(servico service.AmbienteService) *AmbienteController 
 func (c *AmbienteController) Criar(ctx *gin.Context) {
 	var dto dto.CreateAmbienteDTO
 	if err := ctx.ShouldBindJSON(&dto); err != nil {
+		logrus.WithError(err).Error("Payload da requisição inválido para criar ambiente")
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -61,6 +62,7 @@ func (c *AmbienteController) Criar(ctx *gin.Context) {
 func (c *AmbienteController) Listar(ctx *gin.Context) {
 	ambientes, err := c.servico.ListarTodos()
 	if err != nil {
+		logrus.WithError(err).Error("Erro ao listar ambientes")
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -83,16 +85,19 @@ func (c *AmbienteController) Listar(ctx *gin.Context) {
 func (c *AmbienteController) BuscarPorID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
+		logrus.WithError(err).Error("ID inválido para buscar ambiente por ID")
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
 	ambiente, err := c.servico.BuscarPorID(uint(id))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
+		logrus.WithError(err).Error("Ambiente não encontrado ao buscar por ID")
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Ambiente não encontrado"})
 		return
 	}
 
 	if err != nil {
+		logrus.WithError(err).Error("Erro ao buscar ambiente por ID")
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar ambiente"})
 		return
 	}

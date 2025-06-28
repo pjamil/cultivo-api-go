@@ -42,6 +42,7 @@ func (c *PlantaController) Criar(ctx *gin.Context) {
 	}
 
 	if err := c.plantaServico.Criar(&planta); err != nil {
+		logrus.WithError(err).Error("Erro ao criar planta")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -61,6 +62,7 @@ func (c *PlantaController) Criar(ctx *gin.Context) {
 func (c *PlantaController) Listar(ctx *gin.Context) {
 	plantas, err := c.plantaServico.ListarTodas()
 	if err != nil {
+		logrus.WithError(err).Error("Erro ao listar plantas")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -101,12 +103,14 @@ func (c *PlantaController) BuscarPorID(ctx *gin.Context) {
 	}).Info("Buscando planta por ID")
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
+		logrus.WithError(err).Error("Erro ao converter ID da planta")
 		utils.RespondWithError(ctx, http.StatusBadRequest, ErroIDPlantaInvalido)
 		return
 	}
 
 	planta, err := c.plantaServico.BuscarPorID(uint(id))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
+		logrus.WithError(err).Error("Planta não encontrada ao buscar por ID")
 		utils.RespondWithError(ctx, http.StatusNotFound, ErroPlantaNaoEncontrada)
 		return
 	}
@@ -129,16 +133,19 @@ func (c *PlantaController) BuscarPorID(ctx *gin.Context) {
 func (c *PlantaController) Atualizar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
+		logrus.WithError(err).Error("Erro ao converter ID da planta para atualização")
 		utils.RespondWithError(ctx, http.StatusBadRequest, ErroIDPlantaInvalido)
 		return
 	}
 	var planta models.Planta
 	if err := ctx.ShouldBindJSON(&planta); err != nil {
+		logrus.WithError(err).Error("Payload da requisição inválido para atualização de planta")
 		utils.RespondWithError(ctx, http.StatusBadRequest, ErroPayloadRequisicaoInvalido)
 		return
 	}
 	planta.ID = uint(id)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
+		logrus.WithError(err).Error("Planta não encontrada para atualização")
 		ctx.JSON(http.StatusNotFound, gin.H{"error": ErroPlantaNaoEncontrada})
 		return
 	}
@@ -168,14 +175,17 @@ func (c *PlantaController) Atualizar(ctx *gin.Context) {
 func (c *PlantaController) Deletar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
+		logrus.WithError(err).Error("Erro ao converter ID da planta para deleção")
 		utils.RespondWithError(ctx, http.StatusBadRequest, ErroIDPlantaInvalido)
 		return
 	}
 	if errors.Is(err, gorm.ErrRecordNotFound) {
+		logrus.WithError(err).Error("Planta não encontrada para deleção")
 		ctx.JSON(http.StatusNotFound, gin.H{"error": ErroPlantaNaoEncontrada})
 		return
 	}
 	if err := c.plantaServico.Deletar(uint(id)); err != nil {
+		logrus.WithError(err).Error("Erro ao deletar planta")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}

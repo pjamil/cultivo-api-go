@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 type GeneticaController struct {
@@ -24,6 +25,7 @@ func NewGeneticaController(servico service.GeneticaService) *GeneticaController 
 func (ctrl *GeneticaController) Criar(c *gin.Context) {
 	var dto dto.CreateGeneticaDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
+		logrus.WithError(err).Error("Payload da requisição inválido para criar genética")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -40,6 +42,7 @@ func (ctrl *GeneticaController) Criar(c *gin.Context) {
 	}
 
 	if err := ctrl.servico.Criar(&genetica); err != nil {
+		logrus.WithError(err).Error("Erro ao criar genética")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao criar genética"})
 		return
 	}
@@ -51,6 +54,7 @@ func (ctrl *GeneticaController) Criar(c *gin.Context) {
 func (c *GeneticaController) Listar(ctx *gin.Context) {
 	geneticas, err := c.servico.ListarTodas()
 	if err != nil {
+		logrus.WithError(err).Error("Erro ao listar genéticas")
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
@@ -71,15 +75,18 @@ func (c *GeneticaController) Listar(ctx *gin.Context) {
 func (c *GeneticaController) BuscarPorID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
+		logrus.WithError(err).Error("ID inválido para buscar genética por ID")
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
 	genetics, err := c.servico.BuscarPorID(uint(id))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
+		logrus.WithError(err).Error("Genética não encontrada ao buscar por ID")
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Genética não encontrada"})
 		return
 	}
 	if err != nil {
+		logrus.WithError(err).Error("Erro ao buscar genética por ID")
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar genética"})
 		return
 	}

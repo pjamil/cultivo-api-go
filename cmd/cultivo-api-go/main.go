@@ -1,13 +1,15 @@
 package main
 
 import (
-	"log"
 	"net/http"
+	"os"
 
 	_ "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/docs" // Import the generated Swagger docs
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/config"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/infrastructure/database"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/infrastructure/server"
+
+	"github.com/sirupsen/logrus"
 )
 
 // @title Plant Cultivation API
@@ -27,21 +29,26 @@ import (
 // @schemes http
 
 func main() {
+	// Configure Logrus
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+	logrus.SetOutput(os.Stdout)
+	logrus.SetLevel(logrus.InfoLevel)
+
 	// Load configuration
 	cfg := config.LoadConfig()
 
 	// Initialize database
 	db, err := database.NewDatabase(cfg)
 	if err != nil {
-		log.Fatalf("Failed to initialize database: %v", err)
+		logrus.Fatalf("Failed to initialize database: %v", err)
 	}
 
 	// Create server
 	srv := server.NewServer(db)
 
 	// Start server
-	log.Printf("Server starting on port %s", cfg.ServerPort)
+	logrus.Printf("Server starting on port %s", cfg.ServerPort)
 	if err := http.ListenAndServe(":"+cfg.ServerPort, srv.Router); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
+		logrus.Fatalf("Failed to start server: %v", err)
 	}
 }

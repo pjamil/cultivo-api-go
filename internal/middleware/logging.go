@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"log"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 func LoggingMiddleware() gin.HandlerFunc {
@@ -14,11 +14,11 @@ func LoggingMiddleware() gin.HandlerFunc {
 		c.Next()
 
 		duration := time.Since(start)
-		log.Printf("Request - Method: %s | Path: %s | Status: %d | Duration: %v",
-			c.Request.Method,
-			c.Request.URL.Path,
-			c.Writer.Status(),
-			duration,
-		)
+		logrus.WithFields(logrus.Fields{
+			"method":   c.Request.Method,
+			"path":     c.Request.URL.Path,
+			"status":   c.Writer.Status(),
+			"duration": duration,
+		}).Info("Request")
 	}
 }
