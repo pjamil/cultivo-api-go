@@ -1,9 +1,7 @@
 {
 	"info": {
-		"_postman_id": "ebf4db14-bb6c-4254-9580-1544d22190d4",
-		"name": "Cultivo API - VPS",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "7032311"
+		"name": "Cultivo API VPS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
@@ -12,13 +10,10 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/plantas",
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/plantas",
 					"protocol": "https",
 					"host": [
-						"cultivo-api",
-						"paulojamil",
-						"dev",
-						"br"
+						"cultivo.paulojamil.dev.br"
 					],
 					"path": [
 						"api",
@@ -26,22 +21,18 @@
 						"plantas"
 					]
 				}
-			},
-			"response": []
+			}
 		},
 		{
-			"name": "Buscar planta por ID",
+			"name": "Obter planta por ID",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/plantas/1",
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/plantas/1",
 					"protocol": "https",
 					"host": [
-						"cultivo-api",
-						"paulojamil",
-						"dev",
-						"br"
+						"cultivo.paulojamil.dev.br"
 					],
 					"path": [
 						"api",
@@ -50,8 +41,7 @@
 						"1"
 					]
 				}
-			},
-			"response": []
+			}
 		},
 		{
 			"name": "Criar nova planta",
@@ -65,16 +55,13 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"nome\": \"Tomate Cereja\",\n  \"comecando_de\": \"semente\",\n  \"especie\": \"sativa\",\n  \"data_plantiu\": \"2023-05-15T00:00:00Z\",\n  \"status\": \"germinando\",\n  \"notas\": \"Planta saudável, sem pragas\",\n  \"genetica_id\": 1,\n  \"meio_cultivo_id\": 1,\n  \"ambiente_id\": 1\n}"
+					"raw": "{\n  \"nome\": \"Preenseeds x Mimosa\",\n  \"comecando_de\": \"semente\",\n  \"especie\": \"sativa\",\n  \"data_plantio\": \"2023-05-15T00:00:00Z\",\n  \"status\": \"germinando\",\n  \"notas\": \"Planta saudável, sem pragas\",\n  \"genetica_id\": 1,\n  \"meio_cultivo_id\": 1,\n  \"ambiente_id\": 1\n}"
 				},
 				"url": {
-					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/plantas",
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/plantas",
 					"protocol": "https",
 					"host": [
-						"cultivo-api",
-						"paulojamil",
-						"dev",
-						"br"
+						"cultivo.paulojamil.dev.br"
 					],
 					"path": [
 						"api",
@@ -82,8 +69,7 @@
 						"plantas"
 					]
 				}
-			},
-			"response": []
+			}
 		},
 		{
 			"name": "Atualizar planta",
@@ -97,16 +83,13 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"nome\": \"Tomate Cereja Orgânico\",\n  \"especie\": \"tomato\",\n  \"data_plantiu\": \"2023-05-15T00:00:00Z\",\n  \"data_colheita\": \"2023-08-20T00:00:00Z\",\n  \"status\": \"colhida\",\n  \"estagio_crescimento\": \"madura\",\n  \"notas\": \"Colhido com sucesso\"\n}"
+					"raw": "{\n  \"nome\": \"Preenseeds x Mimosa\",\n  \"comecando_de\": \"clone\",\n  \"especie\": \"indica\",\n  \"data_plantio\": \"2023-06-01T00:00:00Z\",\n  \"status\": \"vegetando\",\n  \"notas\": \"Transplante realizado\",\n  \"genetica_id\": 2,\n  \"meio_cultivo_id\": 2,\n  \"ambiente_id\": 2\n}"
 				},
 				"url": {
-					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/plantas/1",
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/plantas/1",
 					"protocol": "https",
 					"host": [
-						"cultivo-api",
-						"paulojamil",
-						"dev",
-						"br"
+						"cultivo.paulojamil.dev.br"
 					],
 					"path": [
 						"api",
@@ -115,8 +98,7 @@
 						"1"
 					]
 				}
-			},
-			"response": []
+			}
 		},
 		{
 			"name": "Deletar planta",
@@ -124,156 +106,58 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/plantas/2",
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/plantas/1",
 					"protocol": "https",
 					"host": [
-						"cultivo-api",
-						"paulojamil",
-						"dev",
-						"br"
+						"cultivo.paulojamil.dev.br"
 					],
 					"path": [
 						"api",
 						"v1",
 						"plantas",
-						"2"
+						"1"
 					]
 				}
-			},
-			"response": []
+			}
 		},
 		{
-			"name": "Listar todas as genéticas",
+			"name": "Listar meios de cultivo",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/geneticas",
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/meios-cultivos",
 					"protocol": "https",
 					"host": [
-						"cultivo-api",
-						"paulojamil",
-						"dev",
-						"br"
+						"cultivo.paulojamil.dev.br"
 					],
 					"path": [
 						"api",
 						"v1",
-						"geneticas"
+						"meios-cultivos"
 					]
 				}
-			},
-			"response": []
+			}
 		},
 		{
-			"name": "Criar nova genética",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n  \"nome\": \"Mimosa Evo\",\n  \"descricao\": \"Seed Genetics CO, Variedade de cannabis com alto teor de THC\",\n  \"tipoGenetica\": \"Sativa\",\n  \"tipoEspecie\": \"Feminizada\",\n  \"tempoFloracao\": 60,\n  \"origem\": \"Europa\",\n  \"caracteristicas\": \"Resistência a pragas, sabor citrico de limão, efeito energizante\"\n}"
-				},
-				"url": {
-					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/geneticas",
-					"protocol": "https",
-					"host": [
-						"cultivo-api",
-						"paulojamil",
-						"dev",
-						"br"
-					],
-					"path": [
-						"api",
-						"v1",
-						"geneticas"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Listar todos os ambientes",
+			"name": "Obter meio de cultivo por ID",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/ambientes",
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/meios-cultivos/1",
 					"protocol": "https",
 					"host": [
-						"cultivo-api",
-						"paulojamil",
-						"dev",
-						"br"
+						"cultivo.paulojamil.dev.br"
 					],
 					"path": [
 						"api",
 						"v1",
-						"ambientes"
+						"meios-cultivos",
+						"1"
 					]
 				}
-			},
-			"response": []
-		},
-		{
-			"name": "Criar novo ambiente",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n  \"nome\": \"Estufa Principal\",\n  \"descricao\": \"Estufa com controle de temperatura e umidade\",\n  \"tipo\": \"interno\",\n  \"comprimento\": 500,\n  \"largura\": 300,\n  \"altura\": 250,\n  \"tempo_exposicao\": 12\n}"
-				},
-				"url": {
-					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/ambientes",
-					"protocol": "https",
-					"host": [
-						"cultivo-api",
-						"paulojamil",
-						"dev",
-						"br"
-					],
-					"path": [
-						"api",
-						"v1",
-						"ambientes"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Listar todos os meios de cultivo",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/meios_cultivo",
-					"protocol": "https",
-					"host": [
-						"cultivo-api",
-						"paulojamil",
-						"dev",
-						"br"
-					],
-					"path": [
-						"api",
-						"v1",
-						"meios_cultivo"
-					]
-				}
-			},
-			"response": []
+			}
 		},
 		{
 			"name": "Criar novo meio de cultivo",
@@ -287,60 +171,477 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"tipo\": \"Solo Orgânico\",\n  \"descricao\": \"Solo rico em matéria orgânica, humus de minhoca, esterco de frango, farinha de osso, perlita ,ideal para tomates\"\n}"
+					"raw": "{\n  \"tipo\": \"Solo Orgânico\",\n  \"descricao\": \"Solo rico em matéria orgânica, ideal para tomates\"\n}"
 				},
 				"url": {
-					"raw": "https://cultivo-api.paulojamil.dev.br/api/v1/meios_cultivo",
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/meios-cultivos",
 					"protocol": "https",
 					"host": [
-						"cultivo-api",
-						"paulojamil",
-						"dev",
-						"br"
+						"cultivo.paulojamil.dev.br"
 					],
 					"path": [
 						"api",
 						"v1",
-						"meios_cultivo"
+						"meios-cultivos"
 					]
 				}
-			},
-			"response": []
+			}
 		},
 		{
-			"name": "Health Check",
+			"name": "Atualizar meio de cultivo",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"tipo\": \"Hidroponia\",\n  \"descricao\": \"Sistema hidropônico NFT\"\n}"
+				},
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/meios-cultivos/1",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"meios-cultivos",
+						"1"
+					]
+				}
+			}
+		},
+		{
+			"name": "Deletar meio de cultivo",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/meios-cultivos/1",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"meios-cultivos",
+						"1"
+					]
+				}
+			}
+		},
+		{
+			"name": "Listar ambientes",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://cultivo-api.paulojamil.dev.br/health",
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/ambientes",
 					"protocol": "https",
 					"host": [
-						"cultivo-api",
-						"paulojamil",
-						"dev",
-						"br"
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"ambientes"
+					]
+				}
+			}
+		},
+		{
+			"name": "Obter ambiente por ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/ambientes/1",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"ambientes",
+						"1"
+					]
+				}
+			}
+		},
+		{
+			"name": "Criar novo ambiente",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Estufa Principal\",\n  \"descricao\": \"Estufa com controle de temperatura e umidade\"\n}"
+				},
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/ambientes",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"ambientes"
+					]
+				}
+			}
+		},
+		{
+			"name": "Atualizar ambiente",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Estufa Secundária\",\n  \"descricao\": \"Ambiente para mudas\"\n}"
+				},
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/ambientes/1",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"ambientes",
+						"1"
+					]
+				}
+			}
+		},
+		{
+			"name": "Deletar ambiente",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/ambientes/1",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"ambientes",
+						"1"
+					]
+				}
+			}
+		},
+		{
+			"name": "Listar usuários",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/usuarios",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"usuarios"
+					]
+				}
+			}
+		},
+		{
+			"name": "Obter usuário por ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/usuarios/1",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"usuarios",
+						"1"
+					]
+				}
+			}
+		},
+		{
+			"name": "Criar novo usuário",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Paulo Jamil\",\n  \"email\": \"paulo@email.com\",\n  \"senha\": \"senha123\"\n}"
+				},
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/usuarios",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"usuarios"
+					]
+				}
+			}
+		},
+		{
+			"name": "Atualizar usuário",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Paulo Jamil Atualizado\",\n  \"email\": \"paulo@email.com\"\n}"
+				},
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/usuarios/1",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"usuarios",
+						"1"
+					]
+				}
+			}
+		},
+		{
+			"name": "Deletar usuário",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/usuarios/1",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"usuarios",
+						"1"
+					]
+				}
+			}
+		},
+		{
+			"name": "Listar genéticas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/geneticas",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"geneticas"
+					]
+				}
+			}
+		},
+		{
+			"name": "Obter genética por ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/geneticas/1",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"geneticas",
+						"1"
+					]
+				}
+			}
+		},
+		{
+			"name": "Criar nova genética",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Mimosa\",\n  \"descricao\": \"Genética híbrida de alta produtividade\"\n}"
+				},
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/geneticas",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"geneticas"
+					]
+				}
+			}
+		},
+		{
+			"name": "Atualizar genética",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Mimosa Atualizada\",\n  \"descricao\": \"Descrição atualizada da genética\"\n}"
+				},
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/geneticas/1",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"geneticas",
+						"1"
+					]
+				}
+			}
+		},
+		{
+			"name": "Deletar genética",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/geneticas/1",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"geneticas",
+						"1"
+					]
+				}
+			}
+		},
+		{
+			"name": "Health check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/health",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
 					],
 					"path": [
 						"health"
 					]
 				}
 			},
-			"response": []
+			"response": [
+				{
+					"code": 200,
+					"body": "{\n  \"status\": \"ok\",\n  \"version\": \"1.0.0\"\n}"
+				}
+			]
 		},
 		{
-			"name": "Health Ready Check",
+			"name": "Health check detalhado",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://cultivo-api.paulojamil.dev.br/health/ready",
+					"raw": "https://cultivo.paulojamil.dev.br/api/v1/health",
 					"protocol": "https",
 					"host": [
-						"cultivo-api",
-						"paulojamil",
-						"dev",
-						"br"
+						"cultivo.paulojamil.dev.br"
+					],
+					"path": [
+						"api",
+						"v1",
+						"health"
+					]
+				}
+			},
+			"response": [
+				{
+					"code": 200,
+					"body": "{\n  \"status\": \"up\",\n  \"version\": \"1.0.0\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Health check - pronto",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cultivo.paulojamil.dev.br/health/ready",
+					"protocol": "https",
+					"host": [
+						"cultivo.paulojamil.dev.br"
 					],
 					"path": [
 						"health",
@@ -348,21 +649,23 @@
 					]
 				}
 			},
-			"response": []
+			"response": [
+				{
+					"code": 200,
+					"body": "{\n  \"status\": \"ready\",\n  \"version\": \"1.0.0\"\n}"
+				}
+			]
 		},
 		{
-			"name": "Health Live Check",
+			"name": "Health check - vivo",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://cultivo-api.paulojamil.dev.br/health/live",
+					"raw": "https://cultivo.paulojamil.dev.br/health/live",
 					"protocol": "https",
 					"host": [
-						"cultivo-api",
-						"paulojamil",
-						"dev",
-						"br"
+						"cultivo.paulojamil.dev.br"
 					],
 					"path": [
 						"health",
@@ -370,7 +673,12 @@
 					]
 				}
 			},
-			"response": []
+			"response": [
+				{
+					"code": 200,
+					"body": "{\n  \"status\": \"alive\"\n}"
+				}
+			]
 		}
 	]
 }
