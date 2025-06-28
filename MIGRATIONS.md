@@ -17,7 +17,6 @@ Integramos o `golang-migrate/migrate` de duas formas principais:
 Vamos detalhar cada um:
 
 ---
-
 #### 1. Gerenciando Migrações no Desenvolvimento Local (via `Makefile`)
 
 No seu ambiente de desenvolvimento local, você usará os comandos do `Makefile` para criar e aplicar migrações.
@@ -30,8 +29,8 @@ No seu ambiente de desenvolvimento local, você usará os comandos do `Makefile`
         ```
         Ao executar, o terminal irá te perguntar: `Enter migration name:`. Digite um nome descritivo para a sua migração (ex: `add_column_to_planta_table`, `create_new_user_settings_table`).
     *   **O que acontece:** A ferramenta `migrate` criará dois arquivos na pasta `internal/infrastructure/database/migrations/` com um timestamp no início (ex: `000002_add_new_feature.up.sql` e `000002_add_new_feature.down.sql`). Você então editará esses arquivos com o SQL necessário.
-        *   No arquivo `.up.sql`, você escreverá o SQL para *aplicar* a mudança (ex: `ALTER TABLE plantas ADD COLUMN nova_coluna VARCHAR(50);`).
-        *   No arquivo `.down.sql`, você escreverá o SQL para *reverter* a mudança (ex: `ALTER TABLE plantas DROP COLUMN nova_coluna;`).
+        *   No arquivo `.up.sql`, você escreverá o SQL para *aplicar* a mudança (ex: `ALTER TABLE plantas ADD COLUMN cor VARCHAR(50);`).
+        *   No arquivo `.down.sql`, você escreverá o SQL para *reverter* a mudança (ex: `ALTER TABLE plantas DROP COLUMN cor;`).
 
 *   **`make migrate-up` (Aplicar Migrações Pendentes)**
     *   **Propósito:** Este comando executa todas as migrações `.up.sql` que ainda não foram aplicadas ao seu banco de dados local.
@@ -54,7 +53,6 @@ No seu ambiente de desenvolvimento local, você usará os comandos do `Makefile`
     *   **Cuidado:** Use com cautela, pois reverter migrações pode levar à perda de dados se você estiver revertendo uma migração que removeu colunas ou tabelas.
 
 ---
-
 #### 2. Migrações Automáticas com `docker-compose`
 
 Para simplificar o desenvolvimento e garantir que o banco de dados esteja sempre pronto, configuramos o `docker-compose` para executar as migrações automaticamente quando o serviço `app` é iniciado.
@@ -71,7 +69,6 @@ Para simplificar o desenvolvimento e garantir que o banco de dados esteja sempre
     Quando você executa este comando (ou `docker-compose up` se a imagem já estiver construída), o contêiner do seu aplicativo Go será iniciado, e as migrações serão executadas automaticamente antes que o aplicativo comece a rodar. Isso é muito conveniente para garantir que seu banco de dados de desenvolvimento esteja sempre atualizado.
 
 ---
-
 #### 3. Gerenciando Migrações em Produção/VPS (via `Makefile.prod`)
 
 Para ambientes de produção ou VPS, você usará um `Makefile` separado (`Makefile.prod`) que aponta para o banco de dados correto e espera que as variáveis de ambiente do banco de dados estejam configuradas.
@@ -99,7 +96,6 @@ Para ambientes de produção ou VPS, você usará um `Makefile` separado (`Makef
     *   **CUIDADO EXTREMO:** **NUNCA** use este comando em um ambiente de produção a menos que você saiba exatamente o que está fazendo e tenha um backup completo do seu banco de dados. Reverter migrações em produção pode levar à perda de dados e instabilidade do sistema. Geralmente, em produção, você só aplica migrações (`migrate-up`). Se houver um problema, a estratégia comum é aplicar uma nova migração para corrigir o problema, não reverter.
 
 ---
-
 ### Exemplo de Fluxo de Trabalho Típico
 
 Vamos imaginar que você precisa adicionar uma nova coluna `cor` à tabela `plantas`.
