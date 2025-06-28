@@ -46,10 +46,6 @@ func (r *PlantaRepositorio) ListarTodos() ([]models.Planta, error) {
 		return nil, fmt.Errorf("falha ao buscar plantas: %w", err)
 	}
 
-	if len(plantas) == 0 {
-		return nil, errors.New("nenhuma planta encontrada")
-	}
-
 	return plantas, nil
 }
 
