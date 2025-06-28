@@ -12,3 +12,13 @@ type CreateGeneticaDTO struct {
 	Caracteristicas string          `json:"caracteristicas"`
 	Plantas         []models.Planta `json:"plantas,omitempty"`
 }
+
+type UpdateGeneticaDTO struct {
+	Nome            string `json:"nome"`
+	Descricao       string `json:"descricao"`
+	TipoGenetica    string `json:"tipoGenetica"`
+	TipoEspecie     string `json:"tipoEspecie"`
+	TempoFloracao   int    `json:"tempoFloracao"`
+	Origem          string `json:"origem"`
+	Caracteristicas string `json:"caracteristicas"`
+}

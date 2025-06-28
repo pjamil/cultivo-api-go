@@ -4,3 +4,8 @@ type CreateMeioCultivoDTO struct {
 	Tipo      string `json:"tipo" binding:"required"`
 	Descricao string `json:"descricao"`
 }
+
+type UpdateMeioCultivoDTO struct {
+	Tipo      string `json:"tipo"`
+	Descricao string `json:"descricao"`
+}

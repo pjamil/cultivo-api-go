@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
@@ -29,25 +30,25 @@ func NewPlantaController(plantaServico service.PlantaService) *PlantaController 
 // @Tags         plantas
 // @Accept       json
 // @Produce      json
-// @Param        planta  body      models.Planta  true  "Objeto da planta que precisa ser adicionado"
+// @Param        planta  body      dto.CreatePlantaDTO  true  "Dados para criação da planta"
 // @Success      201    {object}  models.Planta
 // @Failure      400    {object}  map[string]interface{}
 // @Failure      500    {object}  map[string]interface{}
 // @Router       /plantas [post]
 func (c *PlantaController) Criar(ctx *gin.Context) {
-	var planta models.Planta
-	if err := ctx.ShouldBindJSON(&planta); err != nil {
+	var createDto dto.CreatePlantaDTO
+	if err := ctx.ShouldBindJSON(&createDto); err != nil {
 		utils.RespondWithError(ctx, http.StatusBadRequest, "Payload da requisição inválido")
 		return
 	}
 
-	if err := c.plantaServico.Criar(&planta); err != nil {
+	if plantaCriada, err := c.plantaServico.Criar(&createDto); err != nil {
 		logrus.WithError(err).Error("Erro ao criar planta")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
+	} else {
+		utils.RespondWithJSON(ctx, http.StatusCreated, plantaCriada)
 	}
-
-	utils.RespondWithJSON(ctx, http.StatusCreated, planta)
 }
 
 // ListarPlantas godoc
@@ -124,7 +125,7 @@ func (c *PlantaController) BuscarPorID(ctx *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        id      path      int            true  "ID da Planta"
-// @Param        planta  body      models.Planta  true  "Objeto da planta atualizado"
+// @Param        planta  body      dto.UpdatePlantaDTO  true  "Dados para atualização da planta"
 // @Success      200    {object}  models.Planta
 // @Failure      400    {object}  map[string]interface{}
 // @Failure      404    {object}  map[string]interface{}
@@ -137,19 +138,62 @@ func (c *PlantaController) Atualizar(ctx *gin.Context) {
 		utils.RespondWithError(ctx, http.StatusBadRequest, ErroIDPlantaInvalido)
 		return
 	}
-	var planta models.Planta
-	if err := ctx.ShouldBindJSON(&planta); err != nil {
+	var updateDto dto.UpdatePlantaDTO
+	if err := ctx.ShouldBindJSON(&updateDto); err != nil {
 		logrus.WithError(err).Error("Payload da requisição inválido para atualização de planta")
 		utils.RespondWithError(ctx, http.StatusBadRequest, ErroPayloadRequisicaoInvalido)
 		return
 	}
-	planta.ID = uint(id)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		logrus.WithError(err).Error("Planta não encontrada para atualização")
-		ctx.JSON(http.StatusNotFound, gin.H{"error": ErroPlantaNaoEncontrada})
+
+	plantaExistente, err := c.plantaServico.BuscarPorID(uint(id))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.WithError(err).Error("Planta não encontrada para atualização")
+			ctx.JSON(http.StatusNotFound, gin.H{"error": ErroPlantaNaoEncontrada})
+			return
+		}
+		logrus.WithError(err).Error("Erro ao buscar planta para atualização")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := c.plantaServico.Atualizar(&planta); err != nil {
+
+	// Atualiza os campos da planta existente com os dados do DTO
+	if updateDto.Nome != "" {
+		plantaExistente.Nome = updateDto.Nome
+	}
+	if updateDto.ComecandoDe != "" {
+		plantaExistente.ComecandoDe = updateDto.ComecandoDe
+	}
+	if updateDto.Especie != "" {
+		plantaExistente.Especie = models.Especie(updateDto.Especie)
+	}
+	if !updateDto.DataPlantio.IsZero() {
+		plantaExistente.DataPlantio = &updateDto.DataPlantio
+	}
+	if !updateDto.DataColheita.IsZero() {
+		plantaExistente.DataColheita = &updateDto.DataColheita
+	}
+	if updateDto.Status != "" {
+		plantaExistente.Status = models.PlantaStatus(updateDto.Status)
+	}
+	// Removido: plantaExistente.EstagioCrescimento não existe em models.Planta
+	if updateDto.Notas != "" {
+		plantaExistente.Notas = &updateDto.Notas
+	}
+	if updateDto.GeneticaID != 0 {
+		plantaExistente.GeneticaID = updateDto.GeneticaID
+	}
+	if updateDto.MeioCultivoID != 0 {
+		plantaExistente.MeioCultivoID = updateDto.MeioCultivoID
+	}
+	if updateDto.AmbienteID != 0 {
+		plantaExistente.AmbienteID = updateDto.AmbienteID
+	}
+	if updateDto.UsuarioID != 0 {
+		plantaExistente.UsuarioID = updateDto.UsuarioID
+	}
+
+	if err := c.plantaServico.Atualizar(uint(id), &updateDto); err != nil {
 		logrus.WithFields(logrus.Fields{
 			"operation": "update_plant",
 			"plant_id":  id,
@@ -158,7 +202,15 @@ func (c *PlantaController) Atualizar(ctx *gin.Context) {
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
-	utils.RespondWithJSON(ctx, http.StatusOK, planta)
+
+	// Busca a planta atualizada para retornar na resposta
+	plantaAtualizada, err := c.plantaServico.BuscarPorID(uint(id))
+	if err != nil {
+		logrus.WithError(err).Error("Erro ao buscar planta atualizada após atualização")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
+		return
+	}
+	utils.RespondWithJSON(ctx, http.StatusOK, plantaAtualizada)
 }
 
 // DeletarPlanta godoc

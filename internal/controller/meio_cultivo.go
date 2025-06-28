@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -9,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 type MeioCultivoController struct {
@@ -61,4 +63,47 @@ func (c *MeioCultivoController) BuscarPorID(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, usuario)
+}
+
+// Atualizar godoc
+// @Summary      Atualiza um meio de cultivo
+// @Description  Atualiza um meio de cultivo existente com os dados fornecidos
+// @Tags         meio_cultivo
+// @Accept       json
+// @Produce      json
+// @Param        id        path      int                     true  "ID do Meio de Cultivo"
+// @Param        meioCultivo  body      dto.UpdateMeioCultivoDTO  true  "Dados do Meio de Cultivo para atualização"
+// @Success      200       {object}  models.MeioCultivo
+// @Failure      400       {object}  map[string]string
+// @Failure      404       {object}  map[string]string
+// @Failure      500       {object}  map[string]string
+// @Router       /meios-cultivos/{id} [put]
+func (c *MeioCultivoController) Atualizar(ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil || id == 0 {
+		logrus.WithError(err).Error("ID inválido para atualização de meio de cultivo")
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	var updateDto dto.UpdateMeioCultivoDTO
+	if err := ctx.ShouldBindJSON(&updateDto); err != nil {
+		logrus.WithError(err).Error("Payload da requisição inválido para atualização de meio de cultivo")
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	meioCultivoAtualizado, err := c.servico.Atualizar(uint(id), &updateDto)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		logrus.WithError(err).Error("Meio de cultivo não encontrado para atualização")
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Meio de cultivo não encontrado"})
+		return
+	}
+	if err != nil {
+		logrus.WithError(err).Error("Erro ao atualizar meio de cultivo")
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao atualizar meio de cultivo"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, meioCultivoAtualizado)
 }

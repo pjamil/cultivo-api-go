@@ -11,6 +11,7 @@ type GeneticaRepositorio interface {
 	Criar(genetica *models.Genetica) error
 	ListarTodos() ([]models.Genetica, error)
 	BuscarPorID(id uint) (*models.Genetica, error)
+	Atualizar(genetica *models.Genetica) error
 }
 
 type geneticaRepositorio struct {
@@ -44,4 +45,8 @@ func (r *geneticaRepositorio) BuscarPorID(id uint) (*models.Genetica, error) {
 	}
 
 	return &genetica, nil
+}
+
+func (r *geneticaRepositorio) Atualizar(genetica *models.Genetica) error {
+	return r.db.Save(genetica).Error
 }

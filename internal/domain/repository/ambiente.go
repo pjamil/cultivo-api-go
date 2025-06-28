@@ -11,6 +11,7 @@ type AmbienteRepositorio interface {
 	Criar(ambiente *models.Ambiente) error
 	ListarTodos() ([]models.Ambiente, error)
 	BuscarPorID(id uint) (*models.Ambiente, error)
+	Atualizar(ambiente *models.Ambiente) error
 }
 
 type ambienteRepositorio struct {
@@ -41,4 +42,8 @@ func (r *ambienteRepositorio) BuscarPorID(id uint) (*models.Ambiente, error) {
 		return nil, result.Error
 	}
 	return &ambiente, nil
+}
+
+func (r *ambienteRepositorio) Atualizar(ambiente *models.Ambiente) error {
+	return r.db.Save(ambiente).Error
 }

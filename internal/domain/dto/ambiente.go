@@ -10,3 +10,14 @@ type CreateAmbienteDTO struct {
 	Largura        float64 `json:"largura" binding:"required"`         // em centímetros
 	TempoExposicao int     `json:"tempo_exposicao" binding:"required"` // em horas
 }
+
+// DTO para atualização de ambiente
+type UpdateAmbienteDTO struct {
+	Nome           string  `json:"nome"`
+	Descricao      string  `json:"descricao"`
+	Tipo           string  `json:"tipo"`
+	Comprimento    float64 `json:"comprimento"`
+	Altura         float64 `json:"altura"`
+	Largura        float64 `json:"largura"`
+	TempoExposicao int     `json:"tempo_exposicao"`
+}

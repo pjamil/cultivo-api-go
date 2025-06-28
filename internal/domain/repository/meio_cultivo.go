@@ -13,6 +13,7 @@ type MeioCultivoRepositorio interface {
 	Criar(meioCultivo *models.MeioCultivo) error
 	ListarTodos() ([]models.MeioCultivo, error)
 	BuscarPorID(id uint) (*models.MeioCultivo, error)
+	Atualizar(meioCultivo *models.MeioCultivo) error
 }
 
 type meioCultivoRepositorio struct {
@@ -47,4 +48,8 @@ func (r *meioCultivoRepositorio) BuscarPorID(id uint) (*models.MeioCultivo, erro
 		return nil, result.Error
 	}
 	return &meioCultivo, nil
+}
+
+func (r *meioCultivoRepositorio) Atualizar(meioCultivo *models.MeioCultivo) error {
+	return r.db.Save(meioCultivo).Error
 }

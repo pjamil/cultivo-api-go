@@ -104,3 +104,46 @@ func (c *AmbienteController) BuscarPorID(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, ambiente)
 }
+
+// Atualizar godoc
+// @Summary      Atualiza um ambiente
+// @Description  Atualiza um ambiente existente com os dados fornecidos
+// @Tags         ambiente
+// @Accept       json
+// @Produce      json
+// @Param        id        path      int                  true  "ID do Ambiente"
+// @Param        ambiente  body      dto.UpdateAmbienteDTO  true  "Dados do Ambiente para atualização"
+// @Success      200       {object}  models.Ambiente
+// @Failure      400       {object}  map[string]string
+// @Failure      404       {object}  map[string]string
+// @Failure      500       {object}  map[string]string
+// @Router       /ambiente/{id} [put]
+func (c *AmbienteController) Atualizar(ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil || id == 0 {
+		logrus.WithError(err).Error("ID inválido para atualização de ambiente")
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	var updateDto dto.UpdateAmbienteDTO
+	if err := ctx.ShouldBindJSON(&updateDto); err != nil {
+		logrus.WithError(err).Error("Payload da requisição inválido para atualização de ambiente")
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ambienteAtualizado, err := c.servico.Atualizar(uint(id), &updateDto)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		logrus.WithError(err).Error("Ambiente não encontrado para atualização")
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Ambiente não encontrado"})
+		return
+	}
+	if err != nil {
+		logrus.WithError(err).Error("Erro ao atualizar ambiente")
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao atualizar ambiente"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, ambienteAtualizado)
+}

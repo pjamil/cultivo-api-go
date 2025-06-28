@@ -13,6 +13,7 @@ type MeioCultivoService interface {
 	Criar(meioCultivoDto *dto.CreateMeioCultivoDTO) (*models.MeioCultivo, error)
 	ListarTodos() ([]models.MeioCultivo, error)
 	BuscarPorID(id uint) (*models.MeioCultivo, error)
+	Atualizar(id uint, meioCultivoDto *dto.UpdateMeioCultivoDTO) (*models.MeioCultivo, error)
 }
 
 type meioCultivoService struct {
@@ -48,4 +49,24 @@ func (s *meioCultivoService) BuscarPorID(id uint) (*models.MeioCultivo, error) {
 		return nil, gorm.ErrInvalidValue
 	}
 	return s.repositorio.BuscarPorID(id)
+}
+
+func (s *meioCultivoService) Atualizar(id uint, meioCultivoDto *dto.UpdateMeioCultivoDTO) (*models.MeioCultivo, error) {
+	meioCultivoExistente, err := s.repositorio.BuscarPorID(id)
+	if err != nil {
+		return nil, fmt.Errorf("falha ao buscar meio de cultivo com ID %d: %w", id, err)
+	}
+
+	if meioCultivoDto.Tipo != "" {
+		meioCultivoExistente.Tipo = meioCultivoDto.Tipo
+	}
+	if meioCultivoDto.Descricao != "" {
+		meioCultivoExistente.Descricao = meioCultivoDto.Descricao
+	}
+
+	if err := s.repositorio.Atualizar(meioCultivoExistente); err != nil {
+		return nil, fmt.Errorf("falha ao atualizar meio de cultivo com ID %d: %w", id, err)
+	}
+
+	return meioCultivoExistente, nil
 }
