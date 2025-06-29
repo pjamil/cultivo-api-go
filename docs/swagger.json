@@ -1046,6 +1046,69 @@
                 }
             }
         },
+        "/api/v1/plantas/{id}/registrar-fato": {
+            "post": {
+                "description": "Registra um evento ou observação importante sobre a planta",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plantas"
+                ],
+                "summary": "Registra um fato na vida da planta",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID da Planta",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Dados do fato a ser registrado",
+                        "name": "fato",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.RegistrarFatoDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/usuarios": {
             "get": {
                 "description": "Retorna uma lista de todos os usuários cadastrados",
@@ -1645,6 +1708,36 @@
                 }
             }
         },
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.RegistrarFatoDTO": {
+            "type": "object",
+            "required": [
+                "conteudo",
+                "tipo",
+                "titulo"
+            ],
+            "properties": {
+                "conteudo": {
+                    "type": "string",
+                    "minLength": 5
+                },
+                "tipo": {
+                    "type": "string",
+                    "enum": [
+                        "observacao",
+                        "evento",
+                        "aprendizado",
+                        "tratamento",
+                        "problema",
+                        "colheita"
+                    ]
+                },
+                "titulo": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3
+                }
+            }
+        },
         "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UpdateAmbienteDTO": {
             "type": "object",
             "properties": {
@@ -2035,35 +2128,6 @@
                 "EspecieRuderalis"
             ]
         },
-        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.EstagioCrescimento": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "data_fim": {
-                    "type": "string"
-                },
-                "data_inicio": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "estagio": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "planta_id": {
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
         "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Foto": {
             "type": "object",
             "properties": {
@@ -2339,12 +2403,6 @@
                         }
                     ]
                 },
-                "estagios": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.EstagioCrescimento"
-                    }
-                },
                 "foto_capa": {
                     "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Foto"
                 },
@@ -2383,7 +2441,7 @@
                 "registros": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroPlanta"
+                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroDiario"
                     }
                 },
                 "status": {
@@ -2397,12 +2455,6 @@
                             "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.PlantaStatus"
                         }
                     ]
-                },
-                "tarefas": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.TarefaPlanta"
-                    }
                 },
                 "updatedAt": {
                     "type": "string"
@@ -2473,8 +2525,12 @@
                     "type": "string"
                 },
                 "tipo": {
-                    "description": "observacao, evento, aprendizado",
-                    "type": "string"
+                    "description": "observacao, evento, aprendizado, tratamento, problema, colheita",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroTipo"
+                        }
+                    ]
                 },
                 "titulo": {
                     "description": "Campos polimórficos",
@@ -2485,37 +2541,26 @@
                 }
             }
         },
-        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroPlanta": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "data_registro": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "observacao": {
-                    "type": "string"
-                },
-                "planta_id": {
-                    "type": "integer"
-                },
-                "tipo": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "valor": {
-                    "type": "string"
-                }
-            }
+        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroTipo": {
+            "type": "string",
+            "enum": [
+                "observacao",
+                "evento",
+                "aprendizado",
+                "tratamento",
+                "problema",
+                "colheita",
+                "crescimento"
+            ],
+            "x-enum-varnames": [
+                "RegistroTipoObservacao",
+                "RegistroTipoEvento",
+                "RegistroTipoAprendizado",
+                "RegistroTipoTratamento",
+                "RegistroTipoProblema",
+                "RegistroTipoColheita",
+                "RegistroTipoCrescimento"
+            ]
         },
         "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Tarefa": {
             "type": "object",
@@ -2578,38 +2623,6 @@
                 },
                 "usuario_id": {
                     "type": "integer"
-                }
-            }
-        },
-        "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.TarefaPlanta": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "data_prevista": {
-                    "type": "string"
-                },
-                "data_realizada": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "descricao": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "planta_id": {
-                    "type": "integer"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
                 }
             }
         },

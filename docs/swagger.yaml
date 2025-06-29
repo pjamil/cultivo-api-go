@@ -170,6 +170,29 @@ definitions:
       usuario_id:
         type: integer
     type: object
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.RegistrarFatoDTO:
+    properties:
+      conteudo:
+        minLength: 5
+        type: string
+      tipo:
+        enum:
+        - observacao
+        - evento
+        - aprendizado
+        - tratamento
+        - problema
+        - colheita
+        type: string
+      titulo:
+        maxLength: 100
+        minLength: 3
+        type: string
+    required:
+    - conteudo
+    - tipo
+    - titulo
+    type: object
   gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UpdateAmbienteDTO:
     properties:
       altura:
@@ -439,25 +462,6 @@ definitions:
     - EspecieSativa
     - EspecieIndica
     - EspecieRuderalis
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.EstagioCrescimento:
-    properties:
-      createdAt:
-        type: string
-      data_fim:
-        type: string
-      data_inicio:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      estagio:
-        type: string
-      id:
-        type: integer
-      planta_id:
-        type: integer
-      updatedAt:
-        type: string
-    type: object
   gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Foto:
     properties:
       ambiente_id:
@@ -645,10 +649,6 @@ definitions:
         - sativa
         - indica
         - ruderalis
-      estagios:
-        items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.EstagioCrescimento'
-        type: array
       foto_capa:
         $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Foto'
       foto_capa_id:
@@ -675,7 +675,7 @@ definitions:
         type: integer
       registros:
         items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroPlanta'
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroDiario'
         type: array
       status:
         allOf:
@@ -684,10 +684,6 @@ definitions:
         - ativa
         - colhida
         - morta
-      tarefas:
-        items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.TarefaPlanta'
-        type: array
       updatedAt:
         type: string
       usuario:
@@ -741,35 +737,33 @@ definitions:
         description: '"planta", "tarefa", etc.'
         type: string
       tipo:
-        description: observacao, evento, aprendizado
-        type: string
+        allOf:
+        - $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroTipo'
+        description: observacao, evento, aprendizado, tratamento, problema, colheita
       titulo:
         description: Campos polimórficos
         type: string
       updatedAt:
         type: string
     type: object
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroPlanta:
-    properties:
-      createdAt:
-        type: string
-      data_registro:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      id:
-        type: integer
-      observacao:
-        type: string
-      planta_id:
-        type: integer
-      tipo:
-        type: string
-      updatedAt:
-        type: string
-      valor:
-        type: string
-    type: object
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroTipo:
+    enum:
+    - observacao
+    - evento
+    - aprendizado
+    - tratamento
+    - problema
+    - colheita
+    - crescimento
+    type: string
+    x-enum-varnames:
+    - RegistroTipoObservacao
+    - RegistroTipoEvento
+    - RegistroTipoAprendizado
+    - RegistroTipoTratamento
+    - RegistroTipoProblema
+    - RegistroTipoColheita
+    - RegistroTipoCrescimento
   gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Tarefa:
     properties:
       ambiente_id:
@@ -813,27 +807,6 @@ definitions:
         type: string
       usuario_id:
         type: integer
-    type: object
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.TarefaPlanta:
-    properties:
-      createdAt:
-        type: string
-      data_prevista:
-        type: string
-      data_realizada:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      descricao:
-        type: string
-      id:
-        type: integer
-      planta_id:
-        type: integer
-      status:
-        type: string
-      updatedAt:
-        type: string
     type: object
   gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Usuario:
     properties:
@@ -1566,6 +1539,49 @@ paths:
             additionalProperties: true
             type: object
       summary: Atualiza uma planta
+      tags:
+      - plantas
+  /api/v1/plantas/{id}/registrar-fato:
+    post:
+      consumes:
+      - application/json
+      description: Registra um evento ou observação importante sobre a planta
+      parameters:
+      - description: ID da Planta
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Dados do fato a ser registrado
+        in: body
+        name: fato
+        required: true
+        schema:
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.RegistrarFatoDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Registra um fato na vida da planta
       tags:
       - plantas
   /api/v1/usuarios:
