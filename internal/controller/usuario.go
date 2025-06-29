@@ -35,7 +35,7 @@ func NewUsuarioController(servico service.UsuarioService) *UsuarioController {
 // @Failure      400      {object}  map[string]string
 // @Failure      409      {object}  map[string]string
 // @Failure      500      {object}  map[string]string
-// @Router       /usuarios [post]
+// @Router       /api/v1/usuarios [post]
 func (c *UsuarioController) Criar(ctx *gin.Context) {
 	var dto dto.UsuarioCreateDTO
 	if err := ctx.ShouldBindJSON(&dto); err != nil {
@@ -68,7 +68,7 @@ func (c *UsuarioController) Criar(ctx *gin.Context) {
 // @Failure      400  {object}  map[string]string
 // @Failure      404  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
-// @Router       /usuarios/{id} [get]
+// @Router       /api/v1/usuarios/{id} [get]
 func (c *UsuarioController) BuscarPorID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -91,7 +91,7 @@ func (c *UsuarioController) BuscarPorID(ctx *gin.Context) {
 // @Produce      json
 // @Success      200  {array}   dto.UsuarioResponseDTO
 // @Failure      500  {object}  map[string]string
-// @Router       /usuarios [get]
+// @Router       /api/v1/usuarios [get]
 func (c *UsuarioController) Listar(ctx *gin.Context) {
 	usuarios, err := c.servico.ListarTodos()
 	if err != nil {
@@ -120,7 +120,7 @@ func (c *UsuarioController) Listar(ctx *gin.Context) {
 // @Failure      400      {object}  map[string]string
 // @Failure      404      {object}  map[string]string
 // @Failure      500      {object}  map[string]string
-// @Router       /usuarios/{id} [put]
+// @Router       /api/v1/usuarios/{id} [put]
 func (c *UsuarioController) Atualizar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -158,7 +158,7 @@ func (c *UsuarioController) Atualizar(ctx *gin.Context) {
 // @Success      204  {object}  map[string]interface{}
 // @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
-// @Router       /usuarios/{id} [delete]
+// @Router       /api/v1/usuarios/{id} [delete]
 func (c *UsuarioController) Deletar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {

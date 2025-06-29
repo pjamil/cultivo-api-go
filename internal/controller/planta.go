@@ -33,7 +33,7 @@ func NewPlantaController(plantaServico service.PlantaService) *PlantaController 
 // @Success      201    {object}  dto.PlantaResponseDTO
 // @Failure      400    {object}  map[string]interface{}
 // @Failure      500    {object}  map[string]interface{}
-// @Router       /plantas [post]
+// @Router       /api/v1/plantas [post]
 func (c *PlantaController) Criar(ctx *gin.Context) {
 	var createDto dto.CreatePlantaDTO
 	if err := ctx.ShouldBindJSON(&createDto); err != nil {
@@ -58,7 +58,7 @@ func (c *PlantaController) Criar(ctx *gin.Context) {
 // @Produce      json
 // @Success      200  {array}   dto.PlantaResponseDTO
 // @Failure      500  {object}  map[string]interface{}
-// @Router       /plantas [get]
+// @Router       /api/v1/plantas [get]
 func (c *PlantaController) Listar(ctx *gin.Context) {
 	plantas, err := c.plantaServico.ListarTodas()
 	if err != nil {
@@ -101,7 +101,7 @@ const (
 // @Success      200  {object}  dto.PlantaResponseDTO
 // @Failure      400  {object}  map[string]interface{}
 // @Failure      404  {object}  map[string]interface{}
-// @Router       /plantas/{id} [get]
+// @Router       /api/v1/plantas/{id} [get]
 func (c *PlantaController) BuscarPorID(ctx *gin.Context) {
 	logrus.WithFields(logrus.Fields{
 		"id": ctx.Param("id"),
@@ -134,7 +134,7 @@ func (c *PlantaController) BuscarPorID(ctx *gin.Context) {
 // @Failure      400    {object}  map[string]interface{}
 // @Failure      404    {object}  map[string]interface{}
 // @Failure      500    {object}  map[string]interface{}
-// @Router       /plantas/{id} [put]
+// @Router       /api/v1/plantas/{id} [put]
 func (c *PlantaController) Atualizar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -179,7 +179,7 @@ func (c *PlantaController) Atualizar(ctx *gin.Context) {
 // @Success      200  {object}  map[string]interface{}
 // @Failure      400  {object}  map[string]interface{}
 // @Failure      500  {object}  map[string]interface{}
-// @Router       /plantas/{id} [delete]
+// @Router       /api/v1/plantas/{id} [delete]
 func (c *PlantaController) Deletar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {

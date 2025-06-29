@@ -1,4 +1,3 @@
-basePath: /api/v1
 definitions:
   gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.AmbienteResponseDTO:
     properties:
@@ -884,7 +883,7 @@ info:
   title: Plant Cultivation API
   version: "1.0"
 paths:
-  /ambiente:
+  /api/v1/ambientes:
     get:
       description: Retorna uma lista de todos os ambientes cadastrados
       produces:
@@ -938,7 +937,46 @@ paths:
       summary: Cria um novo ambiente
       tags:
       - ambiente
-  /ambiente/{id}:
+  /api/v1/ambientes/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deleta um ambiente existente
+      parameters:
+      - description: ID do Ambiente
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Deleta um ambiente
+      tags:
+      - ambiente
     get:
       consumes:
       - application/json
@@ -1021,7 +1059,100 @@ paths:
       summary: Atualiza um ambiente
       tags:
       - ambiente
-  /genetica/{id}:
+  /api/v1/geneticas:
+    get:
+      description: Retorna uma lista de todas as genéticas cadastrados
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.GeneticaResponseDTO'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Lista todas as genéticas
+      tags:
+      - genetica
+    post:
+      consumes:
+      - application/json
+      description: Cria uma nova genética com os dados fornecidos
+      parameters:
+      - description: Dados da Genética
+        in: body
+        name: genetica
+        required: true
+        schema:
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreateGeneticaDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.GeneticaResponseDTO'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Cria uma nova genética
+      tags:
+      - genetica
+  /api/v1/geneticas/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deleta uma genética existente
+      parameters:
+      - description: ID da Genética
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Deleta uma genética
+      tags:
+      - genetica
     get:
       consumes:
       - application/json
@@ -1104,114 +1235,7 @@ paths:
       summary: Atualiza uma genética
       tags:
       - genetica
-  /geneticas:
-    get:
-      description: Retorna uma lista de todas as genéticas cadastrados
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.GeneticaResponseDTO'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Lista todas as genéticas
-      tags:
-      - genetica
-    post:
-      consumes:
-      - application/json
-      description: Cria uma nova genética com os dados fornecidos
-      parameters:
-      - description: Dados da Genética
-        in: body
-        name: genetica
-        required: true
-        schema:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreateGeneticaDTO'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.GeneticaResponseDTO'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Cria uma nova genética
-      tags:
-      - genetica
-  /health:
-    get:
-      consumes:
-      - application/json
-      description: Retorna o status da API e seus componentes
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 'status": "ok'
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Verifica a saúde da aplicação
-      tags:
-      - health
-  /health/live:
-    get:
-      consumes:
-      - application/json
-      description: Verificação simples de que o processo está em execução
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 'status": "alive'
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Verifica se a aplicação está viva
-      tags:
-      - health
-  /health/ready:
-    get:
-      consumes:
-      - application/json
-      description: Verifica todas as dependências necessárias para a aplicação funcionar
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 'status": "ready'
-          schema:
-            additionalProperties: true
-            type: object
-        "503":
-          description: 'status": "not ready'
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Verifica se a aplicação está pronta para receber tráfego
-      tags:
-      - health
-  /meios-cultivos:
+  /api/v1/meios-cultivos:
     get:
       description: Retorna uma lista de todos os meios de cultivo cadastrados
       produces:
@@ -1265,7 +1289,46 @@ paths:
       summary: Cria um novo meio de cultivo
       tags:
       - meio_cultivo
-  /meios-cultivos/{id}:
+  /api/v1/meios-cultivos/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deleta um meio de cultivo existente
+      parameters:
+      - description: ID do Meio de Cultivo
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Deleta um meio de cultivo
+      tags:
+      - meio_cultivo
     get:
       consumes:
       - application/json
@@ -1348,7 +1411,7 @@ paths:
       summary: Atualiza um meio de cultivo
       tags:
       - meio_cultivo
-  /plantas:
+  /api/v1/plantas:
     get:
       consumes:
       - application/json
@@ -1401,7 +1464,7 @@ paths:
       summary: Cria uma nova planta
       tags:
       - plantas
-  /plantas/{id}:
+  /api/v1/plantas/{id}:
     delete:
       consumes:
       - application/json
@@ -1505,7 +1568,7 @@ paths:
       summary: Atualiza uma planta
       tags:
       - plantas
-  /usuarios:
+  /api/v1/usuarios:
     get:
       description: Retorna uma lista de todos os usuários cadastrados
       produces:
@@ -1565,7 +1628,7 @@ paths:
       summary: Cria um novo usuário
       tags:
       - usuario
-  /usuarios/{id}:
+  /api/v1/usuarios/{id}:
     delete:
       consumes:
       - application/json
@@ -1681,6 +1744,59 @@ paths:
       summary: Atualiza um usuário
       tags:
       - usuario
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Retorna o status da API e seus componentes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'status": "ok'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Verifica a saúde da aplicação
+      tags:
+      - health
+  /health/live:
+    get:
+      consumes:
+      - application/json
+      description: Verificação simples de que o processo está em execução
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'status": "alive'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Verifica se a aplicação está viva
+      tags:
+      - health
+  /health/ready:
+    get:
+      consumes:
+      - application/json
+      description: Verifica todas as dependências necessárias para a aplicação funcionar
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'status": "ready'
+          schema:
+            additionalProperties: true
+            type: object
+        "503":
+          description: 'status": "not ready'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Verifica se a aplicação está pronta para receber tráfego
+      tags:
+      - health
 schemes:
 - http
 swagger: "2.0"

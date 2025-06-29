@@ -32,7 +32,7 @@ func NewAmbienteController(servico service.AmbienteService) *AmbienteController 
 // @Success      201      {object}  dto.AmbienteResponseDTO
 // @Failure      400      {object}  map[string]string
 // @Failure      500      {object}  map[string]string
-// @Router       /ambiente [post]
+// @Router       /api/v1/ambientes [post]
 func (c *AmbienteController) Criar(ctx *gin.Context) {
 	var dto dto.CreateAmbienteDTO
 	if err := ctx.ShouldBindJSON(&dto); err != nil {
@@ -59,7 +59,7 @@ func (c *AmbienteController) Criar(ctx *gin.Context) {
 // @Produce      json
 // @Success      200  {array}   dto.AmbienteResponseDTO
 // @Failure      500  {object}  map[string]string
-// @Router       /ambiente [get]
+// @Router       /api/v1/ambientes [get]
 func (c *AmbienteController) Listar(ctx *gin.Context) {
 	ambientes, err := c.servico.ListarTodos()
 	if err != nil {
@@ -87,7 +87,7 @@ func (c *AmbienteController) Listar(ctx *gin.Context) {
 // @Failure      400  {object}  map[string]string
 // @Failure      404  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
-// @Router       /ambiente/{id} [get]
+// @Router       /api/v1/ambientes/{id} [get]
 func (c *AmbienteController) BuscarPorID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
@@ -122,7 +122,7 @@ func (c *AmbienteController) BuscarPorID(ctx *gin.Context) {
 // @Failure      400       {object}  map[string]string
 // @Failure      404       {object}  map[string]string
 // @Failure      500       {object}  map[string]string
-// @Router       /ambiente/{id} [put]
+// @Router       /api/v1/ambientes/{id} [put]
 func (c *AmbienteController) Atualizar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
@@ -164,7 +164,7 @@ func (c *AmbienteController) Atualizar(ctx *gin.Context) {
 // @Failure      400  {object}  map[string]string
 // @Failure      404  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
-// @Router       /ambientes/{id} [delete]
+// @Router       /api/v1/ambientes/{id} [delete]
 func (c *AmbienteController) Deletar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {

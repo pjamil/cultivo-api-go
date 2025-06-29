@@ -32,7 +32,7 @@ func NewGeneticaController(servico service.GeneticaService) *GeneticaController 
 // @Success      201      {object}  dto.GeneticaResponseDTO
 // @Failure      400      {object}  map[string]string
 // @Failure      500      {object}  map[string]string
-// @Router       /geneticas [post]
+// @Router       /api/v1/geneticas [post]
 func (ctrl *GeneticaController) Criar(c *gin.Context) {
 	var dto dto.CreateGeneticaDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
@@ -58,7 +58,7 @@ func (ctrl *GeneticaController) Criar(c *gin.Context) {
 // @Produce      json
 // @Success      200  {array}   dto.GeneticaResponseDTO
 // @Failure      500  {object}  map[string]string
-// @Router       /geneticas [get]
+// @Router       /api/v1/geneticas [get]
 func (c *GeneticaController) Listar(ctx *gin.Context) {
 	geneticas, err := c.servico.ListarTodas()
 	if err != nil {
@@ -86,7 +86,7 @@ func (c *GeneticaController) Listar(ctx *gin.Context) {
 // @Failure 400 {object} map[string]string
 // @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router       /geneticas/{id} [get]
+// @Router       /api/v1/geneticas/{id} [get]
 func (c *GeneticaController) BuscarPorID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
@@ -120,7 +120,7 @@ func (c *GeneticaController) BuscarPorID(ctx *gin.Context) {
 // @Failure      400       {object}  map[string]string
 // @Failure      404       {object}  map[string]string
 // @Failure      500       {object}  map[string]string
-// @Router       /genetica/{id} [put]
+// @Router       /api/v1/geneticas/{id} [put]
 func (c *GeneticaController) Atualizar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
@@ -162,7 +162,7 @@ func (c *GeneticaController) Atualizar(ctx *gin.Context) {
 // @Failure      400  {object}  map[string]string
 // @Failure      404  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
-// @Router       /genetica/{id} [delete]
+// @Router       /api/v1/geneticas/{id} [delete]
 func (c *GeneticaController) Deletar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {

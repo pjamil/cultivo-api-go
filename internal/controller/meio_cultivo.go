@@ -32,7 +32,7 @@ func NewMeioCultivoController(servico service.MeioCultivoService) *MeioCultivoCo
 // @Success      201       {object}  dto.MeioCultivoResponseDTO
 // @Failure      400       {object}  map[string]string
 // @Failure      500       {object}  map[string]string
-// @Router       /meios-cultivos [post]
+// @Router       /api/v1/meios-cultivos [post]
 func (c *MeioCultivoController) Criar(ctx *gin.Context) {
 	var dto dto.CreateMeioCultivoDTO
 	if err := ctx.ShouldBindJSON(&dto); err != nil {
@@ -57,7 +57,7 @@ func (c *MeioCultivoController) Criar(ctx *gin.Context) {
 // @Produce      json
 // @Success      200  {array}   dto.MeioCultivoResponseDTO
 // @Failure      500  {object}  map[string]string
-// @Router       /meios-cultivos [get]
+// @Router       /api/v1/meios-cultivos [get]
 func (c *MeioCultivoController) Listar(ctx *gin.Context) {
 	meioCultivos, err := c.servico.ListarTodos()
 	if err != nil {
@@ -85,7 +85,7 @@ func (c *MeioCultivoController) Listar(ctx *gin.Context) {
 // @Failure      400  {object}  map[string]string
 // @Failure      404  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
-// @Router       /meios-cultivos/{id} [get]
+// @Router       /api/v1/meios-cultivos/{id} [get]
 func (c *MeioCultivoController) BuscarPorID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -114,7 +114,7 @@ func (c *MeioCultivoController) BuscarPorID(ctx *gin.Context) {
 // @Failure      400       {object}  map[string]string
 // @Failure      404       {object}  map[string]string
 // @Failure      500       {object}  map[string]string
-// @Router       /meios-cultivos/{id} [put]
+// @Router       /api/v1/meios-cultivos/{id} [put]
 func (c *MeioCultivoController) Atualizar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
@@ -156,7 +156,7 @@ func (c *MeioCultivoController) Atualizar(ctx *gin.Context) {
 // @Failure      400  {object}  map[string]string
 // @Failure      404  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
-// @Router       /meios-cultivos/{id} [delete]
+// @Router       /api/v1/meios-cultivos/{id} [delete]
 func (c *MeioCultivoController) Deletar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {

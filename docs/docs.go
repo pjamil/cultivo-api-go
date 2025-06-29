@@ -24,7 +24,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/ambiente": {
+        "/api/v1/ambientes": {
             "get": {
                 "description": "Retorna uma lista de todos os ambientes cadastrados",
                 "produces": [
@@ -106,7 +106,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/ambiente/{id}": {
+        "/api/v1/ambientes/{id}": {
             "get": {
                 "description": "Retorna os detalhes de um ambiente específico",
                 "consumes": [
@@ -229,9 +229,149 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Deleta um ambiente existente",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ambiente"
+                ],
+                "summary": "Deleta um ambiente",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID do Ambiente",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
             }
         },
-        "/genetica/{id}": {
+        "/api/v1/geneticas": {
+            "get": {
+                "description": "Retorna uma lista de todas as genéticas cadastrados",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "genetica"
+                ],
+                "summary": "Lista todas as genéticas",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.GeneticaResponseDTO"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Cria uma nova genética com os dados fornecidos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "genetica"
+                ],
+                "summary": "Cria uma nova genética",
+                "parameters": [
+                    {
+                        "description": "Dados da Genética",
+                        "name": "genetica",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreateGeneticaDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.GeneticaResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/geneticas/{id}": {
             "get": {
                 "description": "Retorna informações detalhadas de uma genética",
                 "consumes": [
@@ -354,41 +494,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/geneticas": {
-            "get": {
-                "description": "Retorna uma lista de todas as genéticas cadastrados",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "genetica"
-                ],
-                "summary": "Lista todas as genéticas",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.GeneticaResponseDTO"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
             },
-            "post": {
-                "description": "Cria uma nova genética com os dados fornecidos",
+            "delete": {
+                "description": "Deleta uma genética existente",
                 "consumes": [
                     "application/json"
                 ],
@@ -398,23 +506,22 @@ const docTemplate = `{
                 "tags": [
                     "genetica"
                 ],
-                "summary": "Cria uma nova genética",
+                "summary": "Deleta uma genética",
                 "parameters": [
                     {
-                        "description": "Dados da Genética",
-                        "name": "genetica",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreateGeneticaDTO"
-                        }
+                        "type": "integer",
+                        "description": "ID da Genética",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.GeneticaResponseDTO"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "400": {
@@ -426,6 +533,15 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -438,86 +554,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/health": {
-            "get": {
-                "description": "Retorna o status da API e seus componentes",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "health"
-                ],
-                "summary": "Verifica a saúde da aplicação",
-                "responses": {
-                    "200": {
-                        "description": "status\": \"ok",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/health/live": {
-            "get": {
-                "description": "Verificação simples de que o processo está em execução",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "health"
-                ],
-                "summary": "Verifica se a aplicação está viva",
-                "responses": {
-                    "200": {
-                        "description": "status\": \"alive",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/health/ready": {
-            "get": {
-                "description": "Verifica todas as dependências necessárias para a aplicação funcionar",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "health"
-                ],
-                "summary": "Verifica se a aplicação está pronta para receber tráfego",
-                "responses": {
-                    "200": {
-                        "description": "status\": \"ready",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "503": {
-                        "description": "status\": \"not ready",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/meios-cultivos": {
+        "/api/v1/meios-cultivos": {
             "get": {
                 "description": "Retorna uma lista de todos os meios de cultivo cadastrados",
                 "produces": [
@@ -599,7 +636,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/meios-cultivos/{id}": {
+        "/api/v1/meios-cultivos/{id}": {
             "get": {
                 "description": "Retorna os detalhes de um meio de cultivo específico",
                 "consumes": [
@@ -722,9 +759,67 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Deleta um meio de cultivo existente",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meio_cultivo"
+                ],
+                "summary": "Deleta um meio de cultivo",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID do Meio de Cultivo",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
             }
         },
-        "/plantas": {
+        "/api/v1/plantas": {
             "get": {
                 "description": "Retorna os detalhes de todas as plantas",
                 "consumes": [
@@ -803,7 +898,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/plantas/{id}": {
+        "/api/v1/plantas/{id}": {
             "get": {
                 "description": "Retorna os detalhes de uma planta específica",
                 "consumes": [
@@ -955,7 +1050,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/usuarios": {
+        "/api/v1/usuarios": {
             "get": {
                 "description": "Retorna uma lista de todos os usuários cadastrados",
                 "produces": [
@@ -1046,7 +1141,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/usuarios/{id}": {
+        "/api/v1/usuarios/{id}": {
             "get": {
                 "description": "Retorna os detalhes de um usuário específico",
                 "consumes": [
@@ -1215,6 +1310,85 @@ const docTemplate = `{
                             "additionalProperties": {
                                 "type": "string"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Retorna o status da API e seus componentes",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Verifica a saúde da aplicação",
+                "responses": {
+                    "200": {
+                        "description": "status\": \"ok",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/health/live": {
+            "get": {
+                "description": "Verificação simples de que o processo está em execução",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Verifica se a aplicação está viva",
+                "responses": {
+                    "200": {
+                        "description": "status\": \"alive",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/health/ready": {
+            "get": {
+                "description": "Verifica todas as dependências necessárias para a aplicação funcionar",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Verifica se a aplicação está pronta para receber tráfego",
+                "responses": {
+                    "200": {
+                        "description": "status\": \"ready",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "503": {
+                        "description": "status\": \"not ready",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -2501,7 +2675,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
-	BasePath:         "/api/v1",
+	BasePath:         "",
 	Schemes:          []string{"http"},
 	Title:            "Plant Cultivation API",
 	Description:      "API para gerenciamento de cultivo de plantas",
