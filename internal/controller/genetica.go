@@ -86,7 +86,7 @@ func (c *GeneticaController) Listar(ctx *gin.Context) {
 // @Failure 400 {object} map[string]string
 // @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /genetica/{id} [get]
+// @Router       /geneticas/{id} [get]
 func (c *GeneticaController) BuscarPorID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {

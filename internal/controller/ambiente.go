@@ -164,7 +164,7 @@ func (c *AmbienteController) Atualizar(ctx *gin.Context) {
 // @Failure      400  {object}  map[string]string
 // @Failure      404  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
-// @Router       /ambiente/{id} [delete]
+// @Router       /ambientes/{id} [delete]
 func (c *AmbienteController) Deletar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
