@@ -11,4 +11,5 @@ type PlantaRepositorio interface {
 	BuscarPorEspecie(especie models.Especie) ([]models.Planta, error)
 	BuscarPorStatus(status string) ([]models.Planta, error)
 	ExistePorNome(nome string) bool
+	CriarRegistroDiario(registro *models.RegistroDiario) error
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
@@ -20,6 +21,7 @@ type PlantaService interface {
 	Deletar(id uint) error
 	BuscarPorEspecie(especie models.Especie) ([]models.Planta, error)
 	BuscarPorStatus(status string) ([]models.Planta, error)
+	RegistrarFato(plantaID uint, tipo models.RegistroTipo, titulo string, conteudo string) error
 }
 
 // PlantaService fornece métodos para gerenciar plantas no sistema.
@@ -29,6 +31,7 @@ type plantaService struct {
 	geneticaRepositorio   repository.GeneticaRepositorio
 	ambienteRepositorio repository.AmbienteRepositorio
 	meioRepositorio     repository.MeioCultivoRepositorio
+	registroDiarioRepositorio repository.PlantaRepositorio
 }
 
 func NewPlantaService(
@@ -36,12 +39,14 @@ func NewPlantaService(
 	geneticaRepositorio repository.GeneticaRepositorio,
 	ambienteRepositorio repository.AmbienteRepositorio,
 	meioRepositorio repository.MeioCultivoRepositorio,
+	registroDiarioRepositorio repository.PlantaRepositorio,
 ) PlantaService {
 	return &plantaService{
 		repositorio:           repositorio,
 		geneticaRepositorio:   geneticaRepositorio,
 		ambienteRepositorio: ambienteRepositorio,
 		meioRepositorio:     meioRepositorio,
+		registroDiarioRepositorio: registroDiarioRepositorio,
 	}
 }
 
@@ -272,4 +277,29 @@ func (s *plantaService) BuscarPorEspecie(especie models.Especie) ([]models.Plant
 }
 func (s *plantaService) BuscarPorStatus(status string) ([]models.Planta, error) {
 	return s.repositorio.BuscarPorStatus(status)
+}
+
+func (s *plantaService) RegistrarFato(plantaID uint, tipo models.RegistroTipo, titulo string, conteudo string) error {
+	// Verificar se a planta existe
+	_, err := s.repositorio.BuscarPorID(plantaID)
+	if err != nil {
+		return fmt.Errorf("planta com ID %d não encontrada: %w", plantaID, err)
+	}
+
+	// Criar o novo registro diário
+	registro := &models.RegistroDiario{
+		Data:           time.Now(),
+		Tipo:           tipo,
+		Titulo:         titulo,
+		Conteudo:       conteudo,
+		ReferenciaID:   &plantaID,
+		ReferenciaTipo: models.String("planta"),
+	}
+
+	// Salvar o registro diário usando o repositório
+	if err := s.repositorio.CriarRegistroDiario(registro); err != nil {
+		return fmt.Errorf("falha ao registrar fato para a planta %d: %w", plantaID, err)
+	}
+
+	return nil
 }

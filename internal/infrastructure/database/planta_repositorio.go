@@ -125,3 +125,11 @@ func (r *PlantaRepositorio) ExistePorNome(nome string) bool {
 	}
 	return count > 0 // Retorna true se existir pelo menos uma planta com o nome
 }
+
+func (r *PlantaRepositorio) CriarRegistroDiario(registro *models.RegistroDiario) error {
+	if registro == nil {
+		return errors.New("registro diário não pode ser nulo")
+	}
+	result := r.db.Create(registro)
+	return result.Error
+}

@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 	"github.com/gin-gonic/gin"
@@ -202,4 +203,45 @@ func (c *PlantaController) Deletar(ctx *gin.Context) {
 		"plant_id":  id,
 	}).Info("Planta deletada com sucesso")
 	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Planta deletada com sucesso"})
+}
+
+// RegistrarFato godoc
+// @Summary      Registra um fato na vida da planta
+// @Description  Registra um evento ou observação importante sobre a planta
+// @Tags         plantas
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID da Planta"
+// @Param        fato  body      dto.RegistrarFatoDTO  true  "Dados do fato a ser registrado"
+// @Success      200    {object}  map[string]interface{}
+// @Failure      400    {object}  map[string]interface{}
+// @Failure      404    {object}  map[string]interface{}
+// @Failure      500    {object}  map[string]interface{}
+// @Router       /api/v1/plantas/{id}/registrar-fato [post]
+func (c *PlantaController) RegistrarFato(ctx *gin.Context) {
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	if err != nil {
+		logrus.WithError(err).Error("Erro ao converter ID da planta para registrar fato")
+		utils.RespondWithError(ctx, http.StatusBadRequest, ErroIDPlantaInvalido)
+		return
+	}
+
+	var fatoDto dto.RegistrarFatoDTO
+	if err := ctx.ShouldBindJSON(&fatoDto); err != nil {
+		logrus.WithError(err).Error("Payload da requisição inválido para registrar fato")
+		utils.RespondWithError(ctx, http.StatusBadRequest, ErroPayloadRequisicaoInvalido)
+		return
+	}
+
+	if err := c.plantaServico.RegistrarFato(uint(id), models.RegistroTipo(fatoDto.Tipo), fatoDto.Titulo, fatoDto.Conteudo); err != nil {
+		logrus.WithError(err).Error("Erro ao registrar fato para a planta")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			utils.RespondWithError(ctx, http.StatusNotFound, ErroPlantaNaoEncontrada)
+			return
+		}
+		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Fato registrado com sucesso"})
 }

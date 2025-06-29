@@ -37,7 +37,7 @@ func NewServer(db *database.Database) *Server {
 	geneticaRepo := repository.NewGeneticaRepositorio(db.DB)
 	ambienteRepo := repository.NewAmbienteRepositorio(db.DB)
 	meioCultivoRepo := repository.NewMeioCultivoRepositorio(db.DB)
-	servicoPlanta := service.NewPlantaService(repositorioPlanta, geneticaRepo, ambienteRepo, meioCultivoRepo)
+	servicoPlanta := service.NewPlantaService(repositorioPlanta, geneticaRepo, ambienteRepo, meioCultivoRepo, repositorioPlanta)
 	controladorPlanta := controller.NewPlantaController(servicoPlanta)
 
 	const hostRoute = "/api/v1"
@@ -49,6 +49,7 @@ func NewServer(db *database.Database) *Server {
 	router.GET(rotasPlantas+rotaPlantaPorID, controladorPlanta.BuscarPorID)
 	router.PUT(rotasPlantas+rotaPlantaPorID, controladorPlanta.Atualizar)
 	router.DELETE(rotasPlantas+rotaPlantaPorID, controladorPlanta.Deletar)
+	router.POST(rotasPlantas+rotaPlantaPorID+"/registrar-fato", controladorPlanta.RegistrarFato)
 
 	// Rotas de Ambiente
 	repositorioAmbiente := repository.NewAmbienteRepositorio(db.DB)

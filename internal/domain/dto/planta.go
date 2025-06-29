@@ -51,3 +51,10 @@ type PlantaResponseDTO struct {
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 }
+
+// RegistrarFatoDTO representa os dados para registrar um fato da planta
+type RegistrarFatoDTO struct {
+	Tipo     string `json:"tipo" binding:"required,oneof=observacao evento aprendizado tratamento problema colheita"`
+	Titulo   string `json:"titulo" binding:"required,min=3,max=100"`
+	Conteudo string `json:"conteudo" binding:"required,min=5"`
+}

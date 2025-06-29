@@ -1,6 +1,9 @@
 build: swagger-gen
 	go build -o bin/cultivo-api ./cmd/cultivo-api-go
 
+test:
+	go test ./...
+
 swagger-gen:
 	GO111MODULE=on swag init -g cmd/cultivo-api-go/main.go -parseDependency
 

@@ -6,10 +6,21 @@ import (
 	"gorm.io/gorm"
 )
 
+type RegistroTipo string
+
+const (
+	RegistroTipoObservacao RegistroTipo = "observacao"
+	RegistroTipoEvento     RegistroTipo = "evento"
+	RegistroTipoAprendizado RegistroTipo = "aprendizado"
+	RegistroTipoTratamento RegistroTipo = "tratamento"
+	RegistroTipoProblema   RegistroTipo = "problema"
+	RegistroTipoColheita   RegistroTipo = "colheita"
+)
+
 type RegistroDiario struct {
 	gorm.Model
 	Data time.Time `gorm:"index" json:"data"`
-	Tipo string    `gorm:"size:50;index" json:"tipo"` // observacao, evento, aprendizado
+	Tipo RegistroTipo    `gorm:"size:50;index" json:"tipo"` // observacao, evento, aprendizado, tratamento, problema, colheita
 
 	DiarioCultivoID uint `json:"diario_cultivo_id"`
 

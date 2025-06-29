@@ -58,3 +58,8 @@ type Planta struct {
 func (Planta) TableName() string {
 	return "plantas"
 }
+
+// String returns a pointer to the string value.
+func String(s string) *string {
+	return &s
+}
