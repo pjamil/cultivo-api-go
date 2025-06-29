@@ -96,3 +96,13 @@ GET {{baseUrl}}/meios-cultivos HTTP/1.1
 
 ### Listar todos os Ambientes
 GET {{baseUrl}}/ambientes HTTP/1.1
+
+### Registrar um fato para uma planta
+POST {{baseUrl}}/plantas/1/registrar-fato HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+  "tipo": "evento",
+  "titulo": "Aplicação de fertilizante",
+  "conteudo": "Aplicado fertilizante NPK 10-10-10 na dose recomendada para a fase de crescimento."
+}

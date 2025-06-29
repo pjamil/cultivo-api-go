@@ -15,6 +15,7 @@ const (
 	RegistroTipoTratamento RegistroTipo = "tratamento"
 	RegistroTipoProblema   RegistroTipo = "problema"
 	RegistroTipoColheita   RegistroTipo = "colheita"
+	RegistroTipoCrescimento RegistroTipo = "crescimento"
 )
 
 type RegistroDiario struct {

@@ -15,10 +15,4 @@ type Foto struct {
 	AmbienteID *uint  `json:"ambiente_id,omitempty"` // <-- Adicione esta linha
 }
 
-// PlantaFotoID representa a relação entre uma planta e suas fotos, com ID
-type PlantaFotoID struct {
-	gorm.Model
-	PlantaID uint `json:"planta_id"`
-	FotoID   uint `json:"foto_id"`
-	Foto     Foto `gorm:"foreignKey:FotoID" json:"foto"`
-}
+

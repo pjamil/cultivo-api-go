@@ -48,9 +48,9 @@ type Planta struct {
 	UsuarioID uint    `gorm:"not null" json:"usuario_id"`
 	Usuario   Usuario `gorm:"foreignKey:UsuarioID" json:"usuario"`
 
-	Estagios  []EstagioCrescimento `gorm:"foreignKey:PlantaID" json:"estagios"`
-	Registros []RegistroPlanta     `gorm:"foreignKey:PlantaID" json:"registros"`
-	Tarefas   []TarefaPlanta       `gorm:"foreignKey:PlantaID" json:"tarefas"`
+	
+	Registros []RegistroDiario     `gorm:"foreignKey:PlantaID" json:"registros"`
+	
 
 	Diarios []DiarioCultivo `gorm:"many2many:diario_plantas;" json:"diarios"`
 }
