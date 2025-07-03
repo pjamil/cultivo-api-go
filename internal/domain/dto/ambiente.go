@@ -4,11 +4,11 @@ package dto
 type CreateAmbienteDTO struct {
 	Nome           string  `json:"nome" binding:"required"`
 	Descricao      string  `json:"descricao"`
-	Tipo           string  `json:"tipo" binding:"required"`            // Ex: "interno", "externo", "húmido", "seco"
-	Comprimento    float64 `json:"comprimento" binding:"required"`     // em centímetros
-	Altura         float64 `json:"altura" binding:"required"`          // em centímetros
-	Largura        float64 `json:"largura" binding:"required"`         // em centímetros
-	TempoExposicao int     `json:"tempo_exposicao" binding:"required"` // em horas
+	Tipo           string  `json:"tipo" binding:"required,oneof='interno' 'externo' 'húmido' 'seco'"`            // Ex: "interno", "externo", "húmido", "seco"
+	Comprimento    float64 `json:"comprimento" binding:"required,gt=0"`     // em centímetros
+	Altura         float64 `json:"altura" binding:"required,gt=0"`          // em centímetros
+	Largura        float64 `json:"largura" binding:"required,gt=0"`         // em centímetros
+	TempoExposicao int     `json:"tempo_exposicao" binding:"required,gt=0"` // em horas
 }
 
 // DTO para atualização de ambiente

@@ -10,9 +10,10 @@ import (
 )
 
 type UsuarioService interface {
+	Login(payload *dto.LoginPayload) (string, error)
 	Criar(usuarioDto *dto.UsuarioCreateDTO) (*dto.UsuarioResponseDTO, error)
 	BuscarPorID(id uint) (*dto.UsuarioResponseDTO, error)
-	ListarTodos() ([]dto.UsuarioResponseDTO, error)
+	ListarTodos(page, limit int) (*dto.PaginatedResponse, error)
 	Atualizar(id uint, usuarioDto *dto.UsuarioUpdateDTO) (*dto.UsuarioResponseDTO, error)
 	Deletar(id uint) error
 }
@@ -60,8 +61,8 @@ func (s *usuarioService) BuscarPorID(id uint) (*dto.UsuarioResponseDTO, error) {
 	}, nil
 }
 
-func (s *usuarioService) ListarTodos() ([]dto.UsuarioResponseDTO, error) {
-	usuarios, err := s.repositorio.ListarTodos()
+func (s *usuarioService) ListarTodos(page, limit int) (*dto.PaginatedResponse, error) {
+	usuarios, total, err := s.repositorio.ListarTodos(page, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +76,13 @@ func (s *usuarioService) ListarTodos() ([]dto.UsuarioResponseDTO, error) {
 			Preferencias: usuario.Preferencias,
 		})
 	}
-	return responseDTOs, nil
+
+	return &dto.PaginatedResponse{
+		Data:  responseDTOs,
+		Total: total,
+		Page:  page,
+		Limit: limit,
+	}, nil
 }
 
 // Atualizar atualiza os campos do usuário informados no DTO.
@@ -106,4 +113,22 @@ func (s *usuarioService) Atualizar(id uint, usuarioDto *dto.UsuarioUpdateDTO) (*
 
 func (s *usuarioService) Deletar(id uint) error {
 	return s.repositorio.Deletar(id)
+}
+
+func (s *usuarioService) Login(payload *dto.LoginPayload) (string, error) {
+	usuario, err := s.repositorio.BuscarPorEmail(payload.Email)
+	if err != nil {
+		return "", utils.ErrInvalidCredentials // Não revelar se o usuário não existe ou senha inválida
+	}
+
+	if !utils.CheckPasswordHash(payload.Password, usuario.SenhaHash) {
+		return "", utils.ErrInvalidCredentials
+	}
+
+	token, err := utils.GenerateToken(usuario.ID)
+	if err != nil {
+		return "", utils.ErrInternalServer // Falha ao gerar token é um erro interno
+	}
+
+	return token, nil
 }

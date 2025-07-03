@@ -9,7 +9,7 @@ import (
 
 type GeneticaRepositorio interface {
 	Criar(genetica *models.Genetica) error
-	ListarTodos() ([]models.Genetica, error)
+	ListarTodos(page, limit int) ([]models.Genetica, int64, error)
 	BuscarPorID(id uint) (*models.Genetica, error)
 	Atualizar(genetica *models.Genetica) error
 	Deletar(id uint) error
@@ -39,10 +39,19 @@ func (r *geneticaRepositorio) Criar(genetica *models.Genetica) error {
 	return r.db.Create(genetica).Error
 }
 
-func (r *geneticaRepositorio) ListarTodos() ([]models.Genetica, error) {
+func (r *geneticaRepositorio) ListarTodos(page, limit int) ([]models.Genetica, int64, error) {
 	var geneticas []models.Genetica
-	err := r.db.Find(&geneticas).Error
-	return geneticas, err
+	var total int64
+
+	offset := (page - 1) * limit
+
+	err := r.db.Model(&models.Genetica{}).Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	err = r.db.Offset(offset).Limit(limit).Find(&geneticas).Error
+	return geneticas, total, err
 }
 
 func (r *geneticaRepositorio) BuscarPorID(id uint) (*models.Genetica, error) {

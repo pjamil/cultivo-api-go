@@ -11,7 +11,7 @@ import (
 
 type MeioCultivoRepositorio interface {
 	Criar(meioCultivo *models.MeioCultivo) error
-	ListarTodos() ([]models.MeioCultivo, error)
+	ListarTodos(page, limit int) ([]models.MeioCultivo, int64, error)
 	BuscarPorID(id uint) (*models.MeioCultivo, error)
 	Atualizar(meioCultivo *models.MeioCultivo) error
 	Deletar(id uint) error
@@ -41,13 +41,23 @@ func (r *meioCultivoRepositorio) Criar(meioCultivo *models.MeioCultivo) error {
 	return r.db.Create(meioCultivo).Error
 }
 
-// ListarTodos recupera todos os registros de MeioCultivo do banco de dados.
-func (r *meioCultivoRepositorio) ListarTodos() ([]models.MeioCultivo, error) {
+// ListarTodos recupera todos os registros de MeioCultivo do banco de dados com paginação.
+func (r *meioCultivoRepositorio) ListarTodos(page, limit int) ([]models.MeioCultivo, int64, error) {
 	var meioCultivos []models.MeioCultivo
-	if err := r.db.Find(&meioCultivos).Error; err != nil {
-		return nil, fmt.Errorf("falha ao buscar meio de cultivo %w", err)
+	var total int64
+
+	offset := (page - 1) * limit
+
+	err := r.db.Model(&models.MeioCultivo{}).Count(&total).Error
+	if err != nil {
+		return nil, 0, err
 	}
-	return meioCultivos, nil
+
+	err = r.db.Offset(offset).Limit(limit).Find(&meioCultivos).Error
+	if err != nil {
+		return nil, 0, fmt.Errorf("falha ao buscar meio de cultivo %w", err)
+	}
+	return meioCultivos, total, nil
 }
 
 // BuscarPorID recupera um registro de MeioCultivo por seu ID.

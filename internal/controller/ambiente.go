@@ -1,5 +1,3 @@
-package controller
-
 import (
 	"errors"
 	"net/http"
@@ -10,16 +8,31 @@ import (
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
-type AmbienteController struct {
-	servico service.AmbienteService
-}
+const invalidIDMsg = "ID inválido, deve ser um número inteiro positivo"
 
-func NewAmbienteController(servico service.AmbienteService) *AmbienteController {
-	return &AmbienteController{servico}
+func getErrorMsg(fe validator.FieldError) string {
+	switch fe.Tag() {
+	case "required":
+		return fmt.Sprintf("O campo %s é obrigatório", fe.Field())
+	case "email":
+		return fmt.Sprintf("O campo %s deve ser um email válido", fe.Field())
+	case "min":
+		return fmt.Sprintf("O campo %s deve ter no mínimo %s caracteres", fe.Field(), fe.Param())
+	case "max":
+		return fmt.Sprintf("O campo %s deve ter no máximo %s caracteres", fe.Field(), fe.Param())
+	case "oneof":
+		return fmt.Sprintf("O campo %s deve ser um dos seguintes valores: %s", fe.Field(), fe.Param())
+	case "gt":
+		return fmt.Sprintf("O campo %s deve ser maior que %s", fe.Field(), fe.Param())
+	case "lte":
+		return fmt.Sprintf("O campo %s deve ser menor ou igual a %s", fe.Field(), fe.Param())
+	}
+	return fe.Error()
 }
 
 // Criar godoc
@@ -37,6 +50,15 @@ func (c *AmbienteController) Criar(ctx *gin.Context) {
 	var dto dto.CreateAmbienteDTO
 	if err := ctx.ShouldBindJSON(&dto); err != nil {
 		logrus.WithError(err).Error("Payload da requisição inválido para criar ambiente")
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errMsgs := make(map[string]string)
+			for _, fe := range ve {
+				errMsgs[fe.Field()] = getErrorMsg(fe)
+			}
+			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			return
+		}
 		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -53,27 +75,41 @@ func (c *AmbienteController) Criar(ctx *gin.Context) {
 }
 
 // Listar godoc
-// @Summary      Lista todos os ambientes
-// @Description  Retorna uma lista de todos os ambientes cadastrados
+// @Summary      Lista todos os ambientes com paginação
+// @Description  Retorna uma lista paginada de todos os ambientes cadastrados
 // @Tags         ambiente
 // @Produce      json
-// @Success      200  {array}   dto.AmbienteResponseDTO
+// @Param        page   query     int  false  "Número da página (padrão: 1)"
+// @Param        limit  query     int  false  "Limite de itens por página (padrão: 10)"
+// @Success      200  {object}  dto.PaginatedResponse{data=[]dto.AmbienteResponseDTO}
+// @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
 // @Router       /api/v1/ambientes [get]
 func (c *AmbienteController) Listar(ctx *gin.Context) {
-	ambientes, err := c.servico.ListarTodos()
+	var pagination dto.PaginationParams
+	if err := ctx.ShouldBindQuery(&pagination); err != nil {
+		logrus.WithError(err).Error("Parâmetros de paginação inválidos para listar ambientes")
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errMsgs := make(map[string]string)
+			for _, fe := range ve {
+				errMsgs[fe.Field()] = getErrorMsg(fe)
+			}
+			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			return
+		}
+		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	paginatedResponse, err := c.servico.ListarTodos(pagination.Page, pagination.Limit)
 	if err != nil {
-		logrus.WithError(err).Error("Erro ao listar ambientes")
+		logrus.WithError(err).Error("Erro ao listar ambientes com paginação")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if len(ambientes) == 0 {
-		utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Nenhum ambiente encontrado"})
-		return
-	}
-
-	utils.RespondWithJSON(ctx, http.StatusOK, ambientes)
+	utils.RespondWithJSON(ctx, http.StatusOK, paginatedResponse)
 }
 
 // BuscarPorID godoc
@@ -134,6 +170,15 @@ func (c *AmbienteController) Atualizar(ctx *gin.Context) {
 	var updateDto dto.UpdateAmbienteDTO
 	if err := ctx.ShouldBindJSON(&updateDto); err != nil {
 		logrus.WithError(err).Error("Payload da requisição inválido para atualização de ambiente")
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errMsgs := make(map[string]string)
+			for _, fe := range ve {
+				errMsgs[fe.Field()] = getErrorMsg(fe)
+			}
+			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			return
+		}
 		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -173,9 +218,15 @@ func (c *AmbienteController) Deletar(ctx *gin.Context) {
 		return
 	}
 	if err := c.servico.Deletar(uint(id)); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.WithError(err).Error("Ambiente não encontrado para deleção")
+			utils.RespondWithError(ctx, http.StatusNotFound, "Ambiente não encontrado")
+			return
+		}
 		logrus.WithError(err).Error("Erro ao deletar ambiente")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro ao deletar ambiente")
 		return
 	}
 	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Ambiente deletado com sucesso"})
 }
+

@@ -11,7 +11,7 @@ import (
 
 type AmbienteService interface {
 	Criar(ambienteDto *dto.CreateAmbienteDTO) (*models.Ambiente, error)
-	ListarTodos() ([]models.Ambiente, error)
+	ListarTodos(page, limit int) (*dto.PaginatedResponse, error)
 	BuscarPorID(id uint) (*models.Ambiente, error)
 	Atualizar(id uint, ambienteDto *dto.UpdateAmbienteDTO) (*models.Ambiente, error)
 	Deletar(id uint) error
@@ -46,8 +46,33 @@ func (s *ambienteService) Criar(ambienteDto *dto.CreateAmbienteDTO) (*models.Amb
 	return &ambiente, nil
 }
 
-func (s *ambienteService) ListarTodos() ([]models.Ambiente, error) {
-	return s.repositorio.ListarTodos()
+func (s *ambienteService) ListarTodos(page, limit int) (*dto.PaginatedResponse, error) {
+	ambientes, total, err := s.repositorio.ListarTodos(page, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	var responseDTOs []dto.AmbienteResponseDTO
+	for _, ambiente := range ambientes {
+		responseDTOs = append(responseDTOs, dto.AmbienteResponseDTO{
+			ID:             ambiente.ID,
+			Nome:           ambiente.Nome,
+			Descricao:      ambiente.Descricao,
+			Tipo:           ambiente.Tipo,
+			Comprimento:    ambiente.Comprimento,
+			Altura:         ambiente.Altura,
+			Largura:        ambiente.Largura,
+			TempoExposicao: ambiente.TempoExposicao,
+			Orientacao:     ambiente.Orientacao,
+		})
+	}
+
+	return &dto.PaginatedResponse{
+		Data:  responseDTOs,
+		Total: total,
+		Page:  page,
+		Limit: limit,
+	}, nil
 }
 
 func (s *ambienteService) BuscarPorID(id uint) (*models.Ambiente, error) {

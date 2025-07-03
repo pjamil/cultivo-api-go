@@ -10,6 +10,7 @@ import (
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -37,6 +38,15 @@ func (c *MeioCultivoController) Criar(ctx *gin.Context) {
 	var dto dto.CreateMeioCultivoDTO
 	if err := ctx.ShouldBindJSON(&dto); err != nil {
 		logrus.WithError(err).Error("Payload da requisição inválido para criar meio de cultivo")
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errMsgs := make(map[string]string)
+			for _, fe := range ve {
+				errMsgs[fe.Field()] = getErrorMsg(fe)
+			}
+			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			return
+		}
 		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -51,27 +61,41 @@ func (c *MeioCultivoController) Criar(ctx *gin.Context) {
 }
 
 // Listar godoc
-// @Summary      Lista todos os meios de cultivo
-// @Description  Retorna uma lista de todos os meios de cultivo cadastrados
+// @Summary      Lista todos os meios de cultivo com paginação
+// @Description  Retorna uma lista paginada de todos os meios de cultivo cadastrados
 // @Tags         meio_cultivo
 // @Produce      json
-// @Success      200  {array}   dto.MeioCultivoResponseDTO
+// @Param        page   query     int  false  "Número da página (padrão: 1)"
+// @Param        limit  query     int  false  "Limite de itens por página (padrão: 10)"
+// @Success      200  {object}  dto.PaginatedResponse{data=[]dto.MeioCultivoResponseDTO}
+// @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
 // @Router       /api/v1/meios-cultivos [get]
 func (c *MeioCultivoController) Listar(ctx *gin.Context) {
-	meioCultivos, err := c.servico.ListarTodos()
+	var pagination dto.PaginationParams
+	if err := ctx.ShouldBindQuery(&pagination); err != nil {
+		logrus.WithError(err).Error("Parâmetros de paginação inválidos para listar meios de cultivo")
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errMsgs := make(map[string]string)
+			for _, fe := range ve {
+				errMsgs[fe.Field()] = getErrorMsg(fe)
+			}
+			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			return
+		}
+		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	paginatedResponse, err := c.servico.ListarTodos(pagination.Page, pagination.Limit)
 	if err != nil {
-		logrus.WithError(err).Error("Erro ao listar meios de cultivo")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro ao recuperar meios de cultivo")
+		logrus.WithError(err).Error("Erro ao listar meios de cultivo com paginação")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if len(meioCultivos) == 0 {
-		utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Nenhum meio de cultivo encontrado"})
-		return
-	}
-
-	utils.RespondWithJSON(ctx, http.StatusOK, meioCultivos)
+	utils.RespondWithJSON(ctx, http.StatusOK, paginatedResponse)
 }
 
 // BuscarPorID godoc
@@ -126,6 +150,15 @@ func (c *MeioCultivoController) Atualizar(ctx *gin.Context) {
 	var updateDto dto.UpdateMeioCultivoDTO
 	if err := ctx.ShouldBindJSON(&updateDto); err != nil {
 		logrus.WithError(err).Error("Payload da requisição inválido para atualização de meio de cultivo")
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errMsgs := make(map[string]string)
+			for _, fe := range ve {
+				errMsgs[fe.Field()] = getErrorMsg(fe)
+			}
+			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			return
+		}
 		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
 		return
 	}

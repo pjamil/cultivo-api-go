@@ -24,6 +24,7 @@ func NewServer(db *database.Database) *Server {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Middlewares
+	router.Use(middleware.ErrorHandlerMiddleware())
 	router.Use(middleware.LoggingMiddleware())
 
 	// Health check routes
@@ -32,64 +33,49 @@ func NewServer(db *database.Database) *Server {
 	router.GET("/health/ready", healthController.VerificarProntidao)
 	router.GET("/health/live", healthController.VerificarVitalidade)
 
-	// Rotas de Planta
-	repositorioPlanta := database.NewPlantaRepositorio(db.DB)
-	geneticaRepo := repository.NewGeneticaRepositorio(db.DB)
-	ambienteRepo := repository.NewAmbienteRepositorio(db.DB)
-	meioCultivoRepo := repository.NewMeioCultivoRepositorio(db.DB)
-	servicoPlanta := service.NewPlantaService(repositorioPlanta, geneticaRepo, ambienteRepo, meioCultivoRepo, repositorioPlanta)
-	controladorPlanta := controller.NewPlantaController(servicoPlanta)
-
-	const hostRoute = "/api/v1"
-	const rotasPlantas = "/api/v1/plantas"
-	const rotaPlantaPorID = "/:id"
-	const rotaUsuarioPorID = hostRoute + "/usuarios/:id"
-	router.GET(rotasPlantas, controladorPlanta.Listar)
-	router.POST(rotasPlantas, controladorPlanta.Criar)
-	router.GET(rotasPlantas+rotaPlantaPorID, controladorPlanta.BuscarPorID)
-	router.PUT(rotasPlantas+rotaPlantaPorID, controladorPlanta.Atualizar)
-	router.DELETE(rotasPlantas+rotaPlantaPorID, controladorPlanta.Deletar)
-	router.POST(rotasPlantas+rotaPlantaPorID+"/registrar-fato", controladorPlanta.RegistrarFato)
-
-	// Rotas de Ambiente
-	repositorioAmbiente := repository.NewAmbienteRepositorio(db.DB)
-	servicoAmbiente := service.NewAmbienteService(repositorioAmbiente)
-	controladorAmbiente := controller.NewAmbienteController(servicoAmbiente)
-	router.POST(hostRoute+"/ambientes", controladorAmbiente.Criar)
-	router.GET(hostRoute+"/ambientes", controladorAmbiente.Listar)
-	router.GET(hostRoute+"/ambientes/:id", controladorAmbiente.BuscarPorID)
-	router.PUT(hostRoute+"/ambientes/:id", controladorAmbiente.Atualizar)
-	router.DELETE(hostRoute+"/ambientes/:id", controladorAmbiente.Deletar)
-
-	// Rotas de Genetica
-	repositorioGenetica := repository.NewGeneticaRepositorio(db.DB)
-	servicoGenetica := service.NewGeneticaService(repositorioGenetica)
-	controladorGenetica := controller.NewGeneticaController(servicoGenetica)
-	router.POST(hostRoute+"/geneticas", controladorGenetica.Criar)
-	router.GET(hostRoute+"/geneticas", controladorGenetica.Listar)
-	router.GET(hostRoute+"/geneticas/:id", controladorGenetica.BuscarPorID)
-	router.PUT(hostRoute+"/geneticas/:id", controladorGenetica.Atualizar)
-	router.DELETE(hostRoute+"/geneticas/:id", controladorGenetica.Deletar)
-
-	// Rotas de MeioCultivo
-	repositorioMeioCultivo := repository.NewMeioCultivoRepositorio(db.DB)
-	servicoMeioCultivo := service.NewMeioCultivoService(repositorioMeioCultivo)
-	controladorMeioCultivo := controller.NewMeioCultivoController(servicoMeioCultivo)
-	router.POST(hostRoute+"/meios-cultivos", controladorMeioCultivo.Criar)
-	router.GET(hostRoute+"/meios-cultivos", controladorMeioCultivo.Listar)
-	router.GET(hostRoute+"/meios-cultivos/:id", controladorMeioCultivo.BuscarPorID)
-	router.PUT(hostRoute+"/meios-cultivos/:id", controladorMeioCultivo.Atualizar)
-	router.DELETE(hostRoute+"/meios-cultivos/:id", controladorMeioCultivo.Deletar)
-
-	// Rotas de Usuario
-	repositorioUsuario := repository.NewUsuarioRepositorio(db.DB)
-	servicoUsuario := service.NewUsuarioService(repositorioUsuario)
-	controladorUsuario := controller.NewUsuarioController(servicoUsuario)
+	// Rotas de Usuario (não autenticadas)
 	router.POST(hostRoute+"/usuarios", controladorUsuario.Criar)
-	router.GET(rotaUsuarioPorID, controladorUsuario.BuscarPorID)
-	router.GET(hostRoute+"/usuarios", controladorUsuario.Listar)
-	router.PUT(rotaUsuarioPorID, controladorUsuario.Atualizar)
-	router.DELETE(rotaUsuarioPorID, controladorUsuario.Deletar)
+	router.POST(hostRoute+"/login", controladorUsuario.Login)
+
+	// Rotas autenticadas
+	authRoutes := router.Group(hostRoute)
+	authRoutes.Use(middleware.AuthMiddleware())
+	{
+		// Rotas de Planta
+		authRoutes.GET(rotasPlantas, controladorPlanta.Listar)
+		authRoutes.POST(rotasPlantas, controladorPlanta.Criar)
+		authRoutes.GET(rotasPlantas+rotaPlantaPorID, controladorPlanta.BuscarPorID)
+		authRoutes.PUT(rotasPlantas+rotaPlantaPorID, controladorPlanta.Atualizar)
+		authRoutes.DELETE(rotasPlantas+rotaPlantaPorID, controladorPlanta.Deletar)
+		authRoutes.POST(rotasPlantas+rotaPlantaPorID+"/registrar-fato", controladorPlanta.RegistrarFato)
+
+		// Rotas de Ambiente
+		authRoutes.POST("/ambientes", controladorAmbiente.Criar)
+		authRoutes.GET("/ambientes", controladorAmbiente.Listar)
+		authRoutes.GET("/ambientes/:id", controladorAmbiente.BuscarPorID)
+		authRoutes.PUT("/ambientes/:id", controladorAmbiente.Atualizar)
+		authRoutes.DELETE("/ambientes/:id", controladorAmbiente.Deletar)
+
+		// Rotas de Genetica
+		authRoutes.POST("/geneticas", controladorGenetica.Criar)
+		authRoutes.GET("/geneticas", controladorGenetica.Listar)
+		authRoutes.GET("/geneticas/:id", controladorGenetica.BuscarPorID)
+		authRoutes.PUT("/geneticas/:id", controladorGenetica.Atualizar)
+		authRoutes.DELETE("/geneticas/:id", controladorGenetica.Deletar)
+
+		// Rotas de MeioCultivo
+		authRoutes.POST("/meios-cultivos", controladorMeioCultivo.Criar)
+		authRoutes.GET("/meios-cultivos", controladorMeioCultivo.Listar)
+		authRoutes.GET("/meios-cultivos/:id", controladorMeioCultivo.BuscarPorID)
+		authRoutes.PUT("/meios-cultivos/:id", controladorMeioCultivo.Atualizar)
+		authRoutes.DELETE("/meios-cultivos/:id", controladorMeioCultivo.Deletar)
+
+		// Rotas de Usuario (autenticadas)
+		authRoutes.GET(rotaUsuarioPorID, controladorUsuario.BuscarPorID)
+		authRoutes.GET("/usuarios", controladorUsuario.Listar)
+		authRoutes.PUT(rotaUsuarioPorID, controladorUsuario.Atualizar)
+		authRoutes.DELETE(rotaUsuarioPorID, controladorUsuario.Deletar)
+	}
 
 	return &Server{Router: router}
 }

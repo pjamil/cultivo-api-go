@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -10,9 +11,45 @@ import (
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
+
+const (
+	ErroIDPlantaInvalido          = "ID da planta inválido"
+	ErroPlantaNaoEncontrada       = "Planta não encontrada"
+	ErroPayloadRequisicaoInvalido = "Payload da requisição inválido"
+	ErroAtualizarPlanta           = "Erro ao atualizar a planta"
+	ErroCriarPlanta               = "Erro ao criar a planta"
+	ErroRecuperarPlanta           = "Erro ao recuperar a planta"
+	ErroDeletarPlanta             = "Erro ao deletar a planta"
+	SucessoAtualizarPlanta        = "Planta atualizada com sucesso"
+	SucessoCriarPlanta            = "Planta criada com sucesso"
+	SucessoRecuperarPlanta        = "Planta recuperada com sucesso"
+	SucessoListarPlantas          = "Plantas recuperadas com sucesso"
+	ErroListarPlantas             = "Erro ao recuperar as plantas"
+)
+
+func getErrorMsg(fe validator.FieldError) string {
+	switch fe.Tag() {
+	case "required":
+		return fmt.Sprintf("O campo %s é obrigatório", fe.Field())
+	case "email":
+		return fmt.Sprintf("O campo %s deve ser um email válido", fe.Field())
+	case "min":
+		return fmt.Sprintf("O campo %s deve ter no mínimo %s caracteres", fe.Field(), fe.Param())
+	case "max":
+		return fmt.Sprintf("O campo %s deve ter no máximo %s caracteres", fe.Field(), fe.Param())
+	case "oneof":
+		return fmt.Sprintf("O campo %s deve ser um dos seguintes valores: %s", fe.Field(), fe.Param())
+	case "gt":
+		return fmt.Sprintf("O campo %s deve ser maior que %s", fe.Field(), fe.Param())
+	case "lte":
+		return fmt.Sprintf("O campo %s deve ser menor ou igual a %s", fe.Field(), fe.Param())
+	}
+	return fe.Error()
+}
 
 // PlantaController lida com as requisições HTTP para plantas
 type PlantaController struct {
@@ -38,7 +75,16 @@ func NewPlantaController(plantaServico service.PlantaService) *PlantaController 
 func (c *PlantaController) Criar(ctx *gin.Context) {
 	var createDto dto.CreatePlantaDTO
 	if err := ctx.ShouldBindJSON(&createDto); err != nil {
-		utils.RespondWithError(ctx, http.StatusBadRequest, "Payload da requisição inválido")
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errMsgs := make(map[string]string)
+			for _, fe := range ve {
+				errMsgs[fe.Field()] = getErrorMsg(fe)
+			}
+			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			return
+		}
+		utils.RespondWithError(ctx, http.StatusBadRequest, ErroPayloadRequisicaoInvalido)
 		return
 	}
 
@@ -52,28 +98,42 @@ func (c *PlantaController) Criar(ctx *gin.Context) {
 }
 
 // ListarPlantas godoc
-// @Summary      Lista todas as plantas
-// @Description  Retorna os detalhes de todas as plantas
+// @Summary      Lista todas as plantas com paginação
+// @Description  Retorna uma lista paginada de todas as plantas
 // @Tags         plantas
 // @Accept       json
 // @Produce      json
-// @Success      200  {array}   dto.PlantaResponseDTO
+// @Param        page   query     int  false  "Número da página (padrão: 1)"
+// @Param        limit  query     int  false  "Limite de itens por página (padrão: 10)"
+// @Success      200  {object}  dto.PaginatedResponse{data=[]dto.PlantaResponseDTO}
+// @Failure      400  {object}  map[string]interface{}
 // @Failure      500  {object}  map[string]interface{}
 // @Router       /api/v1/plantas [get]
 func (c *PlantaController) Listar(ctx *gin.Context) {
-	plantas, err := c.plantaServico.ListarTodas()
+	var pagination dto.PaginationParams
+	if err := ctx.ShouldBindQuery(&pagination); err != nil {
+		logrus.WithError(err).Error("Parâmetros de paginação inválidos para listar plantas")
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errMsgs := make(map[string]string)
+			for _, fe := range ve {
+				errMsgs[fe.Field()] = getErrorMsg(fe)
+			}
+			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			return
+		}
+		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	paginatedResponse, err := c.plantaServico.ListarTodas(pagination.Page, pagination.Limit)
 	if err != nil {
-		logrus.WithError(err).Error("Erro ao listar plantas")
+		logrus.WithError(err).Error("Erro ao listar plantas com paginação")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if len(plantas) == 0 {
-		utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Nenhuma planta encontrada"})
-		return
-	}
-
-	utils.RespondWithJSON(ctx, http.StatusOK, plantas)
+	utils.RespondWithJSON(ctx, http.StatusOK, paginatedResponse)
 }
 
 const (
@@ -188,12 +248,12 @@ func (c *PlantaController) Deletar(ctx *gin.Context) {
 		utils.RespondWithError(ctx, http.StatusBadRequest, ErroIDPlantaInvalido)
 		return
 	}
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		logrus.WithError(err).Error("Planta não encontrada para deleção")
-		ctx.JSON(http.StatusNotFound, gin.H{"error": ErroPlantaNaoEncontrada})
-		return
-	}
 	if err := c.plantaServico.Deletar(uint(id)); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.WithError(err).Error("Planta não encontrada para deleção")
+			utils.RespondWithError(ctx, http.StatusNotFound, ErroPlantaNaoEncontrada)
+			return
+		}
 		logrus.WithError(err).Error("Erro ao deletar planta")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return

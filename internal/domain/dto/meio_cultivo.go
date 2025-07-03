@@ -1,8 +1,8 @@
 package dto
 
 type CreateMeioCultivoDTO struct {
-	Tipo      string `json:"tipo" binding:"required"`
-	Descricao string `json:"descricao"`
+	Tipo      string `json:"tipo" binding:"required,oneof='solo' 'hidroponia' 'coco' 'lã de rocha' 'turfa'"`
+	Descricao string `json:"descricao" binding:"max=255"`
 }
 
 type UpdateMeioCultivoDTO struct {

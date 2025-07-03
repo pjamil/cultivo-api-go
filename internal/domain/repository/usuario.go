@@ -8,7 +8,8 @@ import (
 type UsuarioRepositorio interface {
 	Criar(usuario *models.Usuario) error
 	BuscarPorID(id uint) (*models.Usuario, error)
-	ListarTodos() ([]models.Usuario, error)
+	BuscarPorEmail(email string) (*models.Usuario, error)
+	ListarTodos(page, limit int) ([]models.Usuario, int64, error)
 	Atualizar(usuario *models.Usuario) error
 	Deletar(id uint) error
 }
@@ -31,10 +32,25 @@ func (r *usuarioRepositorio) BuscarPorID(id uint) (*models.Usuario, error) {
 	return &usuario, err
 }
 
-func (r *usuarioRepositorio) ListarTodos() ([]models.Usuario, error) {
+func (r *usuarioRepositorio) BuscarPorEmail(email string) (*models.Usuario, error) {
+	var usuario models.Usuario
+	err := r.db.Where("email = ?", email).First(&usuario).Error
+	return &usuario, err
+}
+
+func (r *usuarioRepositorio) ListarTodos(page, limit int) ([]models.Usuario, int64, error) {
 	var usuarios []models.Usuario
-	err := r.db.Find(&usuarios).Error
-	return usuarios, err
+	var total int64
+
+	offset := (page - 1) * limit
+
+	err := r.db.Model(&models.Usuario{}).Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	err = r.db.Offset(offset).Limit(limit).Find(&usuarios).Error
+	return usuarios, total, err
 }
 
 func (r *usuarioRepositorio) Atualizar(usuario *models.Usuario) error {

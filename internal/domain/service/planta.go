@@ -16,7 +16,7 @@ import (
 type PlantaService interface {
 	BuscarPorID(id uint) (*dto.PlantaResponseDTO, error)
 	Criar(plantaDto *dto.CreatePlantaDTO) (*dto.PlantaResponseDTO, error)
-	ListarTodas() ([]dto.PlantaResponseDTO, error)
+	ListarTodas(page, limit int) (*dto.PaginatedResponse, error)
 	Atualizar(id uint, plantaDto *dto.UpdatePlantaDTO) (*dto.PlantaResponseDTO, error)
 	Deletar(id uint) error
 	BuscarPorEspecie(especie models.Especie) ([]models.Planta, error)
@@ -142,8 +142,8 @@ func (s *plantaService) BuscarPorID(id uint) (*dto.PlantaResponseDTO, error) {
 	}, nil
 }
 
-func (s *plantaService) ListarTodas() ([]dto.PlantaResponseDTO, error) {
-	plantas, err := s.repositorio.ListarTodos()
+func (s *plantaService) ListarTodas(page, limit int) (*dto.PaginatedResponse, error) {
+	plantas, total, err := s.repositorio.ListarTodos(page, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +167,13 @@ func (s *plantaService) ListarTodas() ([]dto.PlantaResponseDTO, error) {
 			UpdatedAt:     planta.UpdatedAt,
 		})
 	}
-	return responseDTOs, nil
+
+	return &dto.PaginatedResponse{
+		Data:  responseDTOs,
+		Total: total,
+		Page:  page,
+		Limit: limit,
+	}, nil
 }
 
 func (s *plantaService) Atualizar(id uint, plantaDto *dto.UpdatePlantaDTO) (*dto.PlantaResponseDTO, error) {

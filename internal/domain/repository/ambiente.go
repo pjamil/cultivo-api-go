@@ -9,7 +9,7 @@ import (
 
 type AmbienteRepositorio interface {
 	Criar(ambiente *models.Ambiente) error
-	ListarTodos() ([]models.Ambiente, error)
+	ListarTodos(page, limit int) ([]models.Ambiente, int64, error)
 	BuscarPorID(id uint) (*models.Ambiente, error)
 	Atualizar(ambiente *models.Ambiente) error
 	Deletar(id uint) error
@@ -39,10 +39,19 @@ func (r *ambienteRepositorio) Criar(ambiente *models.Ambiente) error {
 	return r.db.Create(ambiente).Error
 }
 
-func (r *ambienteRepositorio) ListarTodos() ([]models.Ambiente, error) {
+func (r *ambienteRepositorio) ListarTodos(page, limit int) ([]models.Ambiente, int64, error) {
 	var ambientes []models.Ambiente
-	err := r.db.Find(&ambientes).Error
-	return ambientes, err
+	var total int64
+
+	offset := (page - 1) * limit
+
+	err := r.db.Model(&models.Ambiente{}).Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	err = r.db.Offset(offset).Limit(limit).Find(&ambientes).Error
+	return ambientes, total, err
 }
 
 func (r *ambienteRepositorio) BuscarPorID(id uint) (*models.Ambiente, error) {

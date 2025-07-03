@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 )
 
@@ -37,6 +38,15 @@ func (ctrl *GeneticaController) Criar(c *gin.Context) {
 	var dto dto.CreateGeneticaDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		logrus.WithError(err).Error("Payload da requisição inválido para criar genética")
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errMsgs := make(map[string]string)
+			for _, fe := range ve {
+				errMsgs[fe.Field()] = getErrorMsg(fe)
+			}
+			utils.RespondWithError(c, http.StatusBadRequest, errMsgs)
+			return
+		}
 		utils.RespondWithError(c, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -51,28 +61,42 @@ func (ctrl *GeneticaController) Criar(c *gin.Context) {
 	utils.RespondWithJSON(c, http.StatusCreated, geneticaCriada)
 }
 
-// Listar lida com requisições GET para retornar todas as genéticas
-// @Summary      Lista todas as genéticas
-// @Description  Retorna uma lista de todas as genéticas cadastrados
+// Listar lida com requisições GET para retornar todas as genéticas com paginação
+// @Summary      Lista todas as genéticas com paginação
+// @Description  Retorna uma lista paginada de todas as genéticas cadastradas
 // @Tags         genetica
 // @Produce      json
-// @Success      200  {array}   dto.GeneticaResponseDTO
+// @Param        page   query     int  false  "Número da página (padrão: 1)"
+// @Param        limit  query     int  false  "Limite de itens por página (padrão: 10)"
+// @Success      200  {object}  dto.PaginatedResponse{data=[]dto.GeneticaResponseDTO}
+// @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
 // @Router       /api/v1/geneticas [get]
 func (c *GeneticaController) Listar(ctx *gin.Context) {
-	geneticas, err := c.servico.ListarTodas()
+	var pagination dto.PaginationParams
+	if err := ctx.ShouldBindQuery(&pagination); err != nil {
+		logrus.WithError(err).Error("Parâmetros de paginação inválidos para listar genéticas")
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errMsgs := make(map[string]string)
+			for _, fe := range ve {
+				errMsgs[fe.Field()] = getErrorMsg(fe)
+			}
+			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			return
+		}
+		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	paginatedResponse, err := c.servico.ListarTodas(pagination.Page, pagination.Limit)
 	if err != nil {
-		logrus.WithError(err).Error("Erro ao listar genéticas")
+		logrus.WithError(err).Error("Erro ao listar genéticas com paginação")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	if len(geneticas) == 0 {
-		utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Nenhuma genética encontrada"})
-		return
-	}
-
-	utils.RespondWithJSON(ctx, http.StatusOK, geneticas)
+	utils.RespondWithJSON(ctx, http.StatusOK, paginatedResponse)
 }
 
 // BuscarPorID godoc
@@ -132,6 +156,15 @@ func (c *GeneticaController) Atualizar(ctx *gin.Context) {
 	var updateDto dto.UpdateGeneticaDTO
 	if err := ctx.ShouldBindJSON(&updateDto); err != nil {
 		logrus.WithError(err).Error("Payload da requisição inválido para atualização de genética")
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errMsgs := make(map[string]string)
+			for _, fe := range ve {
+				errMsgs[fe.Field()] = getErrorMsg(fe)
+			}
+			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			return
+		}
 		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
 		return
 	}

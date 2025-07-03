@@ -4,7 +4,7 @@ import "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain
 
 type PlantaRepositorio interface {
 	Criar(planta *models.Planta) error
-	ListarTodos() ([]models.Planta, error)
+	ListarTodos(page, limit int) ([]models.Planta, int64, error)
 	BuscarPorID(id uint) (*models.Planta, error)
 	Atualizar(planta *models.Planta) error
 	Deletar(id uint) error

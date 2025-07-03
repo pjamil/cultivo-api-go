@@ -9,7 +9,7 @@ import (
 
 type GeneticaService interface {
 	Criar(geneticaDto *dto.CreateGeneticaDTO) (*dto.GeneticaResponseDTO, error)
-	ListarTodas() ([]dto.GeneticaResponseDTO, error)
+	ListarTodas(page, limit int) (*dto.PaginatedResponse, error)
 	BuscarPorID(id uint) (*dto.GeneticaResponseDTO, error)
 	Atualizar(id uint, geneticaDto *dto.UpdateGeneticaDTO) (*dto.GeneticaResponseDTO, error)
 	Deletar(id uint) error
@@ -53,8 +53,8 @@ func (s *geneticaService) Criar(geneticaDto *dto.CreateGeneticaDTO) (*dto.Geneti
 	}, nil
 }
 
-func (s *geneticaService) ListarTodas() ([]dto.GeneticaResponseDTO, error) {
-	geneticas, err := s.repositorio.ListarTodos()
+func (s *geneticaService) ListarTodas(page, limit int) (*dto.PaginatedResponse, error) {
+	geneticas, total, err := s.repositorio.ListarTodos(page, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,13 @@ func (s *geneticaService) ListarTodas() ([]dto.GeneticaResponseDTO, error) {
 			Caracteristicas: genetica.Caracteristicas,
 		})
 	}
-	return responseDTOs, nil
+
+	return &dto.PaginatedResponse{
+		Data:  responseDTOs,
+		Total: total,
+		Page:  page,
+		Limit: limit,
+	}, nil
 }
 
 func (s *geneticaService) BuscarPorID(id uint) (*dto.GeneticaResponseDTO, error) {

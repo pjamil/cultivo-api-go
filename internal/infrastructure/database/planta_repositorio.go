@@ -33,20 +33,28 @@ func (r *PlantaRepositorio) Criar(planta *models.Planta) error {
 	return nil
 }
 
-// ListarTodos retorna todas as plantas cadastradas
-func (r *PlantaRepositorio) ListarTodos() ([]models.Planta, error) {
+// ListarTodos retorna todas as plantas cadastradas com paginação
+func (r *PlantaRepositorio) ListarTodos(page, limit int) ([]models.Planta, int64, error) {
 	var plantas []models.Planta
+	var total int64
+
+	offset := (page - 1) * limit
+
+	err := r.db.Model(&models.Planta{}).Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
 
 	if err := r.db.
 		Preload("Ambiente").
 		Preload("Genetica").
 		Preload("MeioCultivo").
 		Preload("Usuario").
-		Find(&plantas).Error; err != nil {
-		return nil, fmt.Errorf("falha ao buscar plantas: %w", err)
+		Offset(offset).Limit(limit).Find(&plantas).Error; err != nil {
+		return nil, 0, fmt.Errorf("falha ao buscar plantas: %w", err)
 	}
 
-	return plantas, nil
+	return plantas, total, nil
 }
 
 // BuscarPorID busca uma planta pelo ID

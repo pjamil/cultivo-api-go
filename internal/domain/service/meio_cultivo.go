@@ -11,7 +11,7 @@ import (
 
 type MeioCultivoService interface {
 	Criar(meioCultivoDto *dto.CreateMeioCultivoDTO) (*dto.MeioCultivoResponseDTO, error)
-	ListarTodos() ([]dto.MeioCultivoResponseDTO, error)
+	ListarTodos(page, limit int) (*dto.PaginatedResponse, error)
 	BuscarPorID(id uint) (*dto.MeioCultivoResponseDTO, error)
 	Atualizar(id uint, meioCultivoDto *dto.UpdateMeioCultivoDTO) (*dto.MeioCultivoResponseDTO, error)
 	Deletar(id uint) error
@@ -45,11 +45,10 @@ func (s *meioCultivoService) Criar(meioCultivoDto *dto.CreateMeioCultivoDTO) (*d
 	}, nil
 }
 
-func (s *meioCultivoService) ListarTodos() ([]dto.MeioCultivoResponseDTO, error) {
-	var meioCultivos []models.MeioCultivo
-	meioCultivos, err := s.repositorio.ListarTodos()
+func (s *meioCultivoService) ListarTodos(page, limit int) (*dto.PaginatedResponse, error) {
+	meioCultivos, total, err := s.repositorio.ListarTodos(page, limit)
 	if err != nil {
-		return nil, fmt.Errorf("falha ao buscar todos os meio de cultivo %w", err)
+		return nil, err
 	}
 
 	var responseDTOs []dto.MeioCultivoResponseDTO
@@ -60,7 +59,13 @@ func (s *meioCultivoService) ListarTodos() ([]dto.MeioCultivoResponseDTO, error)
 			Descricao: meioCultivo.Descricao,
 		})
 	}
-	return responseDTOs, nil
+
+	return &dto.PaginatedResponse{
+		Data:  responseDTOs,
+		Total: total,
+		Page:  page,
+		Limit: limit,
+	}, nil
 }
 
 func (s *meioCultivoService) BuscarPorID(id uint) (*dto.MeioCultivoResponseDTO, error) {

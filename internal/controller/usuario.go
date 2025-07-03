@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,11 +11,32 @@ import (
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
 const invalidIDMsg = "ID inválido, deve ser um número inteiro positivo"
+
+func getErrorMsg(fe validator.FieldError) string {
+	switch fe.Tag() {
+	case "required":
+		return fmt.Sprintf("O campo %s é obrigatório", fe.Field())
+	case "email":
+		return fmt.Sprintf("O campo %s deve ser um email válido", fe.Field())
+	case "min":
+		return fmt.Sprintf("O campo %s deve ter no mínimo %s caracteres", fe.Field(), fe.Param())
+	case "max":
+		return fmt.Sprintf("O campo %s deve ter no máximo %s caracteres", fe.Field(), fe.Param())
+	case "oneof":
+		return fmt.Sprintf("O campo %s deve ser um dos seguintes valores: %s", fe.Field(), fe.Param())
+	case "gt":
+		return fmt.Sprintf("O campo %s deve ser maior que %s", fe.Field(), fe.Param())
+	case "lte":
+		return fmt.Sprintf("O campo %s deve ser menor ou igual a %s", fe.Field(), fe.Param())
+	}
+	return fe.Error()
+}
 
 type UsuarioController struct {
 	servico service.UsuarioService
@@ -40,6 +62,15 @@ func (c *UsuarioController) Criar(ctx *gin.Context) {
 	var dto dto.UsuarioCreateDTO
 	if err := ctx.ShouldBindJSON(&dto); err != nil {
 		logrus.WithError(err).Error("Payload da requisição inválido para criar usuário")
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errMsgs := make(map[string]string)
+			for _, fe := range ve {
+				errMsgs[fe.Field()] = getErrorMsg(fe)
+			}
+			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			return
+		}
 		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -77,35 +108,54 @@ func (c *UsuarioController) BuscarPorID(ctx *gin.Context) {
 		return
 	}
 	usuario, err := c.servico.BuscarPorID(uint(id))
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		utils.RespondWithError(ctx, http.StatusNotFound, utils.ErrNotFound.Error())
+		return
+	}
 	if err != nil {
-		utils.RespondWithError(ctx, http.StatusNotFound, "Usuário não encontrado")
+		logrus.WithError(err).Error("Erro ao buscar usuário por ID")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, utils.ErrInternalServer.Error())
 		return
 	}
 	utils.RespondWithJSON(ctx, http.StatusOK, usuario)
 }
 
 // Listar godoc
-// @Summary      Lista todos os usuários
-// @Description  Retorna uma lista de todos os usuários cadastrados
+// @Summary      Lista todos os usuários com paginação
+// @Description  Retorna uma lista paginada de todos os usuários cadastrados
 // @Tags         usuario
 // @Produce      json
-// @Success      200  {array}   dto.UsuarioResponseDTO
+// @Param        page   query     int  false  "Número da página (padrão: 1)"
+// @Param        limit  query     int  false  "Limite de itens por página (padrão: 10)"
+// @Success      200  {object}  dto.PaginatedResponse{data=[]dto.UsuarioResponseDTO}
+// @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
 // @Router       /api/v1/usuarios [get]
 func (c *UsuarioController) Listar(ctx *gin.Context) {
-	usuarios, err := c.servico.ListarTodos()
+	var pagination dto.PaginationParams
+	if err := ctx.ShouldBindQuery(&pagination); err != nil {
+		logrus.WithError(err).Error("Parâmetros de paginação inválidos para listar usuários")
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errMsgs := make(map[string]string)
+			for _, fe := range ve {
+				errMsgs[fe.Field()] = getErrorMsg(fe)
+			}
+			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			return
+		}
+		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
+		return
+	}
+
+	paginatedResponse, err := c.servico.ListarTodos(pagination.Page, pagination.Limit)
 	if err != nil {
-		logrus.WithError(err).Error("Erro ao listar usuários")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
+		logrus.WithError(err).Error("Erro ao listar usuários com paginação")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, utils.ErrInternalServer.Error())
 		return
 	}
 
-	if len(usuarios) == 0 {
-		utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Nenhum usuário encontrado"})
-		return
-	}
-
-	utils.RespondWithJSON(ctx, http.StatusOK, usuarios)
+	utils.RespondWithJSON(ctx, http.StatusOK, paginatedResponse)
 }
 
 // Atualizar godoc
@@ -131,18 +181,27 @@ func (c *UsuarioController) Atualizar(ctx *gin.Context) {
 	var dto dto.UsuarioUpdateDTO
 	if err := ctx.ShouldBindJSON(&dto); err != nil {
 		logrus.WithError(err).Error("Payload da requisição inválido para atualizar usuário")
-		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errMsgs := make(map[string]string)
+			for _, fe := range ve {
+				errMsgs[fe.Field()] = getErrorMsg(fe)
+			}
+			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			return
+		}
+		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
 		return
 	}
 	usuarioAtualizado, err := c.servico.Atualizar(uint(id), &dto)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Usuário não encontrado para atualização")
-		utils.RespondWithError(ctx, http.StatusNotFound, "Usuário não encontrado")
+		utils.RespondWithError(ctx, http.StatusNotFound, utils.ErrNotFound.Error())
 		return
 	}
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao atualizar usuário")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
+		utils.RespondWithError(ctx, http.StatusInternalServerError, utils.ErrInternalServer.Error())
 		return
 	}
 	utils.RespondWithJSON(ctx, http.StatusOK, usuarioAtualizado)
@@ -157,6 +216,7 @@ func (c *UsuarioController) Atualizar(ctx *gin.Context) {
 // @Param        id   path      int  true  "ID do Usuário"
 // @Success      204  {object}  map[string]interface{}
 // @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
 // @Router       /api/v1/usuarios/{id} [delete]
 func (c *UsuarioController) Deletar(ctx *gin.Context) {
@@ -167,9 +227,57 @@ func (c *UsuarioController) Deletar(ctx *gin.Context) {
 		return
 	}
 	if err := c.servico.Deletar(uint(id)); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.WithError(err).Error("Usuário não encontrado para deleção")
+			utils.RespondWithError(ctx, http.StatusNotFound, utils.ErrNotFound.Error())
+			return
+		}
 		logrus.WithError(err).Error("Erro ao deletar usuário")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
+		utils.RespondWithError(ctx, http.StatusInternalServerError, utils.ErrInternalServer.Error())
 		return
 	}
 	utils.RespondWithJSON(ctx, http.StatusNoContent, nil)
+}
+
+// Login godoc
+// @Summary      Autentica um usuário e retorna um token JWT
+// @Description  Recebe credenciais de usuário (email e senha) e retorna um token JWT para acesso autenticado.
+// @Tags         usuario
+// @Accept       json
+// @Produce      json
+// @Param        credentials  body      dto.LoginPayload  true  "Credenciais do Usuário"
+// @Success      200          {object}  map[string]string "token"
+// @Failure      400          {object}  map[string]string
+// @Failure      401          {object}  map[string]string
+// @Failure      500          {object}  map[string]string
+// @Router       /api/v1/login [post]
+func (c *UsuarioController) Login(ctx *gin.Context) {
+	var payload dto.LoginPayload
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		logrus.WithError(err).Error("Payload da requisição de login inválido")
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			errMsgs := make(map[string]string)
+			for _, fe := range ve {
+				errMsgs[fe.Field()] = getErrorMsg(fe)
+			}
+			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			return
+		}
+		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	token, err := c.servico.Login(&payload)
+	if err != nil {
+		if errors.Is(err, utils.ErrInvalidCredentials) {
+			utils.RespondWithError(ctx, http.StatusUnauthorized, "Credenciais inválidas")
+			return
+		}
+		logrus.WithError(err).Error("Erro ao tentar login")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao tentar login")
+		return
+	}
+
+	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"token": token})
 }
