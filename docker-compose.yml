@@ -51,6 +51,17 @@ services:
     depends_on:
       - db
 
+  frontend:
+    build:
+      context: ../cultivo-web
+      dockerfile: Dockerfile
+    container_name: cultivo-web
+    image: cultivo-web:latest
+    ports:
+      - "4200:80" # Porta do Angular para o Nginx
+    depends_on:
+      - app
+
 volumes:
   go-mod:
   postgres-data:

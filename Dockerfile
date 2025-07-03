@@ -1,44 +1,42 @@
-# Build stage
-FROM golang:1.22.4-alpine3.20 AS builder
+# syntax=docker/dockerfile:1.4
+
+# Stage 1: Builder
+FROM golang:1.22-alpine AS builder
+
+# Set necessary environment variables for Go modules
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+ENV GOARCH=amd64
 
 WORKDIR /app
 
-# Copy the source code
-COPY . .
+# Copy go.mod and go.sum first to leverage Docker cache
+COPY go.mod go.sum ./ 
 
-# Install dependencies including swag and migrate
-RUN apk add --no-cache gcc git make musl-dev && \
-    go install github.com/swaggo/swag/cmd/swag@latest && \
-    go install -v github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-
-# Copy go mod and sum files
-COPY go.mod go.sum ./
-
-# Download all dependencies
+# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
 RUN go mod download
 
+# Copy the rest of the application source code
+COPY . .
+
 # Build the application
-RUN swag init -g cmd/cultivo-api-go/main.go && \
-    CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o cultivo-api-go ./cmd/cultivo-api-go
+# Use -ldflags "-s -w" to strip debug information and symbol table for smaller binary size
+# Use -a -installsuffix cgo to force rebuilding packages from source
+RUN go build -ldflags "-s -w" -o /cultivo-api-go ./cmd/cultivo-api-go
 
-# Runtime stage
-FROM alpine:3.22.0
+# Stage 2: Runner
+FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates tzdata
+# Install ca-certificates for HTTPS connections
+RUN apk --no-cache add ca-certificates
+
 WORKDIR /app
 
-# Set the timezone to Sao Paulo
-ENV TZ=America/Sao_Paulo
+# Copy the built binary from the builder stage
+COPY --from=builder /cultivo-api-go .
 
-# Copy the pre-built binary file from the previous stage
-COPY --from=builder /app/cultivo-api-go .
-COPY --from=builder /app/.env.prod .
-
-HEALTHCHECK --interval=30s --timeout=3s \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
-
-# Expose port
+# Expose the port the application listens on
 EXPOSE 8080
 
 # Command to run the executable
-CMD ["./cultivo-api-go"]
+ENTRYPOINT ["/app/cultivo-api-go"]

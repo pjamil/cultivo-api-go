@@ -25,15 +25,32 @@ func LoadConfig() *Config {
 		log.Println("No .env file found")
 	}
 
-	config := &Config{
-		DBDriver:   getEnv("DB_DRIVER", "postgres"),
-		DBHost:     getEnv("DB_HOST", "localhost"),
-		DBPort:     getEnv("DB_PORT", "5432"),
-		DBUser:     getEnv("DB_USER", "postgres"),
-		DBPassword: getEnv("DB_PASSWORD", "753951465827PJamil"),
-		DBName:     getEnv("DB_NAME", "cultivo-api-go"),
-		ServerPort: getEnv("SERVER_PORT", "8080"),
+	appEnv := getEnv("APP_ENV", "development")
+
+	config := &Config{}
+
+	if appEnv == "test" {
+		config = &Config{
+			DBDriver:   getEnv("DB_DRIVER_TEST", "postgres"),
+			DBHost:     getEnv("DB_HOST_TEST", "db_test"),
+			DBPort:     getEnv("DB_PORT_TEST", "5432"), // A porta do container é 5432
+			DBUser:     getEnv("DB_USER_TEST", "testuser"),
+			DBPassword: getEnv("DB_PASSWORD_TEST", "testpassword"),
+			DBName:     getEnv("DB_NAME_TEST", "cultivo_test_db"),
+			ServerPort: getEnv("SERVER_PORT", "8080"),
+		}
+	} else {
+		config = &Config{
+			DBDriver:   getEnv("DB_DRIVER", "postgres"),
+			DBHost:     getEnv("DB_HOST", "localhost"),
+			DBPort:     getEnv("DB_PORT", "5432"),
+			DBUser:     getEnv("DB_USER", "postgres"),
+			DBPassword: getEnv("DB_PASSWORD", "753951465827PJamil"),
+			DBName:     getEnv("DB_NAME", "cultivo-api-go"),
+			ServerPort: getEnv("SERVER_PORT", "8080"),
+		}
 	}
+
 	log.Println(config)
 	return config
 }
