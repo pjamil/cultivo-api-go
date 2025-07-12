@@ -9,7 +9,7 @@ test-down:
 
 test: test-up
 	@echo "Waiting for test database to be ready..."
-	@until docker-compose -f docker-compose.test.yml exec db_test pg_isready -U testuser; do sleep 1; done
+	@until docker-compose -f docker-compose.test.yml run --rm db_test pg_isready -U testuser; do sleep 1; done
 	@echo "Test database is ready!"
 	go test ./...
 	$(MAKE) test-down
@@ -29,3 +29,6 @@ migrate-up-test:
 
 migrate-down:
 	migrate -path internal/infrastructure/database/migrations -database "postgres://postgres:753951465827PJamil@localhost:5432/cultivo-api-go?sslmode=disable" -verbose down
+
+gitea-sessao:
+	go run gitea_sessao.go

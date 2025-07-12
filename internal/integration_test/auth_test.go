@@ -30,7 +30,7 @@ func TestLoginSuccess(t *testing.T) {
 		Nome:        "Test User",
 		Email:       "test@example.com",
 		SenhaHash:   hashedPassword,
-		Preferencias: "",
+		Preferencias: "{}",
 	}
 	err = db.Create(&testUser).Error
 	assert.NoError(t, err)
@@ -79,7 +79,7 @@ func TestLoginInvalidCredentials(t *testing.T) {
 		Nome:        "Another User",
 		Email:       "another@example.com",
 		SenhaHash:   hashedPassword,
-		Preferencias: "",
+		Preferencias: "{}",
 	}
 	err = db.Create(&testUser).Error
 	assert.NoError(t, err)
@@ -131,7 +131,7 @@ func TestProtectedRouteWithValidToken(t *testing.T) {
 		Nome:        "Protected User",
 		Email:       "protected@example.com",
 		SenhaHash:   hashedPassword,
-		Preferencias: "",
+		Preferencias: "{}",
 	}
 	err = db.Create(&testUser).Error
 	assert.NoError(t, err)

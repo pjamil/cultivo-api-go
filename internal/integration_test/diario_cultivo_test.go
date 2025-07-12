@@ -30,6 +30,23 @@ func TestDiarioCultivoCRUD(t *testing.T) {
 	}
 	assert.NoError(t, db.Create(&usuario).Error)
 
+	// Criar uma genética para associar à planta
+	genetica := models.Genetica{
+		Nome:         "Genetica Teste Diario",
+		TipoGenetica: "Hibrida",
+		TipoEspecie:  "Sativa",
+		TempoFloracao: 60,
+		Origem:       "Teste",
+	}
+	assert.NoError(t, db.Create(&genetica).Error)
+
+	// Criar um meio de cultivo para associar à planta
+	meioCultivo := models.MeioCultivo{
+		Nome: "Solo Teste Diario",
+		Tipo: "solo",
+	}
+	assert.NoError(t, db.Create(&meioCultivo).Error)
+
 	// Criar uma planta para associar ao diário de cultivo
 	planta := models.Planta{
 		Nome:        "Planta Teste Diario",
@@ -37,6 +54,8 @@ func TestDiarioCultivoCRUD(t *testing.T) {
 		DataPlantio: utils.TimePtr(time.Now()),
 		Status:      "vegetativo",
 		UsuarioID:   usuario.ID,
+		GeneticaID:  genetica.ID, // Usar o ID da genética criada
+		MeioCultivoID: meioCultivo.ID, // Usar o ID do meio de cultivo criado
 	}
 	assert.NoError(t, db.Create(&planta).Error)
 

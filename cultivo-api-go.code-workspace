@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../cultivo-api-go.wiki"
+		},
+		{
+			"path": "../docs"
 		}
 	],
 	"settings": {

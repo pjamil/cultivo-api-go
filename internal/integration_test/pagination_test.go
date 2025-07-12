@@ -36,6 +36,23 @@ func TestListagemComPaginacaoPadrao(t *testing.T) {
 	err = db.Create(&user).Error
 	assert.NoError(t, err)
 
+	// Criar uma genética para associar às plantas
+	genetica := models.Genetica{
+		Nome:         "Genetica Paginacao",
+		TipoGenetica: "Indica",
+		TipoEspecie:  "Indica",
+		TempoFloracao: 50,
+		Origem:       "Teste",
+	}
+	assert.NoError(t, db.Create(&genetica).Error)
+
+	// Criar um meio de cultivo para associar às plantas
+	meioCultivo := models.MeioCultivo{
+		Nome: "Solo Paginacao",
+		Tipo: "solo",
+	}
+	assert.NoError(t, db.Create(&meioCultivo).Error)
+
 	// Criar 25 plantas para testar a paginação
 	for i := 1; i <= 25; i++ {
 		planta := models.Planta{
@@ -44,6 +61,8 @@ func TestListagemComPaginacaoPadrao(t *testing.T) {
 			DataPlantio: tu.TimePtr(time.Now()),
 			Status:      "vegetativo",
 			UsuarioID:   user.ID,
+			GeneticaID:  genetica.ID, // Usar o ID da genética criada
+			MeioCultivoID: meioCultivo.ID, // Usar o ID do meio de cultivo criado
 		}
 		err = db.Create(&planta).Error
 		assert.NoError(t, err)
@@ -103,6 +122,23 @@ func TestListagemComPaginacaoCustomizada(t *testing.T) {
 	err = db.Create(&user).Error
 	assert.NoError(t, err)
 
+	// Criar uma genética para associar às plantas
+	genetica := models.Genetica{
+		Nome:         "Genetica Paginacao Custom",
+		TipoGenetica: "Sativa",
+		TipoEspecie:  "Sativa",
+		TempoFloracao: 70,
+		Origem:       "Teste Custom",
+	}
+	assert.NoError(t, db.Create(&genetica).Error)
+
+	// Criar um meio de cultivo para associar às plantas
+	meioCultivo := models.MeioCultivo{
+		Nome: "Solo Paginacao Custom",
+		Tipo: "coco",
+	}
+	assert.NoError(t, db.Create(&meioCultivo).Error)
+
 	// Criar 25 plantas para testar a paginação
 	for i := 1; i <= 25; i++ {
 		planta := models.Planta{
@@ -111,6 +147,8 @@ func TestListagemComPaginacaoCustomizada(t *testing.T) {
 			DataPlantio: tu.TimePtr(time.Now()),
 			Status:      "vegetativo",
 			UsuarioID:   user.ID,
+			GeneticaID:  genetica.ID, // Usar o ID da genética criada
+			MeioCultivoID: meioCultivo.ID, // Usar o ID do meio de cultivo criado
 		}
 		err = db.Create(&planta).Error
 		assert.NoError(t, err)

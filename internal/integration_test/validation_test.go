@@ -24,7 +24,7 @@ func TestCreateWithInvalidData(t *testing.T) {
 		Nome:         "Invalid User",
 		Email:        "invalid-email", // Email inválido
 		Senha:        "password123",
-		Preferencias: "",
+		Preferencias: "{}",
 	}
 	jsonPayload, _ := json.Marshal(invalidUserPayload)
 
@@ -90,7 +90,7 @@ func TestUpdateWithInvalidData(t *testing.T) {
 		Nome:         "Valid User",
 		Email:        "valid@example.com",
 		SenhaHash:    hashedPassword,
-		Preferencias: "",
+		Preferencias: "{}",
 	}
 	err = db.Create(&validUser).Error
 	assert.NoError(t, err)
