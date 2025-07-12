@@ -2,7 +2,7 @@ package utils
 
 import "github.com/gin-gonic/gin"
 
-func RespondWithError(c *gin.Context, code int, message string) {
+func RespondWithError(c *gin.Context, code int, message interface{}) {
 	c.JSON(code, gin.H{"error": message})
 }
 
