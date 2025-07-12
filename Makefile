@@ -8,9 +8,9 @@ test-down:
 	docker-compose -f docker-compose.test.yml down
 
 test: test-up
-	@echo "Waiting for test database to be ready..."
-	@until docker-compose -f docker-compose.test.yml run --rm db_test pg_isready -U testuser; do sleep 1; done
-	@echo "Test database is ready!"
+	@echo "Waiting for test database to be healthy..."
+	@while [ "$(docker inspect -f '{{.State.Health.Status}}' cultivo-api-go-test-db)" != "healthy" ]; do sleep 1; done
+	@echo "Test database is healthy!"
 	go test ./...
 	$(MAKE) test-down
 
