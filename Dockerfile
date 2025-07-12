@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.4
 
 # Stage 1: Builder
-FROM golang:1.22-alpine AS builder
+FROM golang:1.24.2-alpine AS builder
 
 # Set necessary environment variables for Go modules
 ENV CGO_ENABLED=0
@@ -23,6 +23,9 @@ COPY . .
 # Use -ldflags "-s -w" to strip debug information and symbol table for smaller binary size
 # Use -a -installsuffix cgo to force rebuilding packages from source
 RUN go build -ldflags "-s -w" -o /cultivo-api-go ./cmd/cultivo-api-go
+
+# Install golang-migrate
+RUN go install github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
 # Stage 2: Runner
 FROM alpine:latest

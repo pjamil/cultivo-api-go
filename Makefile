@@ -1,8 +1,18 @@
 build: swagger-gen
 	go build -o bin/cultivo-api ./cmd/cultivo-api-go
 
-test:
+test-up:
+	docker-compose -f docker-compose.test.yml up -d
+
+test-down:
+	docker-compose -f docker-compose.test.yml down
+
+test: test-up
+	@echo "Waiting for test database to be ready..."
+	@until docker-compose -f docker-compose.test.yml exec db_test pg_isready -U testuser; do sleep 1; done
+	@echo "Test database is ready!"
 	go test ./...
+	$(MAKE) test-down
 
 swagger-gen:
 	GO111MODULE=on swag init -g cmd/cultivo-api-go/main.go -parseDependency
