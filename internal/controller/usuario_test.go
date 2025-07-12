@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -25,9 +26,9 @@ func (m *MockUsuarioService) Criar(usuarioDto *dto.UsuarioCreateDTO) (*dto.Usuar
 	return args.Get(0).(*dto.UsuarioResponseDTO), args.Error(1)
 }
 
-func (m *MockUsuarioService) ListarTodos() ([]dto.UsuarioResponseDTO, error) {
-	args := m.Called()
-	return args.Get(0).([]dto.UsuarioResponseDTO), args.Error(1)
+func (m *MockUsuarioService) ListarTodos(page, limit int) (*dto.PaginatedResponse, error) {
+	args := m.Called(page, limit)
+	return args.Get(0).(*dto.PaginatedResponse), args.Error(1)
 }
 
 func (m *MockUsuarioService) BuscarPorID(id uint) (*dto.UsuarioResponseDTO, error) {
@@ -43,6 +44,11 @@ func (m *MockUsuarioService) Atualizar(id uint, usuarioDto *dto.UsuarioUpdateDTO
 func (m *MockUsuarioService) Deletar(id uint) error {
 	args := m.Called(id)
 	return args.Error(0)
+}
+
+func (m *MockUsuarioService) Login(loginDto *dto.LoginPayload) (string, error) {
+	args := m.Called(loginDto)
+	return args.Get(0).(string), args.Error(1)
 }
 
 func TestUsuarioController_Criar(t *testing.T) {
@@ -184,18 +190,24 @@ func TestUsuarioController_Listar(t *testing.T) {
 		mockService := new(MockUsuarioService)
 		controller := NewUsuarioController(mockService)
 
-		expectedUsuarios := []dto.UsuarioResponseDTO{
-			{ID: 1, Nome: "Usuario 1", Email: "user1@example.com"},
-			{ID: 2, Nome: "Usuario 2", Email: "user2@example.com"},
+		expectedUsuarios := []models.Usuario{
+			{Nome: "Usuario 1", Email: "user1@example.com"},
+			{Nome: "Usuario 2", Email: "user2@example.com"},
+		}
+		paginatedResponse := &dto.PaginatedResponse{
+			Data:  expectedUsuarios,
+			Total: int64(len(expectedUsuarios)),
+			Page:  1,
+			Limit: 10,
 		}
 
-		mockService.On("ListarTodos").Return(expectedUsuarios, nil)
+		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return(paginatedResponse, nil)
 
 		// Execução
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/usuarios", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/usuarios?page=1&limit=10", nil)
 		c.Request = req
 
 		controller.Listar(c)
@@ -203,9 +215,18 @@ func TestUsuarioController_Listar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusOK, w.Code)
 
-		var actualUsuarios []dto.UsuarioResponseDTO
-		err := json.Unmarshal(w.Body.Bytes(), &actualUsuarios)
+		var actualResponse dto.PaginatedResponse
+		err := json.Unmarshal(w.Body.Bytes(), &actualResponse)
 		assert.NoError(t, err)
+		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
+		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
+		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
+
+		// Convert actualResponse.Data to []models.Usuario for comparison
+		actualUsuariosBytes, _ := json.Marshal(actualResponse.Data)
+		var actualUsuarios []models.Usuario
+		json.Unmarshal(actualUsuariosBytes, &actualUsuarios)
+
 		assert.Equal(t, expectedUsuarios, actualUsuarios)
 
 		mockService.AssertExpectations(t)
@@ -216,13 +237,20 @@ func TestUsuarioController_Listar(t *testing.T) {
 		mockService := new(MockUsuarioService)
 		controller := NewUsuarioController(mockService)
 
-		mockService.On("ListarTodos").Return([]dto.UsuarioResponseDTO{}, nil)
+		paginatedResponse := &dto.PaginatedResponse{
+			Data:  []models.Usuario{},
+			Total: 0,
+			Page:  1,
+			Limit: 10,
+		}
+
+		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return(paginatedResponse, nil)
 
 		// Execução
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/usuarios", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/usuarios?page=1&limit=10", nil)
 		c.Request = req
 
 		controller.Listar(c)
@@ -230,10 +258,13 @@ func TestUsuarioController_Listar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusOK, w.Code)
 
-		var response map[string]string
-		err := json.Unmarshal(w.Body.Bytes(), &response)
+		var actualResponse dto.PaginatedResponse
+		err := json.Unmarshal(w.Body.Bytes(), &actualResponse)
 		assert.NoError(t, err)
-		assert.Equal(t, "Nenhum usuário encontrado", response["message"])
+		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
+		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
+		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
+		assert.Empty(t, actualResponse.Data)
 
 		mockService.AssertExpectations(t)
 	})
@@ -243,13 +274,13 @@ func TestUsuarioController_Listar(t *testing.T) {
 		mockService := new(MockUsuarioService)
 		controller := NewUsuarioController(mockService)
 
-		mockService.On("ListarTodos").Return([]dto.UsuarioResponseDTO{}, errors.New("erro interno do serviço"))
+		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return((*dto.PaginatedResponse)(nil), errors.New("erro interno do serviço"))
 
 		// Execução
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/usuarios", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/usuarios?page=1&limit=10", nil)
 		c.Request = req
 
 		controller.Listar(c)
@@ -274,7 +305,7 @@ func TestUsuarioController_BuscarPorID(t *testing.T) {
 		mockService := new(MockUsuarioService)
 		controller := NewUsuarioController(mockService)
 
-		expectedUsuario := &dto.UsuarioResponseDTO{ID: 1, Nome: "Usuario Teste", Email: "teste@example.com"}
+																																																																				expectedUsuario := &dto.UsuarioResponseDTO{ID: 1, Nome: "Usuario Teste", Email: "teste@example.com"}
 
 		mockService.On("BuscarPorID", uint(1)).Return(expectedUsuario, nil)
 
@@ -346,7 +377,8 @@ func TestUsuarioController_Atualizar(t *testing.T) {
 		controller := NewUsuarioController(mockService)
 
 		updateDTO := &dto.UsuarioUpdateDTO{Nome: "Usuario Atualizado"}
-		expectedUsuario := &dto.UsuarioResponseDTO{ID: 1, Nome: "Usuario Atualizado", Email: "teste@example.com"}
+		expectedUsuario := &dto.UsuarioResponseDTO{Nome: "Usuario Atualizado", Email: "teste@example.com"}
+		expectedUsuario.ID = 1
 
 		mockService.On("Atualizar", uint(1), updateDTO).Return(expectedUsuario, nil)
 

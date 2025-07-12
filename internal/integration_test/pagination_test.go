@@ -9,10 +9,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
+	tu "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils/test_utils"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestListagemComPaginacaoPadrao(t *testing.T) {
@@ -40,7 +41,7 @@ func TestListagemComPaginacaoPadrao(t *testing.T) {
 		planta := models.Planta{
 			Nome:        fmt.Sprintf("Planta %d", i),
 			Especie:     "Especie Teste",
-			DataPlantio: utils.TimePtr(time.Now()),
+			DataPlantio: tu.TimePtr(time.Now()),
 			Status:      "vegetativo",
 			UsuarioID:   user.ID,
 		}
@@ -107,7 +108,7 @@ func TestListagemComPaginacaoCustomizada(t *testing.T) {
 		planta := models.Planta{
 			Nome:        fmt.Sprintf("Planta Custom %d", i),
 			Especie:     "Especie Teste Custom",
-			DataPlantio: utils.TimePtr(time.Now()),
+			DataPlantio: tu.TimePtr(time.Now()),
 			Status:      "vegetativo",
 			UsuarioID:   user.ID,
 		}
@@ -132,7 +133,7 @@ func TestListagemComPaginacaoCustomizada(t *testing.T) {
 
 	// Cenário 1: Página 2, Limite 5
 	w := httptest.NewRecorder()
-	req, _ = http.NewRequest("GET", "/api/v1/plantas?page=2&limit=5", nil)
+	req, _ := http.NewRequest("GET", "/api/v1/plantas?page=2&limit=5", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	router.ServeHTTP(w, req)
 

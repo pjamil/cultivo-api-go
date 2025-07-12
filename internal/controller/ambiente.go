@@ -1,5 +1,8 @@
+package controller
+
 import (
 	"errors"
+	
 	"net/http"
 	"strconv"
 
@@ -13,26 +16,12 @@ import (
 	"gorm.io/gorm"
 )
 
-const invalidIDMsg = "ID inválido, deve ser um número inteiro positivo"
+type AmbienteController struct {
+	servico service.AmbienteService
+}
 
-func getErrorMsg(fe validator.FieldError) string {
-	switch fe.Tag() {
-	case "required":
-		return fmt.Sprintf("O campo %s é obrigatório", fe.Field())
-	case "email":
-		return fmt.Sprintf("O campo %s deve ser um email válido", fe.Field())
-	case "min":
-		return fmt.Sprintf("O campo %s deve ter no mínimo %s caracteres", fe.Field(), fe.Param())
-	case "max":
-		return fmt.Sprintf("O campo %s deve ter no máximo %s caracteres", fe.Field(), fe.Param())
-	case "oneof":
-		return fmt.Sprintf("O campo %s deve ser um dos seguintes valores: %s", fe.Field(), fe.Param())
-	case "gt":
-		return fmt.Sprintf("O campo %s deve ser maior que %s", fe.Field(), fe.Param())
-	case "lte":
-		return fmt.Sprintf("O campo %s deve ser menor ou igual a %s", fe.Field(), fe.Param())
-	}
-	return fe.Error()
+func NewAmbienteController(servico service.AmbienteService) *AmbienteController {
+	return &AmbienteController{servico}
 }
 
 // Criar godoc
@@ -54,7 +43,7 @@ func (c *AmbienteController) Criar(ctx *gin.Context) {
 		if errors.As(err, &ve) {
 			errMsgs := make(map[string]string)
 			for _, fe := range ve {
-				errMsgs[fe.Field()] = getErrorMsg(fe)
+				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
 			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
 			return
@@ -93,7 +82,7 @@ func (c *AmbienteController) Listar(ctx *gin.Context) {
 		if errors.As(err, &ve) {
 			errMsgs := make(map[string]string)
 			for _, fe := range ve {
-				errMsgs[fe.Field()] = getErrorMsg(fe)
+				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
 			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
 			return
@@ -174,7 +163,7 @@ func (c *AmbienteController) Atualizar(ctx *gin.Context) {
 		if errors.As(err, &ve) {
 			errMsgs := make(map[string]string)
 			for _, fe := range ve {
-				errMsgs[fe.Field()] = getErrorMsg(fe)
+				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
 			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
 			return
@@ -229,4 +218,3 @@ func (c *AmbienteController) Deletar(ctx *gin.Context) {
 	}
 	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Ambiente deletado com sucesso"})
 }
-

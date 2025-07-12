@@ -15,6 +15,55 @@ import (
 
 
 
+type MockPlantaRepositorio struct {
+	mock.Mock
+}
+
+func (m *MockPlantaRepositorio) Criar(planta *models.Planta) error {
+	args := m.Called(planta)
+	return args.Error(0)
+}
+
+func (m *MockPlantaRepositorio) ListarTodos(page, limit int) ([]models.Planta, int64, error) {
+	args := m.Called(page, limit)
+	return args.Get(0).([]models.Planta), args.Get(1).(int64), args.Error(2)
+}
+
+func (m *MockPlantaRepositorio) BuscarPorID(id uint) (*models.Planta, error) {
+	args := m.Called(id)
+	return args.Get(0).(*models.Planta), args.Error(1)
+}
+
+func (m *MockPlantaRepositorio) Atualizar(planta *models.Planta) error {
+	args := m.Called(planta)
+	return args.Error(0)
+}
+
+func (m *MockPlantaRepositorio) Deletar(id uint) error {
+	args := m.Called(id)
+	return args.Error(0)
+}
+
+func (m *MockPlantaRepositorio) BuscarPorEspecie(especie models.Especie) ([]models.Planta, error) {
+	args := m.Called(especie)
+	return args.Get(0).([]models.Planta), args.Error(1)
+}
+
+func (m *MockPlantaRepositorio) BuscarPorStatus(status string) ([]models.Planta, error) {
+	args := m.Called(status)
+	return args.Get(0).([]models.Planta), args.Error(1)
+}
+
+func (m *MockPlantaRepositorio) ExistePorNome(nome string) bool {
+	args := m.Called(nome)
+	return args.Bool(0)
+}
+
+func (m *MockPlantaRepositorio) CriarRegistroDiario(registro *models.RegistroDiario) error {
+	args := m.Called(registro)
+	return args.Error(0)
+}
+
 func TestPlantaService_Criar(t *testing.T) {
 	mockPlantaRepo := new(MockPlantaRepositorio)
 	mockGeneticaRepo := new(MockGeneticaRepositorio)

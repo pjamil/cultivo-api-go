@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
 
@@ -21,9 +22,9 @@ func (m *MockMeioCultivoRepositorio) Criar(meioCultivo *models.MeioCultivo) erro
 	return args.Error(0)
 }
 
-func (m *MockMeioCultivoRepositorio) ListarTodos() ([]models.MeioCultivo, error) {
-	args := m.Called()
-	return args.Get(0).([]models.MeioCultivo), args.Error(1)
+func (m *MockMeioCultivoRepositorio) ListarTodos(page, limit int) ([]models.MeioCultivo, int64, error) {
+	args := m.Called(page, limit)
+	return args.Get(0).([]models.MeioCultivo), args.Get(1).(int64), args.Error(2)
 }
 
 func (m *MockMeioCultivoRepositorio) BuscarPorID(id uint) (*models.MeioCultivo, error) {
@@ -46,9 +47,8 @@ func TestMeioCultivoService_Criar(t *testing.T) {
 	service := service.NewMeioCultivoService(mockRepo)
 
 	t.Run("Success", func(t *testing.T) {
-		createDTO := &dto.CreateMeioCultivoDTO{Nome: "Solo", Descricao: "Solo orgânico"}
-		expectedMeioCultivo := &models.MeioCultivo{Nome: "Solo", Descricao: "Solo orgânico"}
-		expectedResponse := &dto.MeioCultivoResponseDTO{ID: 1, Nome: "Solo", Descricao: "Solo orgânico"}
+				createDTO := &dto.CreateMeioCultivoDTO{Tipo: "Solo", Descricao: "Solo orgânico"}
+		expectedResponse := &dto.MeioCultivoResponseDTO{ID: 1, Tipo: "Solo", Descricao: "Solo orgânico"}
 
 		mockRepo.On("Criar", mock.AnythingOfType("*models.MeioCultivo")).Run(func(args mock.Arguments) {
 			meioCultivo := args.Get(0).(*models.MeioCultivo)
@@ -59,13 +59,13 @@ func TestMeioCultivoService_Criar(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.NotNil(t, response)
-		assert.Equal(t, expectedResponse.Nome, response.Nome)
+		assert.Equal(t, expectedResponse.Tipo, response.Tipo)
 		assert.Equal(t, expectedResponse.ID, response.ID)
 		mockRepo.AssertExpectations(t)
 	})
 
 	t.Run("Error - Repository Error", func(t *testing.T) {
-		createDTO := &dto.CreateMeioCultivoDTO{Nome: "Solo", Descricao: "Solo orgânico"}
+		createDTO := &dto.CreateMeioCultivoDTO{Tipo: "Solo", Descricao: "Solo orgânico"}
 
 		mockRepo.On("Criar", mock.AnythingOfType("*models.MeioCultivo")).Return(errors.New("erro no repositório")).Once()
 
@@ -84,39 +84,54 @@ func TestMeioCultivoService_ListarTodos(t *testing.T) {
 
 	t.Run("Success - Meios de Cultivo Encontrados", func(t *testing.T) {
 		expectedMeiosCultivo := []models.MeioCultivo{
-			{ID: 1, Nome: "Solo"},
-			{ID: 2, Nome: "Hidroponia"},
+			{Tipo: "Solo"},
+			{Tipo: "Hidroponia"},
 		}
-		expectedResponse := []dto.MeioCultivoResponseDTO{
-			{ID: 1, Nome: "Solo"},
-			{ID: 2, Nome: "Hidroponia"},
+		for i := range expectedMeiosCultivo {
+			expectedMeiosCultivo[i].ID = uint(i + 1)
 		}
+		expectedTotal := int64(len(expectedMeiosCultivo))
+		page := 1
+		limit := 10
 
-		mockRepo.On("ListarTodos").Return(expectedMeiosCultivo, nil).Once()
+		mockRepo.On("ListarTodos", page, limit).Return(expectedMeiosCultivo, expectedTotal, nil).Once()
 
-		response, err := service.ListarTodos()
+		response, err := service.ListarTodos(page, limit)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, response)
-		assert.Equal(t, expectedResponse, response)
+		assert.Equal(t, expectedTotal, response.Total)
+		assert.Equal(t, page, response.Page)
+		assert.Equal(t, limit, response.Limit)
+
+		actualMeiosCultivoBytes, _ := json.Marshal(response.Data)
+		var actualMeiosCultivo []models.MeioCultivo
+		json.Unmarshal(actualMeiosCultivoBytes, &actualMeiosCultivo)
+
+		assert.Equal(t, expectedMeiosCultivo, actualMeiosCultivo)
 		mockRepo.AssertExpectations(t)
 	})
 
 	t.Run("Success - Nenhum Meio de Cultivo Encontrado", func(t *testing.T) {
-		mockRepo.On("ListarTodos").Return([]models.MeioCultivo{}, nil).Once()
+		page := 1
+		limit := 10
+		mockRepo.On("ListarTodos", page, limit).Return([]models.MeioCultivo{}, int64(0), nil).Once()
 
-		response, err := service.ListarTodos()
+		response, err := service.ListarTodos(page, limit)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, response)
-		assert.Empty(t, response)
+		assert.Equal(t, int64(0), response.Total)
+		assert.Empty(t, response.Data)
 		mockRepo.AssertExpectations(t)
 	})
 
 	t.Run("Error - Repository Error", func(t *testing.T) {
-		mockRepo.On("ListarTodos").Return([]models.MeioCultivo{}, errors.New("erro no repositório")).Once()
+		page := 1
+		limit := 10
+		mockRepo.On("ListarTodos", page, limit).Return([]models.MeioCultivo{}, int64(0), errors.New("erro no repositório")).Once()
 
-		response, err := service.ListarTodos()
+		response, err := service.ListarTodos(page, limit)
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
@@ -131,7 +146,8 @@ func TestMeioCultivoService_BuscarPorID(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		meioCultivoID := uint(1)
-		expectedMeioCultivo := &models.MeioCultivo{ID: meioCultivoID, Nome: "Solo"}
+		expectedMeioCultivo := &models.MeioCultivo{Tipo: "Solo"}
+		expectedMeioCultivo.ID = meioCultivoID
 		expectedResponse := &dto.MeioCultivoResponseDTO{ID: meioCultivoID, Tipo: "Solo"}
 
 		mockRepo.On("BuscarPorID", meioCultivoID).Return(expectedMeioCultivo, nil).Once()
@@ -141,7 +157,7 @@ func TestMeioCultivoService_BuscarPorID(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, response)
 		assert.Equal(t, expectedResponse.ID, response.ID)
-		assert.Equal(t, expectedResponse.Nome, response.Nome)
+		assert.Equal(t, expectedResponse.Tipo, response.Tipo)
 		mockRepo.AssertExpectations(t)
 	})
 
@@ -180,26 +196,27 @@ func TestMeioCultivoService_Atualizar(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		meioCultivoID := uint(1)
 		updateDTO := &dto.UpdateMeioCultivoDTO{Tipo: "Solo Atualizado"}
-		existingMeioCultivo := &models.MeioCultivo{ID: meioCultivoID, Tipo: "Solo Antigo"}
+		existingMeioCultivo := &models.MeioCultivo{Tipo: "Solo Antigo"}
+		existingMeioCultivo.ID = meioCultivoID
 		expectedResponse := &dto.MeioCultivoResponseDTO{ID: meioCultivoID, Tipo: "Solo Atualizado"}
 
 		mockRepo.On("BuscarPorID", meioCultivoID).Return(existingMeioCultivo, nil).Once()
 		mockRepo.On("Atualizar", mock.AnythingOfType("*models.MeioCultivo")).Run(func(args mock.Arguments) {
 			meioCultivo := args.Get(0).(*models.MeioCultivo)
-									meioCultivo.Tipo = updateDTO.Tipo
+			meioCultivo.Tipo = updateDTO.Tipo
 		}).Return(nil).Once()
 
 		response, err := service.Atualizar(meioCultivoID, updateDTO)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, response)
-		assert.Equal(t, expectedResponse.Nome, response.Nome)
+		assert.Equal(t, expectedResponse.Tipo, response.Tipo)
 		mockRepo.AssertExpectations(t)
 	})
 
 	t.Run("Not Found", func(t *testing.T) {
 		meioCultivoID := uint(999)
-		updateDTO := &dto.UpdateMeioCultivoDTO{Nome: "Solo Atualizado"}
+		updateDTO := &dto.UpdateMeioCultivoDTO{Tipo: "Solo Atualizado"}
 
 		mockRepo.On("BuscarPorID", meioCultivoID).Return((*models.MeioCultivo)(nil), gorm.ErrRecordNotFound).Once()
 
@@ -213,8 +230,9 @@ func TestMeioCultivoService_Atualizar(t *testing.T) {
 
 	t.Run("Repository Error on Update", func(t *testing.T) {
 		meioCultivoID := uint(1)
-		updateDTO := &dto.UpdateMeioCultivoDTO{Nome: "Solo Atualizado"}
-		existingMeioCultivo := &models.MeioCultivo{ID: meioCultivoID, Tipo: "Solo Antigo"}
+		updateDTO := &dto.UpdateMeioCultivoDTO{Tipo: "Solo Atualizado"}
+		existingMeioCultivo := &models.MeioCultivo{Tipo: "Solo Antigo"}
+		existingMeioCultivo.ID = meioCultivoID
 		expectedError := errors.New("erro no repositório")
 
 		mockRepo.On("BuscarPorID", meioCultivoID).Return(existingMeioCultivo, nil).Once()

@@ -26,9 +26,9 @@ func (m *MockAmbienteService) Criar(ambienteDto *dto.CreateAmbienteDTO) (*models
 	return args.Get(0).(*models.Ambiente), args.Error(1)
 }
 
-func (m *MockAmbienteService) ListarTodos() ([]models.Ambiente, error) {
-	args := m.Called()
-	return args.Get(0).([]models.Ambiente), args.Error(1)
+func (m *MockAmbienteService) ListarTodos(page, limit int) (*dto.PaginatedResponse, error) {
+	args := m.Called(page, limit)
+	return args.Get(0).(*dto.PaginatedResponse), args.Error(1)
 }
 
 func (m *MockAmbienteService) BuscarPorID(id uint) (*models.Ambiente, error) {
@@ -58,14 +58,20 @@ func TestAmbienteController_Listar(t *testing.T) {
 			{Nome: "Estufa", Descricao: "Estufa de cultivo"},
 			{Nome: "Quarto", Descricao: "Quarto de cultivo"},
 		}
+		paginatedResponse := &dto.PaginatedResponse{
+			Data:  expectedAmbientes,
+			Total: int64(len(expectedAmbientes)),
+			Page:  1,
+			Limit: 10,
+		}
 
-		mockService.On("ListarTodos").Return(expectedAmbientes, nil)
+		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return(paginatedResponse, nil)
 
 		// Execução
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/ambientes", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/ambientes?page=1&limit=10", nil)
 		c.Request = req
 
 		controller.Listar(c)
@@ -73,9 +79,18 @@ func TestAmbienteController_Listar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusOK, w.Code)
 
-		var actualAmbientes []models.Ambiente
-		err := json.Unmarshal(w.Body.Bytes(), &actualAmbientes)
+		var actualResponse dto.PaginatedResponse
+		err := json.Unmarshal(w.Body.Bytes(), &actualResponse)
 		assert.NoError(t, err)
+		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
+		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
+		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
+
+		// Convert actualResponse.Data to []models.Ambiente for comparison
+		actualAmbientesBytes, _ := json.Marshal(actualResponse.Data)
+		var actualAmbientes []models.Ambiente
+		json.Unmarshal(actualAmbientesBytes, &actualAmbientes)
+
 		assert.Equal(t, expectedAmbientes, actualAmbientes)
 
 		mockService.AssertExpectations(t)
@@ -86,13 +101,20 @@ func TestAmbienteController_Listar(t *testing.T) {
 		mockService := new(MockAmbienteService)
 		controller := NewAmbienteController(mockService)
 
-		mockService.On("ListarTodos").Return([]models.Ambiente{}, nil)
+		paginatedResponse := &dto.PaginatedResponse{
+			Data:  []models.Ambiente{},
+			Total: 0,
+			Page:  1,
+			Limit: 10,
+		}
+
+		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return(paginatedResponse, nil)
 
 		// Execução
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/ambientes", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/ambientes?page=1&limit=10", nil)
 		c.Request = req
 
 		controller.Listar(c)
@@ -100,10 +122,13 @@ func TestAmbienteController_Listar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusOK, w.Code)
 
-		var response map[string]string
-		err := json.Unmarshal(w.Body.Bytes(), &response)
+		var actualResponse dto.PaginatedResponse
+		err := json.Unmarshal(w.Body.Bytes(), &actualResponse)
 		assert.NoError(t, err)
-		assert.Equal(t, "Nenhum ambiente encontrado", response["message"])
+		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
+		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
+		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
+		assert.Empty(t, actualResponse.Data)
 
 		mockService.AssertExpectations(t)
 	})
@@ -113,13 +138,13 @@ func TestAmbienteController_Listar(t *testing.T) {
 		mockService := new(MockAmbienteService)
 		controller := NewAmbienteController(mockService)
 
-		mockService.On("ListarTodos").Return([]models.Ambiente{}, errors.New("erro no serviço"))
+		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return((*dto.PaginatedResponse)(nil), errors.New("erro no serviço"))
 
 		// Execução
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/ambientes", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/ambientes?page=1&limit=10", nil)
 		c.Request = req
 
 		controller.Listar(c)

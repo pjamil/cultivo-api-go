@@ -2,7 +2,7 @@ package controller
 
 import (
 	"errors"
-	"fmt"
+	
 	"net/http"
 	"strconv"
 
@@ -16,40 +16,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const (
-	ErroIDPlantaInvalido          = "ID da planta inválido"
-	ErroPlantaNaoEncontrada       = "Planta não encontrada"
-	ErroPayloadRequisicaoInvalido = "Payload da requisição inválido"
-	ErroAtualizarPlanta           = "Erro ao atualizar a planta"
-	ErroCriarPlanta               = "Erro ao criar a planta"
-	ErroRecuperarPlanta           = "Erro ao recuperar a planta"
-	ErroDeletarPlanta             = "Erro ao deletar a planta"
-	SucessoAtualizarPlanta        = "Planta atualizada com sucesso"
-	SucessoCriarPlanta            = "Planta criada com sucesso"
-	SucessoRecuperarPlanta        = "Planta recuperada com sucesso"
-	SucessoListarPlantas          = "Plantas recuperadas com sucesso"
-	ErroListarPlantas             = "Erro ao recuperar as plantas"
-)
 
-func getErrorMsg(fe validator.FieldError) string {
-	switch fe.Tag() {
-	case "required":
-		return fmt.Sprintf("O campo %s é obrigatório", fe.Field())
-	case "email":
-		return fmt.Sprintf("O campo %s deve ser um email válido", fe.Field())
-	case "min":
-		return fmt.Sprintf("O campo %s deve ter no mínimo %s caracteres", fe.Field(), fe.Param())
-	case "max":
-		return fmt.Sprintf("O campo %s deve ter no máximo %s caracteres", fe.Field(), fe.Param())
-	case "oneof":
-		return fmt.Sprintf("O campo %s deve ser um dos seguintes valores: %s", fe.Field(), fe.Param())
-	case "gt":
-		return fmt.Sprintf("O campo %s deve ser maior que %s", fe.Field(), fe.Param())
-	case "lte":
-		return fmt.Sprintf("O campo %s deve ser menor ou igual a %s", fe.Field(), fe.Param())
-	}
-	return fe.Error()
-}
 
 // PlantaController lida com as requisições HTTP para plantas
 type PlantaController struct {
@@ -79,12 +46,12 @@ func (c *PlantaController) Criar(ctx *gin.Context) {
 		if errors.As(err, &ve) {
 			errMsgs := make(map[string]string)
 			for _, fe := range ve {
-				errMsgs[fe.Field()] = getErrorMsg(fe)
+				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
 			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
 			return
 		}
-		utils.RespondWithError(ctx, http.StatusBadRequest, ErroPayloadRequisicaoInvalido)
+		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
 		return
 	}
 
@@ -117,7 +84,7 @@ func (c *PlantaController) Listar(ctx *gin.Context) {
 		if errors.As(err, &ve) {
 			errMsgs := make(map[string]string)
 			for _, fe := range ve {
-				errMsgs[fe.Field()] = getErrorMsg(fe)
+				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
 			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
 			return
@@ -170,14 +137,14 @@ func (c *PlantaController) BuscarPorID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao converter ID da planta")
-		utils.RespondWithError(ctx, http.StatusBadRequest, ErroIDPlantaInvalido)
+		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
 		return
 	}
 
 	planta, err := c.plantaServico.BuscarPorID(uint(id))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Planta não encontrada ao buscar por ID")
-		utils.RespondWithError(ctx, http.StatusNotFound, ErroPlantaNaoEncontrada)
+		utils.RespondWithError(ctx, http.StatusNotFound, utils.ErrNotFound.Error())
 		return
 	}
 	utils.RespondWithJSON(ctx, http.StatusOK, planta)
@@ -200,13 +167,13 @@ func (c *PlantaController) Atualizar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao converter ID da planta para atualização")
-		utils.RespondWithError(ctx, http.StatusBadRequest, ErroIDPlantaInvalido)
+		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
 		return
 	}
 	var updateDto dto.UpdatePlantaDTO
 	if err := ctx.ShouldBindJSON(&updateDto); err != nil {
 		logrus.WithError(err).Error("Payload da requisição inválido para atualização de planta")
-		utils.RespondWithError(ctx, http.StatusBadRequest, ErroPayloadRequisicaoInvalido)
+		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
 		return
 	}
 
@@ -214,7 +181,7 @@ func (c *PlantaController) Atualizar(ctx *gin.Context) {
 	plantaAtualizada, err := c.plantaServico.Atualizar(uint(id), &updateDto)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Planta não encontrada para atualização")
-		ctx.JSON(http.StatusNotFound, gin.H{"error": ErroPlantaNaoEncontrada})
+		ctx.JSON(http.StatusNotFound, gin.H{"error": utils.ErrNotFound.Error()})
 		return
 	}
 	if err != nil {
@@ -245,13 +212,13 @@ func (c *PlantaController) Deletar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao converter ID da planta para deleção")
-		utils.RespondWithError(ctx, http.StatusBadRequest, ErroIDPlantaInvalido)
+		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
 		return
 	}
 	if err := c.plantaServico.Deletar(uint(id)); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logrus.WithError(err).Error("Planta não encontrada para deleção")
-			utils.RespondWithError(ctx, http.StatusNotFound, ErroPlantaNaoEncontrada)
+			utils.RespondWithError(ctx, http.StatusNotFound, utils.ErrNotFound.Error())
 			return
 		}
 		logrus.WithError(err).Error("Erro ao deletar planta")
@@ -282,21 +249,21 @@ func (c *PlantaController) RegistrarFato(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao converter ID da planta para registrar fato")
-		utils.RespondWithError(ctx, http.StatusBadRequest, ErroIDPlantaInvalido)
+		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
 		return
 	}
 
 	var fatoDto dto.RegistrarFatoDTO
 	if err := ctx.ShouldBindJSON(&fatoDto); err != nil {
 		logrus.WithError(err).Error("Payload da requisição inválido para registrar fato")
-		utils.RespondWithError(ctx, http.StatusBadRequest, ErroPayloadRequisicaoInvalido)
+		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
 		return
 	}
 
 	if err := c.plantaServico.RegistrarFato(uint(id), models.RegistroTipo(fatoDto.Tipo), fatoDto.Titulo, fatoDto.Conteudo); err != nil {
 		logrus.WithError(err).Error("Erro ao registrar fato para a planta")
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			utils.RespondWithError(ctx, http.StatusNotFound, ErroPlantaNaoEncontrada)
+			utils.RespondWithError(ctx, http.StatusNotFound, utils.ErrNotFound.Error())
 			return
 		}
 		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())

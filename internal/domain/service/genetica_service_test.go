@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
 
@@ -21,9 +22,9 @@ func (m *MockGeneticaRepositorio) Criar(genetica *models.Genetica) error {
 	return args.Error(0)
 }
 
-func (m *MockGeneticaRepositorio) ListarTodos() ([]models.Genetica, error) {
-	args := m.Called()
-	return args.Get(0).([]models.Genetica), args.Error(1)
+func (m *MockGeneticaRepositorio) ListarTodos(page, limit int) ([]models.Genetica, int64, error) {
+	args := m.Called(page, limit)
+	return args.Get(0).([]models.Genetica), args.Get(1).(int64), args.Error(2)
 }
 
 func (m *MockGeneticaRepositorio) BuscarPorID(id uint) (*models.Genetica, error) {
@@ -86,38 +87,51 @@ func TestGeneticaService_ListarTodas(t *testing.T) {
 			{Nome: "Genetica 1"},
 			{Nome: "Genetica 2"},
 		}
-		expectedGeneticas[0].ID = 1
-		expectedGeneticas[1].ID = 2
-		expectedResponse := []dto.GeneticaResponseDTO{
-			{ID: 1, Nome: "Genetica 1"},
-			{ID: 2, Nome: "Genetica 2"},
+		for i := range expectedGeneticas {
+			expectedGeneticas[i].ID = uint(i + 1)
 		}
+		expectedTotal := int64(len(expectedGeneticas))
+		page := 1
+		limit := 10
 
-		mockRepo.On("ListarTodos").Return(expectedGeneticas, nil).Once()
+		mockRepo.On("ListarTodos", page, limit).Return(expectedGeneticas, expectedTotal, nil).Once()
 
-		response, err := service.ListarTodas()
+		response, err := service.ListarTodas(page, limit)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, response)
-		assert.Equal(t, expectedResponse, response)
+		assert.Equal(t, expectedTotal, response.Total)
+		assert.Equal(t, page, response.Page)
+		assert.Equal(t, limit, response.Limit)
+
+		actualGeneticasBytes, _ := json.Marshal(response.Data)
+		var actualGeneticas []models.Genetica
+		json.Unmarshal(actualGeneticasBytes, &actualGeneticas)
+
+		assert.Equal(t, expectedGeneticas, actualGeneticas)
 		mockRepo.AssertExpectations(t)
 	})
 
 	t.Run("Success - Nenhuma Genetica Encontrada", func(t *testing.T) {
-		mockRepo.On("ListarTodos").Return([]models.Genetica{}, nil).Once()
+		page := 1
+		limit := 10
+		mockRepo.On("ListarTodos", page, limit).Return([]models.Genetica{}, int64(0), nil).Once()
 
-		response, err := service.ListarTodas()
+		response, err := service.ListarTodas(page, limit)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, response)
-		assert.Empty(t, response)
+		assert.Equal(t, int64(0), response.Total)
+		assert.Empty(t, response.Data)
 		mockRepo.AssertExpectations(t)
 	})
 
 	t.Run("Error - Repository Error", func(t *testing.T) {
-		mockRepo.On("ListarTodos").Return([]models.Genetica{}, errors.New("erro no repositório")).Once()
+		page := 1
+		limit := 10
+		mockRepo.On("ListarTodos", page, limit).Return([]models.Genetica{}, int64(0), errors.New("erro no repositório")).Once()
 
-		response, err := service.ListarTodas()
+		response, err := service.ListarTodas(page, limit)
 
 		assert.Error(t, err)
 		assert.Nil(t, response)

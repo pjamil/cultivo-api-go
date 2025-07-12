@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -25,9 +26,9 @@ func (m *MockMeioCultivoService) Criar(meioCultivoDto *dto.CreateMeioCultivoDTO)
 	return args.Get(0).(*dto.MeioCultivoResponseDTO), args.Error(1)
 }
 
-func (m *MockMeioCultivoService) ListarTodos() ([]dto.MeioCultivoResponseDTO, error) {
-	args := m.Called()
-	return args.Get(0).([]dto.MeioCultivoResponseDTO), args.Error(1)
+func (m *MockMeioCultivoService) ListarTodos(page, limit int) (*dto.PaginatedResponse, error) {
+	args := m.Called(page, limit)
+	return args.Get(0).(*dto.PaginatedResponse), args.Error(1)
 }
 
 func (m *MockMeioCultivoService) BuscarPorID(id uint) (*dto.MeioCultivoResponseDTO, error) {
@@ -53,18 +54,24 @@ func TestMeioCultivoController_Listar(t *testing.T) {
 		mockService := new(MockMeioCultivoService)
 		controller := NewMeioCultivoController(mockService)
 
-		expectedMeiosCultivo := []dto.MeioCultivoResponseDTO{
-			{ID: 1, Tipo: "Solo", Descricao: "Solo orgânico"},
-			{ID: 2, Tipo: "Coco", Descricao: "Fibra de coco"},
+		expectedMeiosCultivo := []models.MeioCultivo{
+			{Tipo: "Solo", Descricao: "Solo orgânico"},
+			{Tipo: "Coco", Descricao: "Fibra de coco"},
+		}
+		paginatedResponse := &dto.PaginatedResponse{
+			Data:  expectedMeiosCultivo,
+			Total: int64(len(expectedMeiosCultivo)),
+			Page:  1,
+			Limit: 10,
 		}
 
-		mockService.On("ListarTodos").Return(expectedMeiosCultivo, nil)
+		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return(paginatedResponse, nil)
 
 		// Execução
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/meios-cultivos", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/meios-cultivos?page=1&limit=10", nil)
 		c.Request = req
 
 		controller.Listar(c)
@@ -72,9 +79,18 @@ func TestMeioCultivoController_Listar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusOK, w.Code)
 
-		var actualMeiosCultivo []dto.MeioCultivoResponseDTO
-		err := json.Unmarshal(w.Body.Bytes(), &actualMeiosCultivo)
+		var actualResponse dto.PaginatedResponse
+		err := json.Unmarshal(w.Body.Bytes(), &actualResponse)
 		assert.NoError(t, err)
+		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
+		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
+		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
+
+		// Convert actualResponse.Data to []models.MeioCultivo for comparison
+		actualMeiosCultivoBytes, _ := json.Marshal(actualResponse.Data)
+		var actualMeiosCultivo []models.MeioCultivo
+		json.Unmarshal(actualMeiosCultivoBytes, &actualMeiosCultivo)
+
 		assert.Equal(t, expectedMeiosCultivo, actualMeiosCultivo)
 
 		mockService.AssertExpectations(t)
@@ -85,13 +101,20 @@ func TestMeioCultivoController_Listar(t *testing.T) {
 		mockService := new(MockMeioCultivoService)
 		controller := NewMeioCultivoController(mockService)
 
-		mockService.On("ListarTodos").Return([]dto.MeioCultivoResponseDTO{}, nil)
+		paginatedResponse := &dto.PaginatedResponse{
+			Data:  []models.MeioCultivo{},
+			Total: 0,
+			Page:  1,
+			Limit: 10,
+		}
+
+		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return(paginatedResponse, nil)
 
 		// Execução
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/meios-cultivos", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/meios-cultivos?page=1&limit=10", nil)
 		c.Request = req
 
 		controller.Listar(c)
@@ -99,10 +122,13 @@ func TestMeioCultivoController_Listar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusOK, w.Code)
 
-		var response map[string]string
-		err := json.Unmarshal(w.Body.Bytes(), &response)
+		var actualResponse dto.PaginatedResponse
+		err := json.Unmarshal(w.Body.Bytes(), &actualResponse)
 		assert.NoError(t, err)
-		assert.Equal(t, "Nenhum meio de cultivo encontrado", response["message"])
+		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
+		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
+		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
+		assert.Empty(t, actualResponse.Data)
 
 		mockService.AssertExpectations(t)
 	})
@@ -112,13 +138,13 @@ func TestMeioCultivoController_Listar(t *testing.T) {
 		mockService := new(MockMeioCultivoService)
 		controller := NewMeioCultivoController(mockService)
 
-		mockService.On("ListarTodos").Return([]dto.MeioCultivoResponseDTO{}, errors.New("erro no serviço"))
+		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return((*dto.PaginatedResponse)(nil), errors.New("erro no serviço"))
 
 		// Execução
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/meios-cultivos", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/meios-cultivos?page=1&limit=10", nil)
 		c.Request = req
 
 		controller.Listar(c)

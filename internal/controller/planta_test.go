@@ -26,9 +26,9 @@ func (m *MockPlantaService) Criar(createDto *dto.CreatePlantaDTO) (*dto.PlantaRe
 	return args.Get(0).(*dto.PlantaResponseDTO), args.Error(1)
 }
 
-func (m *MockPlantaService) ListarTodas() ([]dto.PlantaResponseDTO, error) {
-	args := m.Called()
-	return args.Get(0).([]dto.PlantaResponseDTO), args.Error(1)
+func (m *MockPlantaService) ListarTodas(page, limit int) (*dto.PaginatedResponse, error) {
+	args := m.Called(page, limit)
+	return args.Get(0).(*dto.PaginatedResponse), args.Error(1)
 }
 
 func (m *MockPlantaService) BuscarPorID(id uint) (*dto.PlantaResponseDTO, error) {
@@ -70,18 +70,24 @@ func TestPlantaController_Listar(t *testing.T) {
 		mockService := new(MockPlantaService)
 		controller := NewPlantaController(mockService)
 
-		expectedPlantas := []dto.PlantaResponseDTO{
-			{ID: 1, Nome: "Sativa"},
-			{ID: 2, Nome: "Indica"},
+		expectedPlantas := []models.Planta{
+			{Nome: "Sativa"},
+			{Nome: "Indica"},
+		}
+		paginatedResponse := &dto.PaginatedResponse{
+			Data:  expectedPlantas,
+			Total: int64(len(expectedPlantas)),
+			Page:  1,
+			Limit: 10,
 		}
 
-		mockService.On("ListarTodas").Return(expectedPlantas, nil)
+		mockService.On("ListarTodas", mock.Anything, mock.Anything).Return(paginatedResponse, nil)
 
 		// Execução
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/plantas", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/plantas?page=1&limit=10", nil)
 		c.Request = req
 
 		controller.Listar(c)
@@ -89,9 +95,18 @@ func TestPlantaController_Listar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusOK, w.Code)
 
-		var actualPlantas []dto.PlantaResponseDTO
-		err := json.Unmarshal(w.Body.Bytes(), &actualPlantas)
+		var actualResponse dto.PaginatedResponse
+		err := json.Unmarshal(w.Body.Bytes(), &actualResponse)
 		assert.NoError(t, err)
+		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
+		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
+		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
+
+		// Convert actualResponse.Data to []models.Planta for comparison
+		actualPlantasBytes, _ := json.Marshal(actualResponse.Data)
+		var actualPlantas []models.Planta
+		json.Unmarshal(actualPlantasBytes, &actualPlantas)
+
 		assert.Equal(t, expectedPlantas, actualPlantas)
 
 		mockService.AssertExpectations(t)
@@ -102,19 +117,24 @@ func TestPlantaController_Listar(t *testing.T) {
 		mockService := new(MockPlantaService)
 		controller := NewPlantaController(mockService)
 
-		mockService.On("ListarTodas").Return([]dto.PlantaResponseDTO{}, errors.New("erro no serviço"))
+		mockService.On("ListarTodas", mock.Anything, mock.Anything).Return((*dto.PaginatedResponse)(nil), errors.New("erro no serviço"))
 
 		// Execução
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/plantas", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/plantas?page=1&limit=10", nil)
 		c.Request = req
 
 		controller.Listar(c)
 
 		// Verificação
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
+
+		var response map[string]string
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "Erro ao listar plantas", response["error"])
 
 		mockService.AssertExpectations(t)
 	})

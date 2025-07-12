@@ -9,6 +9,7 @@ type UsuarioCreateDTO struct {
 
 type UsuarioUpdateDTO struct {
     Nome         string `json:"nome" binding:"min=3,max=100"`
+    Email        string `json:"email" binding:"omitempty,email"`
     Preferencias string `json:"preferencias" binding:"max=255"`
 }
 

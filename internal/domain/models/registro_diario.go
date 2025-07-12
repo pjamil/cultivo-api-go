@@ -24,6 +24,7 @@ type RegistroDiario struct {
 	Tipo RegistroTipo    `gorm:"size:50;index" json:"tipo"` // observacao, evento, aprendizado, tratamento, problema, colheita
 
 	DiarioCultivoID uint `json:"diario_cultivo_id"`
+	PlantaID        *uint `json:"planta_id,omitempty"`
 
 	// Campos polimórficos
 	Titulo         string  `gorm:"size:100" json:"titulo"`

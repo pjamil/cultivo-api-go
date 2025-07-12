@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -24,9 +25,9 @@ func (m *MockGeneticaService) Criar(geneticaDto *dto.CreateGeneticaDTO) (*dto.Ge
 	return args.Get(0).(*dto.GeneticaResponseDTO), args.Error(1)
 }
 
-func (m *MockGeneticaService) ListarTodas() ([]dto.GeneticaResponseDTO, error) {
-	args := m.Called()
-	return args.Get(0).([]dto.GeneticaResponseDTO), args.Error(1)
+func (m *MockGeneticaService) ListarTodas(page, limit int) (*dto.PaginatedResponse, error) {
+	args := m.Called(page, limit)
+	return args.Get(0).(*dto.PaginatedResponse), args.Error(1)
 }
 
 func (m *MockGeneticaService) BuscarPorID(id uint) (*dto.GeneticaResponseDTO, error) {
@@ -52,18 +53,24 @@ func TestGeneticaController_Listar(t *testing.T) {
 		mockService := new(MockGeneticaService)
 		controller := NewGeneticaController(mockService)
 
-		expectedGeneticas := []dto.GeneticaResponseDTO{
-			{ID: 1, Nome: "OG Kush", TipoGenetica: "Indica"},
-			{ID: 2, Nome: "Sour Diesel", TipoGenetica: "Sativa"},
+		expectedGeneticas := []models.Genetica{
+			{Nome: "OG Kush", TipoGenetica: "Indica"},
+			{Nome: "Sour Diesel", TipoGenetica: "Sativa"},
+		}
+		paginatedResponse := &dto.PaginatedResponse{
+			Data:  expectedGeneticas,
+			Total: int64(len(expectedGeneticas)),
+			Page:  1,
+			Limit: 10,
 		}
 
-		mockService.On("ListarTodas").Return(expectedGeneticas, nil)
+		mockService.On("ListarTodas", mock.Anything, mock.Anything).Return(paginatedResponse, nil)
 
 		// Execução
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/geneticas", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/geneticas?page=1&limit=10", nil)
 		c.Request = req
 
 		controller.Listar(c)
@@ -71,9 +78,18 @@ func TestGeneticaController_Listar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusOK, w.Code)
 
-		var actualGeneticas []dto.GeneticaResponseDTO
-		err := json.Unmarshal(w.Body.Bytes(), &actualGeneticas)
+		var actualResponse dto.PaginatedResponse
+		err := json.Unmarshal(w.Body.Bytes(), &actualResponse)
 		assert.NoError(t, err)
+		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
+		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
+		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
+
+		// Convert actualResponse.Data to []models.Genetica for comparison
+		actualGeneticasBytes, _ := json.Marshal(actualResponse.Data)
+		var actualGeneticas []models.Genetica
+		json.Unmarshal(actualGeneticasBytes, &actualGeneticas)
+
 		assert.Equal(t, expectedGeneticas, actualGeneticas)
 
 		mockService.AssertExpectations(t)
@@ -84,13 +100,20 @@ func TestGeneticaController_Listar(t *testing.T) {
 		mockService := new(MockGeneticaService)
 		controller := NewGeneticaController(mockService)
 
-		mockService.On("ListarTodas").Return([]dto.GeneticaResponseDTO{}, nil)
+		paginatedResponse := &dto.PaginatedResponse{
+			Data:  []models.Genetica{},
+			Total: 0,
+			Page:  1,
+			Limit: 10,
+		}
+
+		mockService.On("ListarTodas", mock.Anything, mock.Anything).Return(paginatedResponse, nil)
 
 		// Execução
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/geneticas", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/geneticas?page=1&limit=10", nil)
 		c.Request = req
 
 		controller.Listar(c)
@@ -98,10 +121,13 @@ func TestGeneticaController_Listar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusOK, w.Code)
 
-		var response map[string]string
-		err := json.Unmarshal(w.Body.Bytes(), &response)
+		var actualResponse dto.PaginatedResponse
+		err := json.Unmarshal(w.Body.Bytes(), &actualResponse)
 		assert.NoError(t, err)
-		assert.Equal(t, "Nenhuma genética encontrada", response["message"])
+		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
+		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
+		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
+		assert.Empty(t, actualResponse.Data)
 
 		mockService.AssertExpectations(t)
 	})
@@ -111,13 +137,13 @@ func TestGeneticaController_Listar(t *testing.T) {
 		mockService := new(MockGeneticaService)
 		controller := NewGeneticaController(mockService)
 
-		mockService.On("ListarTodas").Return([]dto.GeneticaResponseDTO{}, errors.New("erro no serviço"))
+		mockService.On("ListarTodas", mock.Anything, mock.Anything).Return((*dto.PaginatedResponse)(nil), errors.New("erro no serviço"))
 
 		// Execução
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/geneticas", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/geneticas?page=1&limit=10", nil)
 		c.Request = req
 
 		controller.Listar(c)

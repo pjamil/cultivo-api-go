@@ -3,14 +3,17 @@ package integration_test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
-	"github.com/stretchr/testify/assert"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
+	tu "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils/test_utils"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateWithInvalidData(t *testing.T) {
@@ -34,10 +37,12 @@ func TestCreateWithInvalidData(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "Email") // Verifica se a mensagem de erro contém o campo Email
 
 	// Cenário 2: Criar Planta com Nome Vazio (campo obrigatório)
+	plantioTime, err := time.Parse(time.RFC3339, "2023-01-01T00:00:00Z")
+	assert.NoError(t, err)
 	invalidPlantaPayload := dto.CreatePlantaDTO{
 		Nome:        "", // Nome vazio
 		Especie:     "Cannabis Sativa",
-		DataPlantio: "2023-01-01T00:00:00Z",
+								DataPlantio: plantioTime,
 	}
 	jsonPayload, _ = json.Marshal(invalidPlantaPayload)
 
@@ -51,11 +56,11 @@ func TestCreateWithInvalidData(t *testing.T) {
 
 	// Cenário 3: Criar Ambiente com Tipo Inválido (oneof)
 	invalidAmbientePayload := dto.CreateAmbienteDTO{
-		Nome:        "Ambiente Teste",
-		Tipo:        "tipo-invalido", // Tipo inválido
-		Comprimento: 100,
-		Altura:      50,
-		Largura:     50,
+		Nome:           "Ambiente Teste",
+		Tipo:           "tipo-invalido", // Tipo inválido
+		Comprimento:    100,
+		Altura:         50,
+		Largura:        50,
 		TempoExposicao: 12,
 	}
 	jsonPayload, _ = json.Marshal(invalidAmbientePayload)
@@ -82,9 +87,9 @@ func TestUpdateWithInvalidData(t *testing.T) {
 	assert.NoError(t, err)
 
 	validUser := models.Usuario{
-		Nome:        "Valid User",
-		Email:       "valid@example.com",
-		SenhaHash:   hashedPassword,
+		Nome:         "Valid User",
+		Email:        "valid@example.com",
+		SenhaHash:    hashedPassword,
 		Preferencias: "",
 	}
 	err = db.Create(&validUser).Error
@@ -110,7 +115,7 @@ func TestUpdateWithInvalidData(t *testing.T) {
 	planta := models.Planta{
 		Nome:        "Planta Original",
 		Especie:     "Especie Teste",
-		DataPlantio: utils.TimePtr(time.Now()),
+				DataPlantio: tu.TimePtr(time.Now()),
 		Status:      "vegetativo",
 		UsuarioID:   validUser.ID,
 	}

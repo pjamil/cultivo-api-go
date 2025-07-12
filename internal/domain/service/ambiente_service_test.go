@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
 
@@ -21,9 +22,9 @@ func (m *MockAmbienteRepositorio) Criar(ambiente *models.Ambiente) error {
 	return args.Error(0)
 }
 
-func (m *MockAmbienteRepositorio) ListarTodos() ([]models.Ambiente, error) {
-	args := m.Called()
-	return args.Get(0).([]models.Ambiente), args.Error(1)
+func (m *MockAmbienteRepositorio) ListarTodos(page, limit int) ([]models.Ambiente, int64, error) {
+	args := m.Called(page, limit)
+	return args.Get(0).([]models.Ambiente), args.Get(1).(int64), args.Error(2)
 }
 
 func (m *MockAmbienteRepositorio) BuscarPorID(id uint) (*models.Ambiente, error) {
@@ -86,40 +87,51 @@ func TestAmbienteService_ListarTodos(t *testing.T) {
 			{Nome: "Ambiente 1"},
 			{Nome: "Ambiente 2"},
 		}
-		expectedAmbientes[0].ID = 1
-		expectedAmbientes[1].ID = 2
-		expectedResponse := []dto.AmbienteResponseDTO{
-			{Nome: "Ambiente 1"},
-			{Nome: "Ambiente 2"},
+		for i := range expectedAmbientes {
+			expectedAmbientes[i].ID = uint(i + 1)
 		}
-		expectedAmbientes[0].ID = 1
-		expectedAmbientes[1].ID = 2
+		expectedTotal := int64(len(expectedAmbientes))
+		page := 1
+		limit := 10
 
-		mockRepo.On("ListarTodos").Return(expectedAmbientes, nil).Once()
+		mockRepo.On("ListarTodos", page, limit).Return(expectedAmbientes, expectedTotal, nil).Once()
 
-		response, err := service.ListarTodos()
+		response, err := service.ListarTodos(page, limit)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, response)
-		assert.Equal(t, expectedResponse, response)
+		assert.Equal(t, expectedTotal, response.Total)
+		assert.Equal(t, page, response.Page)
+		assert.Equal(t, limit, response.Limit)
+
+		actualAmbientesBytes, _ := json.Marshal(response.Data)
+		var actualAmbientes []models.Ambiente
+		json.Unmarshal(actualAmbientesBytes, &actualAmbientes)
+
+		assert.Equal(t, expectedAmbientes, actualAmbientes)
 		mockRepo.AssertExpectations(t)
 	})
 
 	t.Run("Success - Nenhum Ambiente Encontrado", func(t *testing.T) {
-		mockRepo.On("ListarTodos").Return([]models.Ambiente{}, nil).Once()
+		page := 1
+		limit := 10
+		mockRepo.On("ListarTodos", page, limit).Return([]models.Ambiente{}, int64(0), nil).Once()
 
-		response, err := service.ListarTodos()
+		response, err := service.ListarTodos(page, limit)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, response)
-		assert.Empty(t, response)
+		assert.Equal(t, int64(0), response.Total)
+		assert.Empty(t, response.Data)
 		mockRepo.AssertExpectations(t)
 	})
 
 	t.Run("Error - Repository Error", func(t *testing.T) {
-		mockRepo.On("ListarTodos").Return([]models.Ambiente{}, errors.New("erro no repositório")).Once()
+		page := 1
+		limit := 10
+		mockRepo.On("ListarTodos", page, limit).Return([]models.Ambiente{}, int64(0), errors.New("erro no repositório")).Once()
 
-		response, err := service.ListarTodos()
+		response, err := service.ListarTodos(page, limit)
 
 		assert.Error(t, err)
 		assert.Nil(t, response)

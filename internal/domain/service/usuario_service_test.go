@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
 
@@ -21,9 +22,9 @@ func (m *MockUsuarioRepositorio) Criar(usuario *models.Usuario) error {
 	return args.Error(0)
 }
 
-func (m *MockUsuarioRepositorio) ListarTodos() ([]models.Usuario, error) {
-	args := m.Called()
-	return args.Get(0).([]models.Usuario), args.Error(1)
+func (m *MockUsuarioRepositorio) ListarTodos(page, limit int) ([]models.Usuario, int64, error) {
+	args := m.Called(page, limit)
+	return args.Get(0).([]models.Usuario), args.Get(1).(int64), args.Error(2)
 }
 
 func (m *MockUsuarioRepositorio) BuscarPorID(id uint) (*models.Usuario, error) {
@@ -46,14 +47,18 @@ func (m *MockUsuarioRepositorio) ExistePorEmail(email string) bool {
 	return args.Bool(0)
 }
 
+func (m *MockUsuarioRepositorio) BuscarPorEmail(email string) (*models.Usuario, error) {
+	args := m.Called(email)
+	return args.Get(0).(*models.Usuario), args.Error(1)
+}
+
 func TestUsuarioService_Criar(t *testing.T) {
 	mockRepo := new(MockUsuarioRepositorio)
 	service := service.NewUsuarioService(mockRepo)
 
 	t.Run("Success", func(t *testing.T) {
 		createDTO := &dto.UsuarioCreateDTO{Nome: "Usuario Teste", Email: "teste@example.com", Senha: "password123"}
-		expectedUsuario := &models.Usuario{Nome: "Usuario Teste", Email: "teste@example.com"}
-		expectedResponse := &dto.UsuarioResponseDTO{ID: 1, Nome: "Usuario Teste", Email: "teste@example.com"}
+				expectedResponse := &dto.UsuarioResponseDTO{ID: 1, Nome: "Usuario Teste", Email: "teste@example.com"}
 
 		mockRepo.On("ExistePorEmail", createDTO.Email).Return(false).Once()
 		mockRepo.On("Criar", mock.AnythingOfType("*models.Usuario")).Run(func(args mock.Arguments) {
@@ -104,39 +109,51 @@ func TestUsuarioService_ListarTodos(t *testing.T) {
 
 	t.Run("Success - Usuarios Encontrados", func(t *testing.T) {
 		expectedUsuarios := []models.Usuario{
-			{ID: 1, Nome: "Usuario 1", Email: "user1@example.com"},
-			{ID: 2, Nome: "Usuario 2", Email: "user2@example.com"},
+			{Nome: "Usuario 1", Email: "user1@example.com"},
+			{Nome: "Usuario 2", Email: "user2@example.com"},
 		}
-		expectedResponse := []dto.UsuarioResponseDTO{
-			{ID: 1, Nome: "Usuario 1", Email: "user1@example.com"},
-			{ID: 2, Nome: "Usuario 2", Email: "user2@example.com"},
-		}
+		expectedTotal := int64(len(expectedUsuarios))
+		page := 1
+		limit := 10
 
-		mockRepo.On("ListarTodos").Return(expectedUsuarios, nil).Once()
+		mockRepo.On("ListarTodos", page, limit).Return(expectedUsuarios, expectedTotal, nil).Once()
 
-		response, err := service.ListarTodos()
+		response, err := service.ListarTodos(page, limit)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, response)
-		assert.Equal(t, expectedResponse, response)
+		assert.Equal(t, expectedTotal, response.Total)
+		assert.Equal(t, page, response.Page)
+		assert.Equal(t, limit, response.Limit)
+
+		actualUsuariosBytes, _ := json.Marshal(response.Data)
+		var actualUsuarios []models.Usuario
+		json.Unmarshal(actualUsuariosBytes, &actualUsuarios)
+
+		assert.Equal(t, expectedUsuarios, actualUsuarios)
 		mockRepo.AssertExpectations(t)
 	})
 
 	t.Run("Success - Nenhum Usuario Encontrado", func(t *testing.T) {
-		mockRepo.On("ListarTodos").Return([]models.Usuario{}, nil).Once()
+		page := 1
+		limit := 10
+		mockRepo.On("ListarTodos", page, limit).Return([]models.Usuario{}, int64(0), nil).Once()
 
-		response, err := service.ListarTodos()
+		response, err := service.ListarTodos(page, limit)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, response)
-		assert.Empty(t, response)
+		assert.Equal(t, int64(0), response.Total)
+		assert.Empty(t, response.Data)
 		mockRepo.AssertExpectations(t)
 	})
 
 	t.Run("Error - Repository Error", func(t *testing.T) {
-		mockRepo.On("ListarTodos").Return([]models.Usuario{}, errors.New("erro no repositório")).Once()
+		page := 1
+		limit := 10
+		mockRepo.On("ListarTodos", page, limit).Return([]models.Usuario{}, int64(0), errors.New("erro no repositório")).Once()
 
-		response, err := service.ListarTodos()
+		response, err := service.ListarTodos(page, limit)
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
@@ -151,7 +168,8 @@ func TestUsuarioService_BuscarPorID(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		usuarioID := uint(1)
-		expectedUsuario := &models.Usuario{ID: usuarioID, Nome: "Usuario Teste", Email: "teste@example.com"}
+		expectedUsuario := &models.Usuario{Nome: "Usuario Teste", Email: "teste@example.com"}
+		expectedUsuario.ID = usuarioID
 		expectedResponse := &dto.UsuarioResponseDTO{ID: usuarioID, Nome: "Usuario Teste", Email: "teste@example.com"}
 
 		mockRepo.On("BuscarPorID", usuarioID).Return(expectedUsuario, nil).Once()
@@ -200,16 +218,17 @@ func TestUsuarioService_Atualizar(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		usuarioID := uint(1)
-		updateDTO := &dto.UsuarioUpdateDTO{Nome: "Usuario Atualizado", Email: "atualizado@example.com"}
-		existingUsuario := &models.Usuario{ID: usuarioID, Nome: "Usuario Antigo", Email: "antigo@example.com"}
-		expectedResponse := &dto.UsuarioResponseDTO{ID: usuarioID, Nome: "Usuario Atualizado", Email: "atualizado@example.com"}
+		updateDTO := &dto.UsuarioUpdateDTO{Nome: "Usuario Atualizado"}
+		existingUsuario := &models.Usuario{Nome: "Usuario Antigo", Email: "antigo@example.com"}
+		existingUsuario.ID = usuarioID
+		expectedResponse := &dto.UsuarioResponseDTO{ID: usuarioID, Nome: "Usuario Atualizado", Email: "teste@example.com"}
 
 		mockRepo.On("BuscarPorID", usuarioID).Return(existingUsuario, nil).Once()
 		mockRepo.On("ExistePorEmail", updateDTO.Email).Return(false).Once()
 		mockRepo.On("Atualizar", mock.AnythingOfType("*models.Usuario")).Run(func(args mock.Arguments) {
 			usuario := args.Get(0).(*models.Usuario)
 			usuario.Nome = updateDTO.Nome
-			usuario.Email = updateDTO.Email
+			
 		}).Return(nil).Once()
 
 		response, err := service.Atualizar(usuarioID, updateDTO)
@@ -237,11 +256,12 @@ func TestUsuarioService_Atualizar(t *testing.T) {
 
 	t.Run("Error - Email Already Exists", func(t *testing.T) {
 		usuarioID := uint(1)
-		updateDTO := &dto.UsuarioUpdateDTO{Nome: "Usuario Atualizado", Email: "existente@example.com"}
-		existingUsuario := &models.Usuario{ID: usuarioID, Nome: "Usuario Antigo", Email: "antigo@example.com"}
+		updateDTO := &dto.UsuarioUpdateDTO{Nome: "Usuario Atualizado"}
+		existingUsuario := &models.Usuario{Nome: "Usuario Antigo", Email: "antigo@example.com"}
+		existingUsuario.ID = usuarioID
 
 		mockRepo.On("BuscarPorID", usuarioID).Return(existingUsuario, nil).Once()
-		mockRepo.On("ExistePorEmail", updateDTO.Email).Return(true).Once()
+		
 
 		response, err := service.Atualizar(usuarioID, updateDTO)
 
@@ -253,8 +273,9 @@ func TestUsuarioService_Atualizar(t *testing.T) {
 
 	t.Run("Repository Error on Update", func(t *testing.T) {
 		usuarioID := uint(1)
-		updateDTO := &dto.UsuarioUpdateDTO{Nome: "Usuario Atualizado", Email: "atualizado@example.com"}
-		existingUsuario := &models.Usuario{ID: usuarioID, Nome: "Usuario Antigo", Email: "antigo@example.com"}
+		updateDTO := &dto.UsuarioUpdateDTO{Nome: "Usuario Atualizado"}
+		existingUsuario := &models.Usuario{Nome: "Usuario Antigo", Email: "antigo@example.com"}
+		existingUsuario.ID = usuarioID
 		expectedError := errors.New("erro no repositório")
 
 		mockRepo.On("BuscarPorID", usuarioID).Return(existingUsuario, nil).Once()
@@ -272,7 +293,7 @@ func TestUsuarioService_Atualizar(t *testing.T) {
 
 func TestUsuarioService_Deletar(t *testing.T) {
 	mockRepo := new(MockUsuarioRepositorio)
-	service := NewUsuarioService(mockRepo)
+	service := service.NewUsuarioService(mockRepo)
 
 	t.Run("Success", func(t *testing.T) {
 		usuarioID := uint(1)

@@ -2,7 +2,7 @@ package controller
 
 import (
 	"errors"
-	"fmt"
+	
 	"net/http"
 	"strconv"
 	"strings"
@@ -16,27 +16,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const invalidIDMsg = "ID inválido, deve ser um número inteiro positivo"
 
-func getErrorMsg(fe validator.FieldError) string {
-	switch fe.Tag() {
-	case "required":
-		return fmt.Sprintf("O campo %s é obrigatório", fe.Field())
-	case "email":
-		return fmt.Sprintf("O campo %s deve ser um email válido", fe.Field())
-	case "min":
-		return fmt.Sprintf("O campo %s deve ter no mínimo %s caracteres", fe.Field(), fe.Param())
-	case "max":
-		return fmt.Sprintf("O campo %s deve ter no máximo %s caracteres", fe.Field(), fe.Param())
-	case "oneof":
-		return fmt.Sprintf("O campo %s deve ser um dos seguintes valores: %s", fe.Field(), fe.Param())
-	case "gt":
-		return fmt.Sprintf("O campo %s deve ser maior que %s", fe.Field(), fe.Param())
-	case "lte":
-		return fmt.Sprintf("O campo %s deve ser menor ou igual a %s", fe.Field(), fe.Param())
-	}
-	return fe.Error()
-}
 
 type UsuarioController struct {
 	servico service.UsuarioService
@@ -66,7 +46,7 @@ func (c *UsuarioController) Criar(ctx *gin.Context) {
 		if errors.As(err, &ve) {
 			errMsgs := make(map[string]string)
 			for _, fe := range ve {
-				errMsgs[fe.Field()] = getErrorMsg(fe)
+				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
 			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
 			return
@@ -104,7 +84,7 @@ func (c *UsuarioController) BuscarPorID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		logrus.WithError(err).Error("ID inválido para buscar usuário por ID")
-		utils.RespondWithError(ctx, http.StatusBadRequest, invalidIDMsg)
+		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
 		return
 	}
 	usuario, err := c.servico.BuscarPorID(uint(id))
@@ -139,7 +119,7 @@ func (c *UsuarioController) Listar(ctx *gin.Context) {
 		if errors.As(err, &ve) {
 			errMsgs := make(map[string]string)
 			for _, fe := range ve {
-				errMsgs[fe.Field()] = getErrorMsg(fe)
+				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
 			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
 			return
@@ -175,7 +155,7 @@ func (c *UsuarioController) Atualizar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		logrus.WithError(err).Error("ID inválido para atualizar usuário")
-		utils.RespondWithError(ctx, http.StatusBadRequest, invalidIDMsg)
+		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
 		return
 	}
 	var dto dto.UsuarioUpdateDTO
@@ -185,7 +165,7 @@ func (c *UsuarioController) Atualizar(ctx *gin.Context) {
 		if errors.As(err, &ve) {
 			errMsgs := make(map[string]string)
 			for _, fe := range ve {
-				errMsgs[fe.Field()] = getErrorMsg(fe)
+				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
 			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
 			return
@@ -223,7 +203,7 @@ func (c *UsuarioController) Deletar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		logrus.WithError(err).Error("ID inválido para deletar usuário")
-		utils.RespondWithError(ctx, http.StatusBadRequest, invalidIDMsg)
+		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
 		return
 	}
 	if err := c.servico.Deletar(uint(id)); err != nil {
@@ -259,7 +239,7 @@ func (c *UsuarioController) Login(ctx *gin.Context) {
 		if errors.As(err, &ve) {
 			errMsgs := make(map[string]string)
 			for _, fe := range ve {
-				errMsgs[fe.Field()] = getErrorMsg(fe)
+				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
 			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
 			return

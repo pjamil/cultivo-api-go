@@ -42,7 +42,7 @@ func (ctrl *GeneticaController) Criar(c *gin.Context) {
 		if errors.As(err, &ve) {
 			errMsgs := make(map[string]string)
 			for _, fe := range ve {
-				errMsgs[fe.Field()] = getErrorMsg(fe)
+				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
 			utils.RespondWithError(c, http.StatusBadRequest, errMsgs)
 			return
@@ -80,7 +80,7 @@ func (c *GeneticaController) Listar(ctx *gin.Context) {
 		if errors.As(err, &ve) {
 			errMsgs := make(map[string]string)
 			for _, fe := range ve {
-				errMsgs[fe.Field()] = getErrorMsg(fe)
+				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
 			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
 			return
@@ -160,7 +160,7 @@ func (c *GeneticaController) Atualizar(ctx *gin.Context) {
 		if errors.As(err, &ve) {
 			errMsgs := make(map[string]string)
 			for _, fe := range ve {
-				errMsgs[fe.Field()] = getErrorMsg(fe)
+				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
 			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
 			return

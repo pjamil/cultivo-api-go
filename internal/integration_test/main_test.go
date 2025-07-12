@@ -10,6 +10,7 @@ import (
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/infrastructure/database"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/infrastructure/server"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -47,15 +48,15 @@ func TestMain(m *testing.M) {
 		cfg.DBPort,
 		cfg.DBName,
 	)
-	m, err := migrate.New(
-		"file://../../infrastructure/database/migrations",
+	migrator, err := migrate.New(
+		"file://../../internal/infrastructure/database/migrations",
 		dbURL,
 	)
 	if err != nil {
 		log.Fatalf("Failed to create migrate instance: %v", err)
 	}
 
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+	if err := migrator.Up(); err != nil && err != migrate.ErrNoChange {
 		log.Fatalf("Failed to apply migrations: %v", err)
 	}
 	log.Println("Migrations applied successfully.")
@@ -69,13 +70,19 @@ func TestMain(m *testing.M) {
 
 	// Limpar o banco de dados de teste após os testes (opcional, mas recomendado)
 	log.Println("Cleaning up test database...")
-	// Para garantir que o banco esteja limpo para a próxima execução, podemos dar um Down e Up
-	if err := m.Down(); err != nil && err != migrate.ErrNoChange {
-		log.Printf("Failed to clean up migrations: %v", err)
-	}
-	testDB.DB.Exec("DROP SCHEMA public CASCADE; CREATE SCHEMA public;") // Limpeza simples
+	LimparBancoDeDados(testDB.DB)
 
 	os.Exit(code)
+}
+
+// LimparBancoDeDados limpa as tabelas do banco de dados para garantir um estado limpo para cada teste
+func LimparBancoDeDados(db *gorm.DB) {
+	db.Exec("TRUNCATE TABLE diarios_cultivo RESTART IDENTITY CASCADE;")
+	db.Exec("TRUNCATE TABLE plantas RESTART IDENTITY CASCADE;")
+	db.Exec("TRUNCATE TABLE ambientes RESTART IDENTITY CASCADE;")
+	db.Exec("TRUNCATE TABLE usuarios RESTART IDENTITY CASCADE;")
+	db.Exec("TRUNCATE TABLE geneticas RESTART IDENTITY CASCADE;")
+	db.Exec("TRUNCATE TABLE meio_cultivos RESTART IDENTITY CASCADE;")
 }
 
 // GetTestRouter retorna o router do servidor de teste
@@ -87,3 +94,5 @@ func GetTestRouter() *gin.Engine {
 func GetTestDB() *database.Database {
 	return testDB
 }
+
+
