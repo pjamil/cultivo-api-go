@@ -2,9 +2,9 @@ package server
 
 import (
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/controller"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
+	db_infra "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/infrastructure/database"
+	repository "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/infrastructure/repository"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/infrastructure/database"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -13,11 +13,18 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+const (
+	hostRoute       = "/api/v1"
+	rotasPlantas    = "/plantas"
+	rotaPlantaPorID = "/:id"
+	rotaUsuarioPorID = "/:id"
+)
+
 type Server struct {
 	Router *gin.Engine
 }
 
-func NewServer(db *database.Database) *Server {
+func NewServer(db *db_infra.Database) *Server {
 	router := gin.Default()
 
 	// Swagger docs
@@ -26,6 +33,30 @@ func NewServer(db *database.Database) *Server {
 	// Middlewares
 	router.Use(middleware.ErrorHandlerMiddleware())
 	router.Use(middleware.LoggingMiddleware())
+
+	// Repositories
+	usuarioRepo := db_infra.NewUsuarioRepositorio(db.DB)
+	plantaRepo := db_infra.NewPlantaRepositorio(db.DB)
+	ambienteRepo := db_infra.NewAmbienteRepositorio(db.DB)
+	geneticaRepo := db_infra.NewGeneticaRepositorio(db.DB)
+	meioCultivoRepo := db_infra.NewMeioCultivoRepositorio(db.DB)
+	diarioCultivoRepo := repository.NewDiarioCultivoRepository(db.DB)
+
+	// Services
+	usuarioService := service.NewUsuarioService(usuarioRepo)
+	plantaService := service.NewPlantaService(plantaRepo, geneticaRepo, ambienteRepo, meioCultivoRepo, plantaRepo)
+	ambienteService := service.NewAmbienteService(ambienteRepo)
+	geneticaService := service.NewGeneticaService(geneticaRepo)
+	meioCultivoService := service.NewMeioCultivoService(meioCultivoRepo)
+	diarioCultivoService := service.NewDiarioCultivoService(diarioCultivoRepo, plantaRepo, ambienteRepo)
+
+	// Controllers
+	controladorUsuario := controller.NewUsuarioController(usuarioService)
+	controladorPlanta := controller.NewPlantaController(plantaService)
+	controladorAmbiente := controller.NewAmbienteController(ambienteService)
+	controladorGenetica := controller.NewGeneticaController(geneticaService)
+	controladorMeioCultivo := controller.NewMeioCultivoController(meioCultivoService)
+	controladorDiarioCultivo := controller.NewDiarioCultivoController(diarioCultivoService)
 
 	// Health check routes
 	healthController := controller.NewHealthController()
@@ -69,6 +100,13 @@ func NewServer(db *database.Database) *Server {
 		authRoutes.GET("/meios-cultivos/:id", controladorMeioCultivo.BuscarPorID)
 		authRoutes.PUT("/meios-cultivos/:id", controladorMeioCultivo.Atualizar)
 		authRoutes.DELETE("/meios-cultivos/:id", controladorMeioCultivo.Deletar)
+
+		// Rotas de DiarioCultivo
+		authRoutes.POST("/diarios-cultivo", controladorDiarioCultivo.Create)
+		authRoutes.GET("/diarios-cultivo", controladorDiarioCultivo.List)
+		authRoutes.GET("/diarios-cultivo/:id", controladorDiarioCultivo.GetByID)
+		authRoutes.PUT("/diarios-cultivo/:id", controladorDiarioCultivo.Update)
+		authRoutes.DELETE("/diarios-cultivo/:id", controladorDiarioCultivo.Delete)
 
 		// Rotas de Usuario (autenticadas)
 		authRoutes.GET(rotaUsuarioPorID, controladorUsuario.BuscarPorID)
