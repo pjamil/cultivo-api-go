@@ -2,17 +2,17 @@ build: swagger-gen
 	go build -o bin/cultivo-api ./cmd/cultivo-api-go
 
 test-up:
+	docker-compose -f docker-compose.test.yml down -v || true
 	docker-compose -f docker-compose.test.yml up -d
 
 test-down:
 	docker-compose -f docker-compose.test.yml down
 
 test: test-up
-	@echo "Waiting for test database to be healthy..."
-	@while [ "$(docker inspect -f '{{.State.Health.Status}}' cultivo-api-go-test-db)" != "healthy" ]; do sleep 1; done
-	@echo "Test database is healthy!"
+	./scripts/wait-for-healthy.sh cultivo-api-go-test-db
 	go test ./...
 	$(MAKE) test-down
+
 
 swagger-gen:
 	GO111MODULE=on swag init -g cmd/cultivo-api-go/main.go -parseDependency
