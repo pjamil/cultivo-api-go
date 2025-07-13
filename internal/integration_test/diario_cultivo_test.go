@@ -12,7 +12,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils/test_utils"
+	
+	test_utils "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils/test_utils"
 )
 
 func TestDiarioCultivoCRUD(t *testing.T) {
@@ -27,8 +28,20 @@ func TestDiarioCultivoCRUD(t *testing.T) {
 		Nome:      "Teste Diario",
 		Email:     fmt.Sprintf("teste_diario_%d@example.com", time.Now().UnixNano()),
 		SenhaHash: "senha_hash",
+		Preferencias: json.RawMessage("{}"),
 	}
 	assert.NoError(t, db.Create(&usuario).Error)
+
+	// Criar um ambiente para associar ao diário de cultivo
+	ambiente := models.Ambiente{
+		Nome:        "Ambiente Teste Diario",
+		Descricao:   "Descrição do ambiente",
+		Tipo:        "interno",
+		Comprimento: 10,
+		Altura:      10,
+		Largura:     10,
+	}
+	assert.NoError(t, db.Create(&ambiente).Error)
 
 	// Criar uma genética para associar à planta
 	genetica := models.Genetica{
@@ -42,7 +55,6 @@ func TestDiarioCultivoCRUD(t *testing.T) {
 
 	// Criar um meio de cultivo para associar à planta
 	meioCultivo := models.MeioCultivo{
-		Nome: "Solo Teste Diario",
 		Tipo: "solo",
 	}
 	assert.NoError(t, db.Create(&meioCultivo).Error)
@@ -51,24 +63,14 @@ func TestDiarioCultivoCRUD(t *testing.T) {
 	planta := models.Planta{
 		Nome:        "Planta Teste Diario",
 		Especie:     "Especie Teste",
-		DataPlantio: utils.TimePtr(time.Now()),
+		DataPlantio: test_utils.TimePtr(time.Now()),
 		Status:      "vegetativo",
 		UsuarioID:   usuario.ID,
 		GeneticaID:  genetica.ID, // Usar o ID da genética criada
 		MeioCultivoID: meioCultivo.ID, // Usar o ID do meio de cultivo criado
+		AmbienteID:  ambiente.ID, // Usar o ID do ambiente criado
 	}
 	assert.NoError(t, db.Create(&planta).Error)
-
-	// Criar um ambiente para associar ao diário de cultivo
-	ambiente := models.Ambiente{
-		Nome:        "Ambiente Teste Diario",
-		Descricao:   "Descrição do ambiente",
-		Tipo:        "interno",
-		Comprimento: 10,
-		Altura:      10,
-		Largura:     10,
-	}
-	assert.NoError(t, db.Create(&ambiente).Error)
 
 	// 1. Teste de Criação (POST /api/v1/diarios-cultivo)
 	createDto := dto.CreateDiarioCultivoDTO{
@@ -215,6 +217,7 @@ func TestDiarioCultivoUpdateNotFound(t *testing.T) {
 		Nome:      "Teste Update",
 		Email:     fmt.Sprintf("teste_update_%d@example.com", time.Now().UnixNano()),
 		SenhaHash: "senha_hash",
+		Preferencias: json.RawMessage("{}"),
 	}
 	assert.NoError(t, db.Create(&usuario).Error)
 
@@ -257,6 +260,7 @@ func TestDiarioCultivoDeleteNotFound(t *testing.T) {
 		Nome:      "Teste Delete",
 		Email:     fmt.Sprintf("teste_delete_%d@example.com", time.Now().UnixNano()),
 		SenhaHash: "senha_hash",
+		Preferencias: json.RawMessage("{}"),
 	}
 	assert.NoError(t, db.Create(&usuario).Error)
 
