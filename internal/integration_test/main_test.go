@@ -39,8 +39,13 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Failed to initialize test database: %v", err)
 	}
 
+	// Limpar o banco de dados antes de cada teste (após as migrações)
+	log.Println("Cleaning up test database...")
+	LimparBancoDeDados(testDB.DB)
+
 	// Executar migrações no banco de dados de teste
 	log.Println("Running migrations for test database...")
+	log.Printf("DB_USER: %s, DB_PASSWORD: %s, DB_HOST: %s, DB_PORT: %s, DB_NAME: %s", cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName)
 	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		cfg.DBUser,
 		cfg.DBPassword,
@@ -67,10 +72,6 @@ func TestMain(m *testing.M) {
 
 	// Rodar os testes
 	code := m.Run()
-
-	// Limpar o banco de dados de teste após os testes (opcional, mas recomendado)
-	log.Println("Cleaning up test database...")
-	LimparBancoDeDados(testDB.DB)
 
 	os.Exit(code)
 }
