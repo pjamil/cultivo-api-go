@@ -28,6 +28,9 @@ func (m *MockAmbienteService) Criar(ambienteDto *dto.CreateAmbienteDTO) (*models
 
 func (m *MockAmbienteService) ListarTodos(page, limit int) (*dto.PaginatedResponse, error) {
 	args := m.Called(page, limit)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).(*dto.PaginatedResponse), args.Error(1)
 }
 

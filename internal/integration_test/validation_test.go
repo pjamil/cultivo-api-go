@@ -24,7 +24,7 @@ func TestCreateWithInvalidData(t *testing.T) {
 		Nome:         "Invalid User",
 		Email:        "invalid-email", // Email inválido
 		Senha:        "password123",
-		Preferencias: "{}",
+		Preferencias: json.RawMessage("{}"),
 	}
 	jsonPayload, _ := json.Marshal(invalidUserPayload)
 
@@ -42,7 +42,7 @@ func TestCreateWithInvalidData(t *testing.T) {
 	invalidPlantaPayload := dto.CreatePlantaDTO{
 		Nome:        "", // Nome vazio
 		Especie:     "Cannabis Sativa",
-								DataPlantio: plantioTime,
+		DataPlantio: plantioTime,
 	}
 	jsonPayload, _ = json.Marshal(invalidPlantaPayload)
 
@@ -90,7 +90,7 @@ func TestUpdateWithInvalidData(t *testing.T) {
 		Nome:         "Valid User",
 		Email:        "valid@example.com",
 		SenhaHash:    hashedPassword,
-		Preferencias: "{}",
+		Preferencias: json.RawMessage("{}"),
 	}
 	err = db.Create(&validUser).Error
 	assert.NoError(t, err)
@@ -115,7 +115,7 @@ func TestUpdateWithInvalidData(t *testing.T) {
 	planta := models.Planta{
 		Nome:        "Planta Original",
 		Especie:     "Especie Teste",
-				DataPlantio: tu.TimePtr(time.Now()),
+		DataPlantio: tu.TimePtr(time.Now()),
 		Status:      "vegetativo",
 		UsuarioID:   validUser.ID,
 	}

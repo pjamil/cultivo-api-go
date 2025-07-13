@@ -1,7 +1,6 @@
 package service_test
 
 import (
-	"encoding/json"
 	"errors"
 	"testing"
 
@@ -47,7 +46,7 @@ func TestMeioCultivoService_Criar(t *testing.T) {
 	service := service.NewMeioCultivoService(mockRepo)
 
 	t.Run("Success", func(t *testing.T) {
-				createDTO := &dto.CreateMeioCultivoDTO{Tipo: "Solo", Descricao: "Solo orgânico"}
+		createDTO := &dto.CreateMeioCultivoDTO{Tipo: "Solo", Descricao: "Solo orgânico"}
 		expectedResponse := &dto.MeioCultivoResponseDTO{ID: 1, Tipo: "Solo", Descricao: "Solo orgânico"}
 
 		mockRepo.On("Criar", mock.AnythingOfType("*models.MeioCultivo")).Run(func(args mock.Arguments) {
@@ -83,32 +82,32 @@ func TestMeioCultivoService_ListarTodos(t *testing.T) {
 	service := service.NewMeioCultivoService(mockRepo)
 
 	t.Run("Success - Meios de Cultivo Encontrados", func(t *testing.T) {
-		expectedMeiosCultivo := []models.MeioCultivo{
-			{Tipo: "Solo"},
-			{Tipo: "Hidroponia"},
+		// Arrange
+		mockMeiosCultivo := []models.MeioCultivo{
+			{Model: gorm.Model{ID: 1}, Tipo: "Solo", Descricao: "Solo Orgânico"},
+			{Model: gorm.Model{ID: 2}, Tipo: "Hidroponia", Descricao: "Sistema NFT"},
 		}
-		for i := range expectedMeiosCultivo {
-			expectedMeiosCultivo[i].ID = uint(i + 1)
-		}
-		expectedTotal := int64(len(expectedMeiosCultivo))
+		expectedTotal := int64(len(mockMeiosCultivo))
 		page := 1
 		limit := 10
 
-		mockRepo.On("ListarTodos", page, limit).Return(expectedMeiosCultivo, expectedTotal, nil).Once()
+		expectedResponseData := []dto.MeioCultivoResponseDTO{
+			{ID: 1, Tipo: "Solo", Descricao: "Solo Orgânico"},
+			{ID: 2, Tipo: "Hidroponia", Descricao: "Sistema NFT"},
+		}
 
+		mockRepo.On("ListarTodos", page, limit).Return(mockMeiosCultivo, expectedTotal, nil).Once()
+
+		// Act
 		response, err := service.ListarTodos(page, limit)
 
+		// Assert
 		assert.NoError(t, err)
 		assert.NotNil(t, response)
 		assert.Equal(t, expectedTotal, response.Total)
 		assert.Equal(t, page, response.Page)
 		assert.Equal(t, limit, response.Limit)
-
-		actualMeiosCultivoBytes, _ := json.Marshal(response.Data)
-		var actualMeiosCultivo []models.MeioCultivo
-		json.Unmarshal(actualMeiosCultivoBytes, &actualMeiosCultivo)
-
-		assert.Equal(t, expectedMeiosCultivo, actualMeiosCultivo)
+		assert.Equal(t, expectedResponseData, response.Data)
 		mockRepo.AssertExpectations(t)
 	})
 

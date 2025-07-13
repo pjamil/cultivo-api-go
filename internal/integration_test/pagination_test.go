@@ -48,10 +48,20 @@ func TestListagemComPaginacaoPadrao(t *testing.T) {
 
 	// Criar um meio de cultivo para associar às plantas
 	meioCultivo := models.MeioCultivo{
-		Nome: "Solo Paginacao",
 		Tipo: "solo",
 	}
 	assert.NoError(t, db.Create(&meioCultivo).Error)
+
+	// Criar um ambiente para associar às plantas
+	ambiente := models.Ambiente{
+		Nome:        "Ambiente Paginacao",
+		Descricao:   "Descrição do ambiente de paginação",
+		Tipo:        "interno",
+		Comprimento: 10,
+		Altura:      10,
+		Largura:     10,
+	}
+	assert.NoError(t, db.Create(&ambiente).Error)
 
 	// Criar 25 plantas para testar a paginação
 	for i := 1; i <= 25; i++ {
@@ -63,6 +73,7 @@ func TestListagemComPaginacaoPadrao(t *testing.T) {
 			UsuarioID:   user.ID,
 			GeneticaID:  genetica.ID, // Usar o ID da genética criada
 			MeioCultivoID: meioCultivo.ID, // Usar o ID do meio de cultivo criado
+			AmbienteID:  ambiente.ID, // Usar o ID do ambiente criado
 		}
 		err = db.Create(&planta).Error
 		assert.NoError(t, err)
@@ -134,10 +145,20 @@ func TestListagemComPaginacaoCustomizada(t *testing.T) {
 
 	// Criar um meio de cultivo para associar às plantas
 	meioCultivo := models.MeioCultivo{
-		Nome: "Solo Paginacao Custom",
 		Tipo: "coco",
 	}
 	assert.NoError(t, db.Create(&meioCultivo).Error)
+
+	// Criar um ambiente para associar às plantas
+	ambiente := models.Ambiente{
+		Nome:        "Ambiente Paginacao Custom",
+		Descricao:   "Descrição do ambiente de paginação customizada",
+		Tipo:        "externo",
+		Comprimento: 20,
+		Altura:      15,
+		Largura:     12,
+	}
+	assert.NoError(t, db.Create(&ambiente).Error)
 
 	// Criar 25 plantas para testar a paginação
 	for i := 1; i <= 25; i++ {
@@ -149,6 +170,7 @@ func TestListagemComPaginacaoCustomizada(t *testing.T) {
 			UsuarioID:   user.ID,
 			GeneticaID:  genetica.ID, // Usar o ID da genética criada
 			MeioCultivoID: meioCultivo.ID, // Usar o ID do meio de cultivo criado
+			AmbienteID:  ambiente.ID, // Usar o ID do ambiente criado
 		}
 		err = db.Create(&planta).Error
 		assert.NoError(t, err)

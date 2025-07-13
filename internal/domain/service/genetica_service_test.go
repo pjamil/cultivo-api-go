@@ -1,7 +1,6 @@
 package service_test
 
 import (
-	"encoding/json"
 	"errors"
 	"testing"
 
@@ -83,32 +82,32 @@ func TestGeneticaService_ListarTodas(t *testing.T) {
 	service := service.NewGeneticaService(mockRepo)
 
 	t.Run("Success - Geneticas Encontradas", func(t *testing.T) {
-		expectedGeneticas := []models.Genetica{
-			{Nome: "Genetica 1"},
-			{Nome: "Genetica 2"},
+		// Arrange
+		mockGeneticas := []models.Genetica{
+			{Model: gorm.Model{ID: 1}, Nome: "Genetica 1", TipoGenetica: "indica", TipoEspecie: "sativa", Origem: "Brasil"},
+			{Model: gorm.Model{ID: 2}, Nome: "Genetica 2", TipoGenetica: "sativa", TipoEspecie: "indica", Origem: "Afeganistão"},
 		}
-		for i := range expectedGeneticas {
-			expectedGeneticas[i].ID = uint(i + 1)
-		}
-		expectedTotal := int64(len(expectedGeneticas))
+		expectedTotal := int64(len(mockGeneticas))
 		page := 1
 		limit := 10
 
-		mockRepo.On("ListarTodos", page, limit).Return(expectedGeneticas, expectedTotal, nil).Once()
+		expectedResponseData := []dto.GeneticaResponseDTO{
+			{ID: 1, Nome: "Genetica 1", TipoGenetica: "indica", TipoEspecie: "sativa", Origem: "Brasil"},
+			{ID: 2, Nome: "Genetica 2", TipoGenetica: "sativa", TipoEspecie: "indica", Origem: "Afeganistão"},
+		}
 
+		mockRepo.On("ListarTodos", page, limit).Return(mockGeneticas, expectedTotal, nil).Once()
+
+		// Act
 		response, err := service.ListarTodas(page, limit)
 
+		// Assert
 		assert.NoError(t, err)
 		assert.NotNil(t, response)
 		assert.Equal(t, expectedTotal, response.Total)
 		assert.Equal(t, page, response.Page)
 		assert.Equal(t, limit, response.Limit)
-
-		actualGeneticasBytes, _ := json.Marshal(response.Data)
-		var actualGeneticas []models.Genetica
-		json.Unmarshal(actualGeneticasBytes, &actualGeneticas)
-
-		assert.Equal(t, expectedGeneticas, actualGeneticas)
+		assert.Equal(t, expectedResponseData, response.Data)
 		mockRepo.AssertExpectations(t)
 	})
 
