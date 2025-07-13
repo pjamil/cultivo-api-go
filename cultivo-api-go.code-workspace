@@ -1,13 +1,20 @@
 {
 	"folders": [
 		{
+			"name": "cultivo-api-go",
 			"path": "."
 		},
 		{
-			"path": "../cultivo-api-go.wiki"
+			"name": "cultivo-web",
+			"path": "../cultivo-web"
 		},
 		{
+			"name": "docs",
 			"path": "../docs"
+		},
+		{
+			"name": "cultivo-api-go.wiki",
+			"path": "../cultivo-api-go.wiki"
 		}
 	],
 	"settings": {
