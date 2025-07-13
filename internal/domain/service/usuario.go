@@ -97,7 +97,7 @@ func (s *usuarioService) Atualizar(id uint, usuarioDto *dto.UsuarioUpdateDTO) (*
 	if usuarioDto.Nome != "" {
 		usuario.Nome = usuarioDto.Nome
 	}
-	if usuarioDto.Preferencias != "" {
+	if len(usuarioDto.Preferencias) > 0 {
 		usuario.Preferencias = usuarioDto.Preferencias
 	}
 	if err := s.repositorio.Atualizar(usuario); err != nil {

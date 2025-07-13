@@ -59,7 +59,7 @@ func NewServer(db *db_infra.Database) *Server {
 	controladorDiarioCultivo := controller.NewDiarioCultivoController(diarioCultivoService)
 
 	// Health check routes
-	healthController := controller.NewHealthController()
+	healthController := controller.NewHealthController(db.DB)
 	router.GET("/health", healthController.VerificarSaude)
 	router.GET("/health/ready", healthController.VerificarProntidao)
 	router.GET("/health/live", healthController.VerificarVitalidade)

@@ -44,17 +44,17 @@ func (ctrl *GeneticaController) Criar(c *gin.Context) {
 			for _, fe := range ve {
 				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
-			utils.RespondWithError(c, http.StatusBadRequest, errMsgs)
+			utils.RespondWithError(c, http.StatusBadRequest, "Erro de validação", errMsgs)
 			return
 		}
-		utils.RespondWithError(c, http.StatusBadRequest, err.Error())
+		utils.RespondWithError(c, http.StatusBadRequest, "Requisição inválida", err.Error())
 		return
 	}
 
 	geneticaCriada, err := ctrl.servico.Criar(&dto)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao criar genética")
-		utils.RespondWithError(c, http.StatusInternalServerError, "Erro ao criar genética")
+		utils.RespondWithError(c, http.StatusInternalServerError, "Erro interno ao criar genética", nil)
 		return
 	}
 
@@ -82,17 +82,17 @@ func (c *GeneticaController) Listar(ctx *gin.Context) {
 			for _, fe := range ve {
 				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
-			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			utils.RespondWithError(ctx, http.StatusBadRequest, "Erro de validação", errMsgs)
 			return
 		}
-		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
+		utils.RespondWithError(ctx, http.StatusBadRequest, "Requisição inválida", err.Error())
 		return
 	}
 
 	paginatedResponse, err := c.servico.ListarTodas(pagination.Page, pagination.Limit)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao listar genéticas com paginação")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao listar genéticas", err.Error())
 		return
 	}
 
@@ -115,18 +115,18 @@ func (c *GeneticaController) BuscarPorID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
 		logrus.WithError(err).Error("ID inválido para buscar genética por ID")
-		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido")
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", nil)
 		return
 	}
 	genetics, err := c.servico.BuscarPorID(uint(id))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Genética não encontrada ao buscar por ID")
-		utils.RespondWithError(ctx, http.StatusNotFound, "Genética não encontrada")
+		utils.RespondWithError(ctx, http.StatusNotFound, "Genética não encontrada", nil)
 		return
 	}
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao buscar genética por ID")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro ao buscar genética")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao buscar genética", nil)
 		return
 	}
 	utils.RespondWithJSON(ctx, http.StatusOK, genetics)
@@ -149,7 +149,7 @@ func (c *GeneticaController) Atualizar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
 		logrus.WithError(err).Error("ID inválido para atualização de genética")
-		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido")
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", nil)
 		return
 	}
 
@@ -162,22 +162,22 @@ func (c *GeneticaController) Atualizar(ctx *gin.Context) {
 			for _, fe := range ve {
 				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
-			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			utils.RespondWithError(ctx, http.StatusBadRequest, "Erro de validação", errMsgs)
 			return
 		}
-		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
+		utils.RespondWithError(ctx, http.StatusBadRequest, "Requisição inválida", err.Error())
 		return
 	}
 
 	geneticaAtualizada, err := c.servico.Atualizar(uint(id), &updateDto)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Genética não encontrada para atualização")
-		utils.RespondWithError(ctx, http.StatusNotFound, "Genética não encontrada")
+		utils.RespondWithError(ctx, http.StatusNotFound, "Genética não encontrada", nil)
 		return
 	}
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao atualizar genética")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro ao atualizar genética")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao atualizar genética", nil)
 		return
 	}
 
@@ -200,12 +200,12 @@ func (c *GeneticaController) Deletar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
 		logrus.WithError(err).Error("ID inválido para deletar genética")
-		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido")
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", nil)
 		return
 	}
 	if err := c.servico.Deletar(uint(id)); err != nil {
 		logrus.WithError(err).Error("Erro ao deletar genética")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro ao deletar genética")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao deletar genética", nil)
 		return
 	}
 	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Genética deletada com sucesso"})

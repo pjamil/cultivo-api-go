@@ -14,7 +14,7 @@ func ErrorHandlerMiddleware() gin.HandlerFunc {
 		defer func() {
 			if r := recover(); r != nil {
 				logrus.Errorf("Panic recuperado: %v", r)
-				utils.RespondWithError(c, http.StatusInternalServerError, "Ocorreu um erro interno no servidor.")
+				utils.RespondWithError(c, http.StatusInternalServerError, utils.ErrInternalServer.Error(), nil)
 				c.AbortWithStatus(http.StatusInternalServerError)
 			}
 		}()
@@ -27,7 +27,7 @@ func ErrorHandlerMiddleware() gin.HandlerFunc {
 			}
 			// Se a resposta já foi escrita, não tente escrever novamente
 			if !c.IsAborted() {
-				utils.RespondWithError(c, http.StatusInternalServerError, "Ocorreu um erro interno no servidor.")
+				utils.RespondWithError(c, http.StatusInternalServerError, utils.ErrInternalServer.Error(), nil)
 				c.AbortWithStatus(http.StatusInternalServerError)
 			}
 		}

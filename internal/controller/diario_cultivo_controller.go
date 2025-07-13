@@ -42,16 +42,16 @@ func (c *DiarioCultivoController) Create(ctx *gin.Context) {
 			for _, fe := range ve {
 				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
-			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			utils.RespondWithError(ctx, http.StatusBadRequest, "Erro de validação", errMsgs)
 			return
 		}
-		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
+		utils.RespondWithError(ctx, http.StatusBadRequest, "Requisição inválida", utils.ErrInvalidInput.Error())
 		return
 	}
 
 	if diarioCultivoCriado, err := c.diarioCultivoServico.Create(&createDto); err != nil {
 		logrus.WithError(err).Error("Erro ao criar diário de cultivo")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao criar diário de cultivo", err.Error())
 		return
 	} else {
 		utils.RespondWithJSON(ctx, http.StatusCreated, diarioCultivoCriado)
@@ -80,17 +80,17 @@ func (c *DiarioCultivoController) List(ctx *gin.Context) {
 			for _, fe := range ve {
 				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
-			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			utils.RespondWithError(ctx, http.StatusBadRequest, "Erro de validação", errMsgs)
 			return
 		}
-		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
+		utils.RespondWithError(ctx, http.StatusBadRequest, "Requisição inválida", utils.ErrInvalidInput.Error())
 		return
 	}
 
 	paginatedResponse, err := c.diarioCultivoServico.GetAll(pagination.Page, pagination.Limit)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao listar diários de cultivo com paginação")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao listar diários de cultivo", err.Error())
 		return
 	}
 
@@ -116,14 +116,14 @@ func (c *DiarioCultivoController) GetByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao converter ID do diário de cultivo")
-		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", utils.ErrInvalidInput.Error())
 		return
 	}
 
 	diarioCultivo, err := c.diarioCultivoServico.GetByID(uint(id))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Diário de cultivo não encontrado ao buscar por ID")
-		utils.RespondWithError(ctx, http.StatusNotFound, utils.ErrNotFound.Error())
+		utils.RespondWithError(ctx, http.StatusNotFound, "Diário de cultivo não encontrado", utils.ErrNotFound.Error())
 		return
 	}
 	utils.RespondWithJSON(ctx, http.StatusOK, diarioCultivo)
@@ -146,20 +146,20 @@ func (c *DiarioCultivoController) Update(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao converter ID do diário de cultivo para atualização")
-		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", utils.ErrInvalidInput.Error())
 		return
 	}
 	var updateDto dto.UpdateDiarioCultivoDTO
 	if err := ctx.ShouldBindJSON(&updateDto); err != nil {
 		logrus.WithError(err).Error("Payload da requisição inválido para atualização de diário de cultivo")
-		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
+		utils.RespondWithError(ctx, http.StatusBadRequest, "Requisição inválida", utils.ErrInvalidInput.Error())
 		return
 	}
 
 	diarioCultivoAtualizado, err := c.diarioCultivoServico.Update(uint(id), &updateDto)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Diário de cultivo não encontrado para atualização")
-		ctx.JSON(http.StatusNotFound, gin.H{"error": utils.ErrNotFound.Error()})
+		utils.RespondWithError(ctx, http.StatusNotFound, "Diário de cultivo não encontrado", utils.ErrNotFound.Error())
 		return
 	}
 	if err != nil {
@@ -168,7 +168,7 @@ func (c *DiarioCultivoController) Update(ctx *gin.Context) {
 			"diario_cultivo_id":  id,
 			"error":     err,
 		}).Error("Erro ao atualizar diário de cultivo")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao atualizar diário de cultivo", err.Error())
 		return
 	}
 
@@ -190,17 +190,17 @@ func (c *DiarioCultivoController) Delete(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao converter ID do diário de cultivo para deleção")
-		utils.RespondWithError(ctx, http.StatusBadRequest, utils.ErrInvalidInput.Error())
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", utils.ErrInvalidInput.Error())
 		return
 	}
 	if err := c.diarioCultivoServico.Delete(uint(id)); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logrus.WithError(err).Error("Diário de cultivo não encontrado para deleção")
-			utils.RespondWithError(ctx, http.StatusNotFound, utils.ErrNotFound.Error())
+			utils.RespondWithError(ctx, http.StatusNotFound, "Diário de cultivo não encontrado", utils.ErrNotFound.Error())
 			return
 		}
 		logrus.WithError(err).Error("Erro ao deletar diário de cultivo")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao deletar diário de cultivo", err.Error())
 		return
 	}
 	logrus.WithFields(logrus.Fields{

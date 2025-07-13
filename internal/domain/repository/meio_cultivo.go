@@ -17,18 +17,6 @@ type MeioCultivoRepositorio interface {
 	Deletar(id uint) error
 }
 
-// Implementação do repositório
-func (r *meioCultivoRepositorio) Deletar(id uint) error {
-	result := r.db.Delete(&models.MeioCultivo{}, id)
-	if result.Error != nil {
-		return result.Error
-	}
-	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
-	}
-	return nil
-}
-
 type meioCultivoRepositorio struct {
 	db *gorm.DB
 }
@@ -75,4 +63,16 @@ func (r *meioCultivoRepositorio) BuscarPorID(id uint) (*models.MeioCultivo, erro
 
 func (r *meioCultivoRepositorio) Atualizar(meioCultivo *models.MeioCultivo) error {
 	return r.db.Save(meioCultivo).Error
+}
+
+// Deletar remove um registro de MeioCultivo do banco de dados.
+func (r *meioCultivoRepositorio) Deletar(id uint) error {
+	result := r.db.Delete(&models.MeioCultivo{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }

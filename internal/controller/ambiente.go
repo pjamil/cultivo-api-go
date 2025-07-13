@@ -45,10 +45,10 @@ func (c *AmbienteController) Criar(ctx *gin.Context) {
 			for _, fe := range ve {
 				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
-			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			utils.RespondWithError(ctx, http.StatusBadRequest, "Erro de validação", errMsgs)
 			return
 		}
-		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
+		utils.RespondWithError(ctx, http.StatusBadRequest, "Requisição inválida", err.Error())
 		return
 	}
 	ambiente, err := c.servico.Criar(&dto)
@@ -57,7 +57,7 @@ func (c *AmbienteController) Criar(ctx *gin.Context) {
 			"operation": "create_ambiente",
 			"error":     err,
 		}).Error("Erro ao criar ambiente")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro ao criar ambiente")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao criar ambiente", nil)
 		return
 	}
 	utils.RespondWithJSON(ctx, http.StatusCreated, ambiente)
@@ -84,17 +84,17 @@ func (c *AmbienteController) Listar(ctx *gin.Context) {
 			for _, fe := range ve {
 				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
-			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			utils.RespondWithError(ctx, http.StatusBadRequest, "Erro de validação", errMsgs)
 			return
 		}
-		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
+		utils.RespondWithError(ctx, http.StatusBadRequest, "Requisição inválida", err.Error())
 		return
 	}
 
 	paginatedResponse, err := c.servico.ListarTodos(pagination.Page, pagination.Limit)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao listar ambientes com paginação")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, err.Error())
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao listar ambientes", err.Error())
 		return
 	}
 
@@ -117,18 +117,18 @@ func (c *AmbienteController) BuscarPorID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
 		logrus.WithError(err).Error("ID inválido para buscar ambiente por ID")
-		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido")
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", nil)
 		return
 	}
 	ambiente, err := c.servico.BuscarPorID(uint(id))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Ambiente não encontrado ao buscar por ID")
-		utils.RespondWithError(ctx, http.StatusNotFound, "Ambiente não encontrado")
+		utils.RespondWithError(ctx, http.StatusNotFound, "Ambiente não encontrado", nil)
 		return
 	}
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao buscar ambiente por ID")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro ao buscar ambiente")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao buscar ambiente", nil)
 		return
 	}
 
@@ -152,7 +152,7 @@ func (c *AmbienteController) Atualizar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
 		logrus.WithError(err).Error("ID inválido para atualização de ambiente")
-		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido")
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", nil)
 		return
 	}
 
@@ -165,22 +165,22 @@ func (c *AmbienteController) Atualizar(ctx *gin.Context) {
 			for _, fe := range ve {
 				errMsgs[fe.Field()] = utils.GetErrorMsg(fe)
 			}
-			utils.RespondWithError(ctx, http.StatusBadRequest, errMsgs)
+			utils.RespondWithError(ctx, http.StatusBadRequest, "Erro de validação", errMsgs)
 			return
 		}
-		utils.RespondWithError(ctx, http.StatusBadRequest, err.Error())
+		utils.RespondWithError(ctx, http.StatusBadRequest, "Requisição inválida", err.Error())
 		return
 	}
 
 	ambienteAtualizado, err := c.servico.Atualizar(uint(id), &updateDto)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Ambiente não encontrado para atualização")
-		utils.RespondWithError(ctx, http.StatusNotFound, "Ambiente não encontrado")
+		utils.RespondWithError(ctx, http.StatusNotFound, "Ambiente não encontrado", nil)
 		return
 	}
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao atualizar ambiente")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro ao atualizar ambiente")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao atualizar ambiente", nil)
 		return
 	}
 
@@ -203,17 +203,17 @@ func (c *AmbienteController) Deletar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
 		logrus.WithError(err).Error("ID inválido para deletar ambiente")
-		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido")
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", nil)
 		return
 	}
 	if err := c.servico.Deletar(uint(id)); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logrus.WithError(err).Error("Ambiente não encontrado para deleção")
-			utils.RespondWithError(ctx, http.StatusNotFound, "Ambiente não encontrado")
+			utils.RespondWithError(ctx, http.StatusNotFound, "Ambiente não encontrado", nil)
 			return
 		}
 		logrus.WithError(err).Error("Erro ao deletar ambiente")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro ao deletar ambiente")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao deletar ambiente", nil)
 		return
 	}
 	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Ambiente deletado com sucesso"})
