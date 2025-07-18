@@ -73,7 +73,7 @@ func (s *ambienteService) ListarTodos(page, limit int) ([]dto.AmbienteResponseDT
 
 func (s *ambienteService) BuscarPorID(id uint) (*entity.Ambiente, error) {
 	if id == 0 {
-		return nil, gorm.ErrInvalidValue
+		return nil, utils.ErrInvalidInput
 	}
 
 	return s.repositorio.BuscarPorID(id)

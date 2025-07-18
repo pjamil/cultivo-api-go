@@ -81,7 +81,7 @@ func (s *geneticaService) ListarTodas(page, limit int) ([]dto.GeneticaResponseDT
 
 func (s *geneticaService) BuscarPorID(id uint) (*dto.GeneticaResponseDTO, error) {
 	if id == 0 {
-		return nil, gorm.ErrInvalidValue
+		return nil, utils.ErrInvalidInput
 	}
 
 	genetica, err := s.repositorio.BuscarPorID(id)

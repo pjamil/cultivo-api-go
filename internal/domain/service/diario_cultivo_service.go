@@ -13,7 +13,7 @@ var (
 type DiarioCultivoService interface {
 	CreateDiario(input dto.CreateDiarioCultivoDTO) (*dto.DiarioCultivoResponseDTO, error)
 	GetDiarioByID(id uint) (*dto.DiarioCultivoResponseDTO, error)
-	GetAllDiarios(page, limit int) (*dto.PaginatedResponse, error)
+	GetAllDiarios(page, limit int) ([]dto.DiarioCultivoResponseDTO, int64, error)
 	UpdateDiario(id uint, input dto.UpdateDiarioCultivoDTO) (*dto.DiarioCultivoResponseDTO, error)
 	DeleteDiario(id uint) error
 }

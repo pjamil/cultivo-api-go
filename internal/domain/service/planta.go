@@ -122,7 +122,7 @@ func (s *plantaService) BuscarPorID(id uint) (*dto.PlantaResponseDTO, error) {
 	planta, err := s.repositorio.BuscarPorID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, gorm.ErrRecordNotFound
+			return nil, utils.ErrNotFound
 		}
 		return nil, fmt.Errorf("falha ao obter planta com ID %d: %w", id, err)
 	}
@@ -222,7 +222,7 @@ func (s *plantaService) Atualizar(id uint, plantaDto *dto.UpdatePlantaDTO) (*dto
 	if plantaDto.GeneticaID != 0 {
 		if _, err := s.geneticaRepositorio.BuscarPorID(plantaDto.GeneticaID); err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return nil, errors.New("genética não encontrada")
+				return nil, utils.ErrNotFound
 			}
 			return nil, fmt.Errorf("falha ao buscar genética com ID %d: %w", plantaDto.GeneticaID, err)
 		}
@@ -230,7 +230,7 @@ func (s *plantaService) Atualizar(id uint, plantaDto *dto.UpdatePlantaDTO) (*dto
 	if plantaDto.AmbienteID != 0 {
 		if _, err := s.ambienteRepositorio.BuscarPorID(plantaDto.AmbienteID); err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return nil, errors.New("ambiente não encontrado")
+				return nil, utils.ErrNotFound
 			}
 			return nil, fmt.Errorf("falha ao buscar ambiente com ID %d: %w", plantaDto.AmbienteID, err)
 		}
@@ -238,7 +238,7 @@ func (s *plantaService) Atualizar(id uint, plantaDto *dto.UpdatePlantaDTO) (*dto
 	if plantaDto.MeioCultivoID != 0 {
 		if _, err := s.meioRepositorio.BuscarPorID(plantaDto.MeioCultivoID); err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return nil, errors.New("meio de cultivo não encontrado")
+				return nil, utils.ErrNotFound
 			}
 			return nil, fmt.Errorf("falha ao buscar meio de cultivo com ID %d: %w", plantaDto.MeioCultivoID, err)
 		}
@@ -269,7 +269,7 @@ func (s *plantaService) Atualizar(id uint, plantaDto *dto.UpdatePlantaDTO) (*dto
 func (s *plantaService) Deletar(id uint) error {
 	if _, err := s.repositorio.BuscarPorID(id); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("planta não encontrada")
+			return utils.ErrNotFound
 		}
 	}
 	return s.repositorio.Deletar(id)

@@ -1,8 +1,8 @@
 package service
 
 import (
-	"log"
-	"encoding/json"
+	"errors"
+	"fmt"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
@@ -69,13 +69,13 @@ func (s *diarioCultivoService) GetDiarioByID(id uint) (*dto.DiarioCultivoRespons
 	}, nil
 }
 
-func (s *diarioCultivoService) GetAllDiarios(page, limit int) (*dto.PaginatedResponse, error) {
+func (s *diarioCultivoService) GetAllDiarios(page, limit int) ([]dto.DiarioCultivoResponseDTO, int64, error) {
 	diariosCultivo, total, err := s.repo.GetAll(page, limit)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	responseDTOs := make([]interface{}, len(diariosCultivo))
+	responseDTOs := make([]dto.DiarioCultivoResponseDTO, len(diariosCultivo))
 	for i, diario := range diariosCultivo {
 		responseDTOs[i] = dto.DiarioCultivoResponseDTO{
 			ID:          diario.ID,
@@ -90,21 +90,11 @@ func (s *diarioCultivoService) GetAllDiarios(page, limit int) (*dto.PaginatedRes
 		}
 	}
 
-	jsonResponse, err := json.Marshal(responseDTOs)
-	if err != nil {
-		return nil, err
-	}
-
-	return &dto.PaginatedResponse{
-		Data:  json.RawMessage(jsonResponse),
-		Total: total,
-		Page:  page,
-		Limit: limit,
-	}, nil
+	return responseDTOs, total, nil
 }
 
 func (s *diarioCultivoService) UpdateDiario(id uint, input dto.UpdateDiarioCultivoDTO) (*dto.DiarioCultivoResponseDTO, error) {
-	log.Printf("DiarioCultivoService.Update called with ID: %d", id)
+	
 	diarioCultivo, err := s.repo.GetByID(id)
 	if err != nil {
 		return nil, err

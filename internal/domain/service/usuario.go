@@ -52,7 +52,7 @@ func (s *usuarioService) Criar(usuarioDto *dto.UsuarioCreateDTO) (*dto.UsuarioRe
 func (s *usuarioService) BuscarPorID(id uint) (*dto.UsuarioResponseDTO, error) {
 	usuario, err := s.repositorio.BuscarPorID(id)
 	if err != nil {
-		return nil, err
+		return nil, utils.ErrNotFound
 	}
 	return &dto.UsuarioResponseDTO{
 		ID:           usuario.ID,

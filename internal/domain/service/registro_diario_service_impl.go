@@ -30,7 +30,7 @@ func (s *registroDiarioService) CriarRegistro(diarioID uint, registroDTO *dto.Cr
 	_, err := s.diarioRepo.GetByID(diarioID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, gorm.ErrRecordNotFound
+			return nil, utils.ErrNotFound
 		}
 		return nil, fmt.Errorf("falha ao verificar diário de cultivo: %w", err)
 	}

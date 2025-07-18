@@ -66,7 +66,7 @@ func (s *meioCultivoService) ListarTodos(page, limit int) ([]dto.MeioCultivoResp
 
 func (s *meioCultivoService) BuscarPorID(id uint) (*dto.MeioCultivoResponseDTO, error) {
 	if id == 0 {
-		return nil, gorm.ErrInvalidValue
+		return nil, utils.ErrInvalidInput
 	}
 	meioCultivo, err := s.repositorio.BuscarPorID(id)
 	if err != nil {
