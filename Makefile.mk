@@ -22,7 +22,7 @@ migrate-create:
 	migrate create -ext sql -dir internal/infrastructure/database/migrations -seq $name
 
 migrate-up:
-	migrate -path internal/infrastructure/database/migrations -database "postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable" -verbose up
+	migrate -path internal/infrastructure/database/migrations -database "postgres://postgres:$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable" -verbose up
 
 migrate-up-test:
 	migrate -path internal/infrastructure/database/migrations -database "postgres://$(DB_USER_TEST):$(DB_PASSWORD_TEST)@$(DB_HOST_TEST):$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable" -verbose up

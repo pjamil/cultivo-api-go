@@ -8,10 +8,13 @@ test-up:
 test-down:
 	docker-compose -f docker-compose.test.yml down
 
-test: test-up
+test:
+	docker-compose -f docker-compose.test.yml down -v --remove-orphans
+	docker volume rm cultivo-api-go_test_db_data || true
+	docker-compose -f docker-compose.test.yml up -d
 	./scripts/wait-for-healthy.sh cultivo-api-go-test-db
 	go test ./...
-	$(MAKE) test-down
+
 
 
 swagger-gen:
@@ -22,7 +25,7 @@ migrate-create:
 	migrate create -ext sql -dir internal/infrastructure/database/migrations -seq $name
 
 migrate-up:
-	migrate -path internal/infrastructure/database/migrations -database "postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable" -verbose up
+	migrate -path internal/infrastructure/database/migrations -database "postgres://postgres:$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable" -verbose up
 
 migrate-up-test:
 	migrate -path internal/infrastructure/database/migrations -database "postgres://$(DB_USER_TEST):$(DB_PASSWORD_TEST)@$(DB_HOST_TEST):$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable" -verbose up
