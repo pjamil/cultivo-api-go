@@ -124,7 +124,7 @@ func TestDiarioCultivoService_BuscarPorID(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, responseDTO)
-		assert.Equal(t, gorm.ErrRecordNotFound, err)
+		assert.Equal(t, service.ErrDiarioNotFound, err)
 		mockRepo.AssertExpectations(t)
 	})
 }
@@ -141,15 +141,11 @@ func TestDiarioCultivoService_ListarTodos(t *testing.T) {
 
 	mockRepo.On("GetAll", 1, 10).Return(diarios, total, nil).Once()
 
-	paginatedResponse, err := diarioService.GetAllDiarios(1, 10)
+	actualDiarios, actualTotal, err := diarioService.GetAllDiarios(1, 10)
 
 	assert.NoError(t, err)
-	assert.NotNil(t, paginatedResponse)
-	assert.Equal(t, total, paginatedResponse.Total)
-
-	var actualDiarios []entity.DiarioCultivo
-	err = json.Unmarshal(paginatedResponse.Data, &actualDiarios)
-	assert.NoError(t, err)
+	assert.NotNil(t, actualDiarios)
+	assert.Equal(t, total, actualTotal)
 	assert.Equal(t, diarios, actualDiarios)
 	mockRepo.AssertExpectations(t)
 }
@@ -180,7 +176,7 @@ func TestDiarioCultivoService_Atualizar(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 
-	t.Run("não encontrado", func(t *testing.T) {
+		t.Run("não encontrado", func(t *testing.T) {
 		mockRepo.On("GetByID", uint(2)).Return(nil, gorm.ErrRecordNotFound).Once()
 
 		t.Logf("Calling diarioService.Update with ID: %d", 2)
@@ -188,7 +184,7 @@ func TestDiarioCultivoService_Atualizar(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, responseDTO)
-		assert.Equal(t, gorm.ErrRecordNotFound, err)
+		assert.Equal(t, service.ErrDiarioNotFound, err)
 		mockRepo.AssertExpectations(t)
 	})
 }

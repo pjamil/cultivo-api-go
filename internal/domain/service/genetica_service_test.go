@@ -169,7 +169,7 @@ func TestGeneticaService_BuscarPorID(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
-		assert.Equal(t, gorm.ErrRecordNotFound, err)
+		assert.Equal(t, utils.ErrNotFound, err)
 		mockRepo.AssertExpectations(t)
 	})
 
@@ -223,7 +223,7 @@ func TestGeneticaService_Atualizar(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
-		assert.Equal(t, gorm.ErrRecordNotFound, err)
+		assert.Equal(t, utils.ErrNotFound, err)
 		mockRepo.AssertExpectations(t)
 	})
 
@@ -267,7 +267,7 @@ func TestGeneticaService_Deletar(t *testing.T) {
 		err := service.Deletar(geneticaID)
 
 		assert.Error(t, err)
-		assert.Equal(t, gorm.ErrRecordNotFound, err)
+		assert.Equal(t, utils.ErrNotFound, err)
 		mockRepo.AssertExpectations(t)
 	})
 

@@ -169,7 +169,7 @@ func TestMeioCultivoService_BuscarPorID(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
-		assert.Equal(t, gorm.ErrRecordNotFound, err)
+		assert.Equal(t, service.ErrNotFound, err)
 		mockRepo.AssertExpectations(t)
 	})
 
@@ -223,7 +223,7 @@ func TestMeioCultivoService_Atualizar(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
-		assert.Equal(t, gorm.ErrRecordNotFound, err)
+		assert.Equal(t, service.ErrNotFound, err)
 		mockRepo.AssertExpectations(t)
 	})
 
@@ -267,7 +267,7 @@ func TestMeioCultivoService_Deletar(t *testing.T) {
 		err := service.Deletar(meioCultivoID)
 
 		assert.Error(t, err)
-		assert.Equal(t, gorm.ErrRecordNotFound, err)
+		assert.Equal(t, service.ErrNotFound, err)
 		mockRepo.AssertExpectations(t)
 	})
 

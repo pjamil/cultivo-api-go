@@ -372,7 +372,7 @@ func TestPlantaService_BuscarPorID(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
-		assert.Equal(t, gorm.ErrRecordNotFound, err)
+		assert.Equal(t, service.ErrNotFound, err)
 		mockPlantaRepo.AssertExpectations(t)
 	})
 
