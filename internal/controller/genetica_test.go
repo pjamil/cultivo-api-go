@@ -303,7 +303,7 @@ func TestGeneticaController_BuscarPorID(t *testing.T) {
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Equal(t, "ID inválido", response["message"])
-		assert.Nil(t, response["details"])
+		assert.Equal(t, "entrada inválida", response["details"])
 
 		mockService.AssertNotCalled(t, "BuscarPorID") // O serviço não deve ser chamado em caso de ID inválido
 	})

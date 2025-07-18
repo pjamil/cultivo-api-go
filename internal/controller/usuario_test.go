@@ -514,6 +514,11 @@ func TestUsuarioController_Atualizar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "Requisição inválida", response["message"])
+		assert.Contains(t, response["details"], "invalid character")
 	})
 
 	t.Run("Service Error", func(t *testing.T) {
@@ -573,14 +578,8 @@ func TestUsuarioController_Deletar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusNoContent, w.Code)
 
-		// Não deve haver corpo de resposta para StatusNoContent, mas o Gin pode adicionar um vazio.
-		// Se houver um corpo, ele deve ser vazio ou conter uma mensagem de sucesso.
-		if w.Body.Len() > 0 {
-			var response map[string]string
-			err := json.Unmarshal(w.Body.Bytes(), &response)
-			assert.NoError(t, err)
-			assert.Equal(t, "Usuário deletado com sucesso", response["message"])
-		}
+		// Para StatusNoContent (204), o corpo da resposta deve ser vazio.
+		assert.Empty(t, w.Body.String())
 
 		mockService.AssertExpectations(t)
 	})

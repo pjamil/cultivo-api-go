@@ -164,7 +164,7 @@ func (c *PlantaController) BuscarPorID(ctx *gin.Context) {
 // @Failure      500    {object}  map[string]interface{}
 // @Router       /api/v1/plantas/{id} [put]
 func (c *PlantaController) Atualizar(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao converter ID da planta para atualização")
 		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", utils.ErrInvalidInput.Error())
@@ -209,7 +209,7 @@ func (c *PlantaController) Atualizar(ctx *gin.Context) {
 // @Failure      500  {object}  map[string]interface{}
 // @Router       /api/v1/plantas/{id} [delete]
 func (c *PlantaController) Deletar(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao converter ID da planta para deleção")
 		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", utils.ErrInvalidInput.Error())

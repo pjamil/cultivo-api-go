@@ -294,7 +294,7 @@ func TestPlantaController_Criar(t *testing.T) {
 		mockService.AssertExpectations(t)
 	})
 
-	t.Run("Error", func(t *testing.T) {
+	t.Run("Error - Invalid Payload", func(t *testing.T) {
 		// Preparação
 		mockService := new(MockPlantaService)
 		controller := NewPlantaController(mockService)
@@ -329,6 +329,48 @@ func TestPlantaController_Criar(t *testing.T) {
 		assert.Contains(t, response["details"].(map[string]interface{})["UsuarioID"], "Este campo é obrigatório")
 
 		mockService.AssertNotCalled(t, "Criar") // O serviço não deve ser chamado em caso de payload inválido
+	})
+
+	t.Run("Error - Service Error", func(t *testing.T) {
+		// Preparação
+		mockService := new(MockPlantaService)
+		controller := NewPlantaController(mockService)
+
+		createDTO := &dto.CreatePlantaDTO{
+			Nome:          "Planta Teste",
+			ComecandoDe:   "semente",
+			Especie:       "Sativa",
+			DataPlantio:   time.Now(),
+			Status:        "vegetativo",
+			Notas:         "Algumas notas.",
+			GeneticaID:    1,
+			MeioCultivoID: 1,
+			AmbienteID:    1,
+			UsuarioID:     1,
+		}
+
+		mockService.On("Criar", mock.AnythingOfType("*dto.CreatePlantaDTO")).Return((*dto.PlantaResponseDTO)(nil), errors.New("erro interno do serviço"))
+
+		// Execução
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+
+		jsonBody, _ := json.Marshal(createDTO)
+		req, _ := http.NewRequest(http.MethodPost, "/api/v1/plantas", bytes.NewBuffer(jsonBody))
+		req.Header.Set("Content-Type", "application/json")
+		c.Request = req
+
+		controller.Criar(c)
+
+		// Verificação
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "Erro interno ao criar planta", response["message"])
+		assert.Equal(t, "erro interno do serviço", response["details"])
+
+		mockService.AssertExpectations(t)
 	})
 }
 
@@ -435,6 +477,27 @@ func TestPlantaController_Atualizar(t *testing.T) {
 		assert.Equal(t, "recurso não encontrado", response["details"])
 
 		mockService.AssertExpectations(t)
+	})
+
+	t.Run("Invalid ID", func(t *testing.T) {
+		// Preparação
+		mockService := new(MockPlantaService)
+		controller := NewPlantaController(mockService)
+
+		// Execução
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Params = gin.Params{{Key: "id", Value: "abc"}}
+
+		controller.Atualizar(c)
+
+		// Verificação
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "ID inválido", response["message"])
+		assert.Equal(t, "entrada inválida", response["details"])
 	})
 
 	t.Run("Invalid Payload", func(t *testing.T) {

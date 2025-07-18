@@ -53,7 +53,7 @@ func (c *MeioCultivoController) Criar(ctx *gin.Context) {
 	meioCultivo, err := c.servico.Criar(&dto)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao criar meio de cultivo")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao criar meio de cultivo", nil)
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao criar meio de cultivo", err.Error())
 		return
 	}
 
@@ -111,16 +111,21 @@ func (c *MeioCultivoController) Listar(ctx *gin.Context) {
 // @Failure      500  {object}  map[string]string
 // @Router       /api/v1/meios-cultivos/{id} [get]
 func (c *MeioCultivoController) BuscarPorID(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		logrus.WithError(err).Error("ID inválido para buscar meio de cultivo por ID")
-		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", nil)
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", utils.ErrInvalidInput.Error())
 		return
 	}
 	meioCultivo, err := c.servico.BuscarPorID(uint(id))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Meio de cultivo não encontrado ao buscar por ID")
-		utils.RespondWithError(ctx, http.StatusNotFound, "Meio de cultivo não encontrado", err.Error())
+		utils.RespondWithError(ctx, http.StatusNotFound, "Meio de cultivo não encontrado", utils.ErrNotFound.Error())
+		return
+	}
+	if err != nil {
+		logrus.WithError(err).Error("Erro ao buscar meio de cultivo por ID")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao buscar meio de cultivo", err.Error())
 		return
 	}
 	utils.RespondWithJSON(ctx, http.StatusOK, meioCultivo)
@@ -140,10 +145,10 @@ func (c *MeioCultivoController) BuscarPorID(ctx *gin.Context) {
 // @Failure      500       {object}  map[string]string
 // @Router       /api/v1/meios-cultivos/{id} [put]
 func (c *MeioCultivoController) Atualizar(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil || id == 0 {
 		logrus.WithError(err).Error("ID inválido para atualização de meio de cultivo")
-		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", nil)
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", utils.ErrInvalidInput.Error())
 		return
 	}
 
@@ -166,7 +171,7 @@ func (c *MeioCultivoController) Atualizar(ctx *gin.Context) {
 	meioCultivoAtualizado, err := c.servico.Atualizar(uint(id), &updateDto)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Meio de cultivo não encontrado para atualização")
-		utils.RespondWithError(ctx, http.StatusNotFound, "Meio de cultivo não encontrado", err.Error())
+		utils.RespondWithError(ctx, http.StatusNotFound, "Meio de cultivo não encontrado", utils.ErrNotFound.Error())
 		return
 	}
 	if err != nil {
@@ -191,20 +196,20 @@ func (c *MeioCultivoController) Atualizar(ctx *gin.Context) {
 // @Failure      500  {object}  map[string]string
 // @Router       /api/v1/meios-cultivos/{id} [delete]
 func (c *MeioCultivoController) Deletar(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil || id == 0 {
 		logrus.WithError(err).Error("ID inválido para deletar meio de cultivo")
-		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", err.Error())
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", utils.ErrInvalidInput.Error())
 		return
 	}
 	if err := c.servico.Deletar(uint(id)); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logrus.WithError(err).Error("Meio de cultivo não encontrado para deleção")
-			utils.RespondWithError(ctx, http.StatusNotFound, "Meio de cultivo não encontrado", nil)
+			utils.RespondWithError(ctx, http.StatusNotFound, "Meio de cultivo não encontrado", utils.ErrNotFound.Error())
 			return
 		}
 		logrus.WithError(err).Error("Erro ao deletar meio de cultivo")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao deletar meio de cultivo", nil)
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao deletar meio de cultivo", err.Error())
 		return
 	}
 	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Meio de cultivo deletado com sucesso"})

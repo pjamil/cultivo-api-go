@@ -269,6 +269,11 @@ func TestAmbienteController_Criar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "Erro interno ao criar ambiente", response["message"])
+		assert.Equal(t, "erro interno do serviço", response["details"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -320,6 +325,11 @@ func TestAmbienteController_BuscarPorID(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusNotFound, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "Ambiente não encontrado", response["message"])
+		assert.Equal(t, "recurso não encontrado", response["details"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -338,8 +348,37 @@ func TestAmbienteController_BuscarPorID(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "ID inválido", response["message"])
+		assert.Equal(t, "entrada inválida", response["details"])
 	})
-}
+
+	t.Run("Service Error", func(t *testing.T) {
+		// Preparação
+		mockService := new(MockAmbienteService)
+		controller := NewAmbienteController(mockService)
+
+		mockService.On("BuscarPorID", uint(1)).Return((*entity.Ambiente)(nil), errors.New("erro interno do serviço"))
+
+		// Execução
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Params = gin.Params{{Key: "id", Value: "1"}}
+
+		controller.BuscarPorID(c)
+
+		// Verificação
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "Erro interno ao buscar ambiente", response["message"])
+		assert.Equal(t, "erro interno do serviço", response["details"])
+
+		mockService.AssertExpectations(t)
+	})
 
 func TestAmbienteController_Atualizar(t *testing.T) {
 	gin.SetMode(gin.TestMode)
@@ -418,6 +457,11 @@ func TestAmbienteController_Atualizar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "ID inválido", response["message"])
+		assert.Equal(t, "entrada inválida", response["details"])
 	})
 
 	t.Run("Invalid Payload", func(t *testing.T) {
@@ -438,8 +482,44 @@ func TestAmbienteController_Atualizar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "Requisição inválida", response["message"])
+		assert.Equal(t, "invalid character 'i' looking for beginning of value", response["details"])
 	})
-}
+
+	t.Run("Service Error", func(t *testing.T) {
+		// Preparação
+		mockService := new(MockAmbienteService)
+		controller := NewAmbienteController(mockService)
+
+		updateDTO := &dto.UpdateAmbienteDTO{Nome: "Estufa Atualizada"}
+
+		mockService.On("Atualizar", uint(1), mock.AnythingOfType("*dto.UpdateAmbienteDTO")).Return((*entity.Ambiente)(nil), errors.New("erro interno do serviço"))
+
+		// Execução
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+
+		jsonBody, _ := json.Marshal(updateDTO)
+		req, _ := http.NewRequest(http.MethodPut, "/api/v1/ambientes/1", bytes.NewBuffer(jsonBody))
+		req.Header.Set("Content-Type", "application/json")
+		c.Request = req
+		c.Params = gin.Params{{Key: "id", Value: "1"}}
+
+		controller.Atualizar(c)
+
+		// Verificação
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "Erro interno ao atualizar ambiente", response["message"])
+		assert.Equal(t, "erro interno do serviço", response["details"])
+
+		mockService.AssertExpectations(t)
+	})
 
 func TestAmbienteController_Deletar(t *testing.T) {
 	gin.SetMode(gin.TestMode)
@@ -498,5 +578,35 @@ func TestAmbienteController_Deletar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "ID inválido", response["message"])
+		assert.Equal(t, "entrada inválida", response["details"])
+	})
+
+	t.Run("Service Error", func(t *testing.T) {
+		// Preparação
+		mockService := new(MockAmbienteService)
+		controller := NewAmbienteController(mockService)
+
+		mockService.On("Deletar", uint(1)).Return(errors.New("erro interno do serviço"))
+
+		// Execução
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Params = gin.Params{{Key: "id", Value: "1"}}
+
+		controller.Deletar(c)
+
+		// Verificação
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "Erro interno ao deletar ambiente", response["message"])
+		assert.Equal(t, "erro interno do serviço", response["details"])
+
+		mockService.AssertExpectations(t)
 	})
 }

@@ -323,7 +323,7 @@ func TestMeioCultivoController_BuscarPorID(t *testing.T) {
 	t.Run("Invalid ID", func(t *testing.T) {
 		// Preparação
 		mockService := new(MockMeioCultivoService)
-		controller := NewMeioCultivoController(mockService)
+		controller := NewMeioCultivoController(mock(MockMeioCultivoService))
 
 		// Execução
 		w := httptest.NewRecorder()
@@ -338,7 +338,7 @@ func TestMeioCultivoController_BuscarPorID(t *testing.T) {
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Equal(t, "ID inválido", response["message"])
-		assert.Nil(t, response["details"])
+		assert.Equal(t, "entrada inválida", response["details"])
 	})
 }
 
@@ -428,7 +428,7 @@ func TestMeioCultivoController_Atualizar(t *testing.T) {
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Equal(t, "ID inválido", response["message"])
-		assert.Nil(t, response["details"])
+		assert.Equal(t, "entrada inválida", response["details"])
 	})
 
 	t.Run("Invalid Payload", func(t *testing.T) {
@@ -505,7 +505,7 @@ func TestMeioCultivoController_Deletar(t *testing.T) {
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Equal(t, "Meio de cultivo não encontrado", response["message"])
-		assert.Nil(t, response["details"])
+		assert.Equal(t, "record not found", response["details"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -528,7 +528,7 @@ func TestMeioCultivoController_Deletar(t *testing.T) {
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Equal(t, "ID inválido", response["message"])
-		assert.Nil(t, response["details"])
+		assert.Equal(t, "entrada inválida", response["details"])
 	})
 
 	t.Run("Service Error", func(t *testing.T) {

@@ -54,7 +54,7 @@ func (ctrl *GeneticaController) Criar(c *gin.Context) {
 	geneticaCriada, err := ctrl.servico.Criar(&dto)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao criar genética")
-		utils.RespondWithError(c, http.StatusInternalServerError, "Erro interno ao criar genética", nil)
+		utils.RespondWithError(c, http.StatusInternalServerError, "Erro interno ao criar genética", err.Error())
 		return
 	}
 
@@ -112,21 +112,21 @@ func (c *GeneticaController) Listar(ctx *gin.Context) {
 // @Failure 500 {object} map[string]string
 // @Router       /api/v1/geneticas/{id} [get]
 func (c *GeneticaController) BuscarPorID(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil || id == 0 {
 		logrus.WithError(err).Error("ID inválido para buscar genética por ID")
-		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", nil)
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", utils.ErrInvalidInput.Error())
 		return
 	}
 	genetics, err := c.servico.BuscarPorID(uint(id))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Genética não encontrada ao buscar por ID")
-		utils.RespondWithError(ctx, http.StatusNotFound, "Genética não encontrada", nil)
+		utils.RespondWithError(ctx, http.StatusNotFound, "Genética não encontrada", utils.ErrNotFound.Error())
 		return
 	}
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao buscar genética por ID")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao buscar genética", nil)
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao buscar genética", err.Error())
 		return
 	}
 	utils.RespondWithJSON(ctx, http.StatusOK, genetics)
@@ -146,10 +146,10 @@ func (c *GeneticaController) BuscarPorID(ctx *gin.Context) {
 // @Failure      500       {object}  map[string]string
 // @Router       /api/v1/geneticas/{id} [put]
 func (c *GeneticaController) Atualizar(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil || id == 0 {
 		logrus.WithError(err).Error("ID inválido para atualização de genética")
-		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", nil)
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", utils.ErrInvalidInput.Error())
 		return
 	}
 
@@ -172,12 +172,12 @@ func (c *GeneticaController) Atualizar(ctx *gin.Context) {
 	geneticaAtualizada, err := c.servico.Atualizar(uint(id), &updateDto)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Genética não encontrada para atualização")
-		utils.RespondWithError(ctx, http.StatusNotFound, "Genética não encontrada", nil)
+		utils.RespondWithError(ctx, http.StatusNotFound, "Genética não encontrada", utils.ErrNotFound.Error())
 		return
 	}
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao atualizar genética")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao atualizar genética", nil)
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao atualizar genética", err.Error())
 		return
 	}
 

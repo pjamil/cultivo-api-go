@@ -58,7 +58,7 @@ func (c *UsuarioController) Criar(ctx *gin.Context) {
 	if err != nil {
 		// Trate erro de unique constraint (e-mail já cadastrado)
 		if strings.Contains(err.Error(), "duplicate") || strings.Contains(err.Error(), "unique") {
-			utils.RespondWithError(ctx, http.StatusConflict, "E-mail já cadastrado", nil)
+			utils.RespondWithError(ctx, http.StatusConflict, "E-mail já cadastrado", err.Error())
 			return
 		}
 		logrus.WithError(err).Error("Erro ao criar usuário")
@@ -135,14 +135,8 @@ func (c *UsuarioController) Listar(ctx *gin.Context) {
 		return
 	}
 
-	// Marshal the Data field to json.RawMessage before responding
-	dataBytes, err := json.Marshal(paginatedResponse.Data)
-	if err != nil {
-		logrus.WithError(err).Error("Erro ao serializar dados de paginação")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao listar usuários", utils.ErrInternalServer.Error())
-		return
-	}
-	paginatedResponse.Data = dataBytes
+	// The Data field is already json.RawMessage, no need to marshal again.
+	// It's directly used by RespondWithJSON.
 	utils.RespondWithJSON(ctx, http.StatusOK, paginatedResponse)
 }
 
@@ -259,11 +253,11 @@ func (c *UsuarioController) Login(ctx *gin.Context) {
 	token, err := c.servico.Login(&payload)
 	if err != nil {
 		if errors.Is(err, utils.ErrInvalidCredentials) {
-			utils.RespondWithError(ctx, http.StatusUnauthorized, "Credenciais inválidas", nil)
+			utils.RespondWithError(ctx, http.StatusUnauthorized, "Credenciais inválidas", err.Error())
 			return
 		}
 		logrus.WithError(err).Error("Erro ao tentar login")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao tentar login", nil)
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao tentar login", err.Error())
 		return
 	}
 

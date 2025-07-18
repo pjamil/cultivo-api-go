@@ -57,7 +57,7 @@ func (c *AmbienteController) Criar(ctx *gin.Context) {
 			"operation": "create_ambiente",
 			"error":     err,
 		}).Error("Erro ao criar ambiente")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao criar ambiente", nil)
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao criar ambiente", err.Error())
 		return
 	}
 	utils.RespondWithJSON(ctx, http.StatusCreated, ambiente)
@@ -114,21 +114,21 @@ func (c *AmbienteController) Listar(ctx *gin.Context) {
 // @Failure      500  {object}  map[string]string
 // @Router       /api/v1/ambientes/{id} [get]
 func (c *AmbienteController) BuscarPorID(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil || id == 0 {
 		logrus.WithError(err).Error("ID inválido para buscar ambiente por ID")
-		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", nil)
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", utils.ErrInvalidInput.Error())
 		return
 	}
 	ambiente, err := c.servico.BuscarPorID(uint(id))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Ambiente não encontrado ao buscar por ID")
-		utils.RespondWithError(ctx, http.StatusNotFound, "Ambiente não encontrado", nil)
+		utils.RespondWithError(ctx, http.StatusNotFound, "Ambiente não encontrado", utils.ErrNotFound.Error())
 		return
 	}
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao buscar ambiente por ID")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao buscar ambiente", nil)
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao buscar ambiente", err.Error())
 		return
 	}
 
@@ -149,10 +149,10 @@ func (c *AmbienteController) BuscarPorID(ctx *gin.Context) {
 // @Failure      500       {object}  map[string]string
 // @Router       /api/v1/ambientes/{id} [put]
 func (c *AmbienteController) Atualizar(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil || id == 0 {
 		logrus.WithError(err).Error("ID inválido para atualização de ambiente")
-		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", nil)
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", utils.ErrInvalidInput.Error())
 		return
 	}
 
@@ -175,12 +175,12 @@ func (c *AmbienteController) Atualizar(ctx *gin.Context) {
 	ambienteAtualizado, err := c.servico.Atualizar(uint(id), &updateDto)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Ambiente não encontrado para atualização")
-		utils.RespondWithError(ctx, http.StatusNotFound, "Ambiente não encontrado", nil)
+		utils.RespondWithError(ctx, http.StatusNotFound, "Ambiente não encontrado", utils.ErrNotFound.Error())
 		return
 	}
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao atualizar ambiente")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao atualizar ambiente", nil)
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao atualizar ambiente", err.Error())
 		return
 	}
 
@@ -200,20 +200,20 @@ func (c *AmbienteController) Atualizar(ctx *gin.Context) {
 // @Failure      500  {object}  map[string]string
 // @Router       /api/v1/ambientes/{id} [delete]
 func (c *AmbienteController) Deletar(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil || id == 0 {
 		logrus.WithError(err).Error("ID inválido para deletar ambiente")
-		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", nil)
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", utils.ErrInvalidInput.Error())
 		return
 	}
 	if err := c.servico.Deletar(uint(id)); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logrus.WithError(err).Error("Ambiente não encontrado para deleção")
-			utils.RespondWithError(ctx, http.StatusNotFound, "Ambiente não encontrado", nil)
+			utils.RespondWithError(ctx, http.StatusNotFound, "Ambiente não encontrado", utils.ErrNotFound.Error())
 			return
 		}
 		logrus.WithError(err).Error("Erro ao deletar ambiente")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao deletar ambiente", nil)
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao deletar ambiente", err.Error())
 		return
 	}
 	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Ambiente deletado com sucesso"})
