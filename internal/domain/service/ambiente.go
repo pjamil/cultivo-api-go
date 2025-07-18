@@ -12,7 +12,7 @@ import (
 
 type AmbienteService interface {
 	Criar(ambienteDto *dto.CreateAmbienteDTO) (*entity.Ambiente, error)
-	ListarTodos(page, limit int) (*dto.PaginatedResponse, error)
+	ListarTodos(page, limit int) ([]dto.AmbienteResponseDTO, int64, error)
 	BuscarPorID(id uint) (*entity.Ambiente, error)
 	Atualizar(id uint, ambienteDto *dto.UpdateAmbienteDTO) (*entity.Ambiente, error)
 	Deletar(id uint) error
@@ -47,10 +47,10 @@ func (s *ambienteService) Criar(ambienteDto *dto.CreateAmbienteDTO) (*entity.Amb
 	return &ambiente, nil
 }
 
-func (s *ambienteService) ListarTodos(page, limit int) (*dto.PaginatedResponse, error) {
+func (s *ambienteService) ListarTodos(page, limit int) ([]dto.AmbienteResponseDTO, int64, error) {
 	ambientes, total, err := s.repositorio.ListarTodos(page, limit)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	responseDTOs := make([]dto.AmbienteResponseDTO, 0, len(ambientes))
@@ -68,17 +68,7 @@ func (s *ambienteService) ListarTodos(page, limit int) (*dto.PaginatedResponse, 
 		})
 	}
 
-	dataBytes, err := json.Marshal(responseDTOs)
-		if err != nil {
-			return nil, fmt.Errorf("falha ao serializar ambientes: %w", err)
-		}
-
-	return &dto.PaginatedResponse{
-		Data:  dataBytes,
-		Total: total,
-		Page:  page,
-		Limit: limit,
-	}, nil
+	return responseDTOs, total, nil
 }
 
 func (s *ambienteService) BuscarPorID(id uint) (*entity.Ambiente, error) {

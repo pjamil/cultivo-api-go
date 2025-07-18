@@ -14,7 +14,7 @@ type UsuarioService interface {
 	Login(payload *dto.LoginPayload) (string, error)
 	Criar(usuarioDto *dto.UsuarioCreateDTO) (*dto.UsuarioResponseDTO, error)
 	BuscarPorID(id uint) (*dto.UsuarioResponseDTO, error)
-	ListarTodos(page, limit int) (*dto.PaginatedResponse, error)
+	ListarTodos(page, limit int) ([]dto.UsuarioResponseDTO, int64, error)
 	Atualizar(id uint, usuarioDto *dto.UsuarioUpdateDTO) (*dto.UsuarioResponseDTO, error)
 	Deletar(id uint) error
 }
@@ -62,10 +62,10 @@ func (s *usuarioService) BuscarPorID(id uint) (*dto.UsuarioResponseDTO, error) {
 	}, nil
 }
 
-func (s *usuarioService) ListarTodos(page, limit int) (*dto.PaginatedResponse, error) {
+func (s *usuarioService) ListarTodos(page, limit int) ([]dto.UsuarioResponseDTO, int64, error) {
 	usuarios, total, err := s.repositorio.ListarTodos(page, limit)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	var responseDTOs []dto.UsuarioResponseDTO
@@ -78,17 +78,7 @@ func (s *usuarioService) ListarTodos(page, limit int) (*dto.PaginatedResponse, e
 		})
 	}
 
-	dataBytes, err := json.Marshal(responseDTOs)
-		if err != nil {
-			return nil, fmt.Errorf("falha ao serializar usuários: %w", err)
-		}
-
-	return &dto.PaginatedResponse{
-		Data:  dataBytes,
-		Total: total,
-		Page:  page,
-		Limit: limit,
-	}, nil
+	return responseDTOs, total, nil
 }
 
 // Atualizar atualiza os campos do usuário informados no DTO.

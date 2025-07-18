@@ -100,17 +100,13 @@ func TestMeioCultivoService_ListarTodos(t *testing.T) {
 		mockRepo.On("ListarTodos", page, limit).Return(mockMeiosCultivo, expectedTotal, nil).Once()
 
 		// Act
-		response, err := service.ListarTodos(page, limit)
+		responseDTOs, total, err := service.ListarTodos(page, limit)
 
 		// Assert
 		assert.NoError(t, err)
-		assert.NotNil(t, response)
-		assert.Equal(t, expectedTotal, response.Total)
-		
-		var actualMeiosCultivo []dto.MeioCultivoResponseDTO
-		err = json.Unmarshal(response.Data, &actualMeiosCultivo)
-		assert.NoError(t, err)
-		assert.Equal(t, expectedResponseData, actualMeiosCultivo)
+		assert.NotNil(t, responseDTOs)
+		assert.Equal(t, expectedTotal, total)
+		assert.Equal(t, expectedResponseData, responseDTOs)
 		mockRepo.AssertExpectations(t)
 	})
 
@@ -119,12 +115,12 @@ func TestMeioCultivoService_ListarTodos(t *testing.T) {
 		limit := 10
 		mockRepo.On("ListarTodos", page, limit).Return([]entity.MeioCultivo{}, int64(0), nil).Once()
 
-		response, err := service.ListarTodos(page, limit)
+		responseDTOs, total, err := service.ListarTodos(page, limit)
 
 		assert.NoError(t, err)
-		assert.NotNil(t, response)
-		assert.Equal(t, int64(0), response.Total)
-		assert.Equal(t, json.RawMessage("[]"), response.Data)
+		assert.NotNil(t, responseDTOs)
+		assert.Equal(t, int64(0), total)
+		assert.Empty(t, responseDTOs)
 		mockRepo.AssertExpectations(t)
 	})
 
@@ -133,10 +129,11 @@ func TestMeioCultivoService_ListarTodos(t *testing.T) {
 		limit := 10
 		mockRepo.On("ListarTodos", page, limit).Return([]entity.MeioCultivo{}, int64(0), errors.New("erro no repositório")).Once()
 
-		response, err := service.ListarTodos(page, limit)
+		responseDTOs, total, err := service.ListarTodos(page, limit)
 
 		assert.Error(t, err)
-		assert.Nil(t, response)
+		assert.Nil(t, responseDTOs)
+		assert.Equal(t, int64(0), total)
 		assert.EqualError(t, err, "erro no repositório")
 		mockRepo.AssertExpectations(t)
 	})

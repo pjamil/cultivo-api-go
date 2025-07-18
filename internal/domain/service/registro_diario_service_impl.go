@@ -60,10 +60,10 @@ func (s *registroDiarioService) CriarRegistro(diarioID uint, registroDTO *dto.Cr
 }
 
 // ListarRegistrosPorDiarioID lista todos os registros de um diário específico com paginação.
-func (s *registroDiarioService) ListarRegistrosPorDiarioID(diarioID uint, page, limit int) (*dto.PaginatedResponse, error) {
+func (s *registroDiarioService) ListarRegistrosPorDiarioID(diarioID uint, page, limit int) ([]dto.RegistroDiarioResponseDTO, int64, error) {
 	registros, total, err := s.registroRepo.ListarPorDiarioCultivoID(diarioID, page, limit)
 	if err != nil {
-		return nil, fmt.Errorf("falha ao listar registros do diário: %w", err)
+		return nil, 0, fmt.Errorf("falha ao listar registros do diário: %w", err)
 	}
 
 	var responseDTOs []dto.RegistroDiarioResponseDTO
@@ -71,10 +71,5 @@ func (s *registroDiarioService) ListarRegistrosPorDiarioID(diarioID uint, page, 
 		responseDTOs = append(responseDTOs, dto.RegistroDiarioResponseDTO{ID: r.ID, Titulo: r.Titulo, Conteudo: r.Conteudo, Data: r.Data, Tipo: r.Tipo})
 	}
 
-	dataBytes, err := json.Marshal(responseDTOs)
-	if err != nil {
-		return nil, fmt.Errorf("falha ao serializar registros do diário: %w", err)
-	}
-
-	return &dto.PaginatedResponse{Data: dataBytes, Total: total, Page: page, Limit: limit}, nil
+	return responseDTOs, total, nil
 }

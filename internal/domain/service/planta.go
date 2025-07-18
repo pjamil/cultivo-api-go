@@ -18,7 +18,7 @@ import (
 type PlantaService interface {
 	BuscarPorID(id uint) (*dto.PlantaResponseDTO, error)
 	Criar(plantaDto *dto.CreatePlantaDTO) (*dto.PlantaResponseDTO, error)
-	ListarTodas(page, limit int) (*dto.PaginatedResponse, error)
+	ListarTodas(page, limit int) ([]dto.PlantaResponseDTO, int64, error)
 	Atualizar(id uint, plantaDto *dto.UpdatePlantaDTO) (*dto.PlantaResponseDTO, error)
 	Deletar(id uint) error
 	BuscarPorEspecie(especie entity.Especie) ([]entity.Planta, error)
@@ -144,10 +144,10 @@ func (s *plantaService) BuscarPorID(id uint) (*dto.PlantaResponseDTO, error) {
 	}, nil
 }
 
-func (s *plantaService) ListarTodas(page, limit int) (*dto.PaginatedResponse, error) {
+func (s *plantaService) ListarTodas(page, limit int) ([]dto.PlantaResponseDTO, int64, error) {
 	plantas, total, err := s.repositorio.ListarTodos(page, limit)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	responseDTOs := make([]dto.PlantaResponseDTO, 0, len(plantas))
@@ -170,17 +170,7 @@ func (s *plantaService) ListarTodas(page, limit int) (*dto.PaginatedResponse, er
 		})
 	}
 
-		dataBytes, err := json.Marshal(responseDTOs)
-		if err != nil {
-			return nil, fmt.Errorf("falha ao serializar plantas: %w", err)
-		}
-
-	return &dto.PaginatedResponse{
-		Data:  dataBytes,
-		Total: total,
-		Page:  page,
-		Limit: limit,
-	}, nil
+	return responseDTOs, total, nil
 }
 
 func (s *plantaService) Atualizar(id uint, plantaDto *dto.UpdatePlantaDTO) (*dto.PlantaResponseDTO, error) {

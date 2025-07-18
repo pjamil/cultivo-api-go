@@ -272,25 +272,14 @@ func TestPlantaService_ListarTodas(t *testing.T) {
 
 		mockPlantaRepo.On("ListarTodos", page, limit).Return(mockPlantas, expectedTotal, nil).Once()
 
-		response, err := servico.ListarTodas(page, limit)
+		// Act
+		responseDTOs, total, err := servico.ListarTodas(page, limit)
 
+		// Assert
 		assert.NoError(t, err)
-		assert.NotNil(t, response)
-		assert.Equal(t, expectedTotal, response.Total)
-		assert.Equal(t, page, response.Page)
-		assert.Equal(t, limit, response.Limit)
-
-		var actualResponseData []dto.PlantaResponseDTO
-		err = json.Unmarshal(response.Data, &actualResponseData)
-		assert.NoError(t, err)
-		assert.Len(t, actualResponseData, len(expectedResponseData))
-		for i, expected := range expectedResponseData {
-			assert.Equal(t, expected.ID, actualResponseData[i].ID)
-			assert.Equal(t, expected.Nome, actualResponseData[i].Nome)
-			assert.Equal(t, expected.Especie, actualResponseData[i].Especie)
-			assert.Equal(t, expected.DataPlantio.Format("2006-01-02"), actualResponseData[i].DataPlantio.Format("2006-01-02"))
-			assert.Equal(t, *expected.Notas, *actualResponseData[i].Notas)
-		}
+		assert.NotNil(t, responseDTOs)
+		assert.Equal(t, expectedTotal, total)
+		assert.Equal(t, expectedResponseData, responseDTOs)
 		mockPlantaRepo.AssertExpectations(t)
 	})
 
@@ -306,12 +295,12 @@ func TestPlantaService_ListarTodas(t *testing.T) {
 		limit := 10
 		mockPlantaRepo.On("ListarTodos", page, limit).Return([]entity.Planta{}, int64(0), nil).Once()
 
-		response, err := servico.ListarTodas(page, limit)
+		responseDTOs, total, err := servico.ListarTodas(page, limit)
 
 		assert.NoError(t, err)
-		assert.NotNil(t, response)
-		assert.Equal(t, int64(0), response.Total)
-		assert.Equal(t, json.RawMessage("[]"), response.Data)
+		assert.NotNil(t, responseDTOs)
+		assert.Equal(t, int64(0), total)
+		assert.Empty(t, responseDTOs)
 		mockPlantaRepo.AssertExpectations(t)
 	})
 
@@ -327,10 +316,11 @@ func TestPlantaService_ListarTodas(t *testing.T) {
 		limit := 10
 		mockPlantaRepo.On("ListarTodos", page, limit).Return([]entity.Planta{}, int64(0), errors.New("erro no repositório")).Once()
 
-		response, err := servico.ListarTodas(page, limit)
+		responseDTOs, total, err := servico.ListarTodas(page, limit)
 
 		assert.Error(t, err)
-		assert.Nil(t, response)
+		assert.Nil(t, responseDTOs)
+		assert.Equal(t, int64(0), total)
 		assert.EqualError(t, err, "erro no repositório")
 		mockPlantaRepo.AssertExpectations(t)
 	})

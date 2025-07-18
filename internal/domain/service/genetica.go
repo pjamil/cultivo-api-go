@@ -12,7 +12,7 @@ import (
 
 type GeneticaService interface {
 	Criar(geneticaDto *dto.CreateGeneticaDTO) (*dto.GeneticaResponseDTO, error)
-	ListarTodas(page, limit int) (*dto.PaginatedResponse, error)
+	ListarTodas(page, limit int) ([]dto.GeneticaResponseDTO, int64, error)
 	BuscarPorID(id uint) (*dto.GeneticaResponseDTO, error)
 	Atualizar(id uint, geneticaDto *dto.UpdateGeneticaDTO) (*dto.GeneticaResponseDTO, error)
 	Deletar(id uint) error
@@ -56,10 +56,10 @@ func (s *geneticaService) Criar(geneticaDto *dto.CreateGeneticaDTO) (*dto.Geneti
 	}, nil
 }
 
-func (s *geneticaService) ListarTodas(page, limit int) (*dto.PaginatedResponse, error) {
+func (s *geneticaService) ListarTodas(page, limit int) ([]dto.GeneticaResponseDTO, int64, error) {
 	geneticas, total, err := s.repositorio.ListarTodos(page, limit)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	responseDTOs := make([]dto.GeneticaResponseDTO, 0, len(geneticas))
@@ -76,17 +76,7 @@ func (s *geneticaService) ListarTodas(page, limit int) (*dto.PaginatedResponse, 
 		})
 	}
 
-	dataBytes, err := json.Marshal(responseDTOs)
-		if err != nil {
-			return nil, fmt.Errorf("falha ao serializar genéticas: %w", err)
-		}
-
-	return &dto.PaginatedResponse{
-		Data:  dataBytes,
-		Total: total,
-		Page:  page,
-		Limit: limit,
-	}, nil
+	return responseDTOs, total, nil
 }
 
 func (s *geneticaService) BuscarPorID(id uint) (*dto.GeneticaResponseDTO, error) {

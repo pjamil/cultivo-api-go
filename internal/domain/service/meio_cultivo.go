@@ -12,7 +12,7 @@ import (
 
 type MeioCultivoService interface {
 	Criar(meioCultivoDto *dto.CreateMeioCultivoDTO) (*dto.MeioCultivoResponseDTO, error)
-	ListarTodos(page, limit int) (*dto.PaginatedResponse, error)
+	ListarTodos(page, limit int) ([]dto.MeioCultivoResponseDTO, int64, error)
 	BuscarPorID(id uint) (*dto.MeioCultivoResponseDTO, error)
 	Atualizar(id uint, meioCultivoDto *dto.UpdateMeioCultivoDTO) (*dto.MeioCultivoResponseDTO, error)
 	Deletar(id uint) error
@@ -46,10 +46,10 @@ func (s *meioCultivoService) Criar(meioCultivoDto *dto.CreateMeioCultivoDTO) (*d
 	}, nil
 }
 
-func (s *meioCultivoService) ListarTodos(page, limit int) (*dto.PaginatedResponse, error) {
+func (s *meioCultivoService) ListarTodos(page, limit int) ([]dto.MeioCultivoResponseDTO, int64, error) {
 	meioCultivos, total, err := s.repositorio.ListarTodos(page, limit)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	responseDTOs := make([]dto.MeioCultivoResponseDTO, 0, len(meioCultivos))
@@ -61,17 +61,7 @@ func (s *meioCultivoService) ListarTodos(page, limit int) (*dto.PaginatedRespons
 		})
 	}
 
-	dataBytes, err := json.Marshal(responseDTOs)
-		if err != nil {
-			return nil, fmt.Errorf("falha ao serializar meios de cultivo: %w", err)
-		}
-
-	return &dto.PaginatedResponse{
-		Data:  dataBytes,
-		Total: total,
-		Page:  page,
-		Limit: limit,
-	}, nil
+	return responseDTOs, total, nil
 }
 
 func (s *meioCultivoService) BuscarPorID(id uint) (*dto.MeioCultivoResponseDTO, error) {
