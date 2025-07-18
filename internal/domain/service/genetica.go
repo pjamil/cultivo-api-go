@@ -1,8 +1,11 @@
 package service
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
 	"gorm.io/gorm"
 )
@@ -29,7 +32,7 @@ func NewGeneticaService(repositorio repository.GeneticaRepositorio) GeneticaServ
 }
 
 func (s *geneticaService) Criar(geneticaDto *dto.CreateGeneticaDTO) (*dto.GeneticaResponseDTO, error) {
-	genetica := models.Genetica{
+	genetica := entity.Genetica{
 		Nome:            geneticaDto.Nome,
 		Descricao:       geneticaDto.Descricao,
 		TipoGenetica:    geneticaDto.TipoGenetica,
@@ -59,7 +62,7 @@ func (s *geneticaService) ListarTodas(page, limit int) (*dto.PaginatedResponse, 
 		return nil, err
 	}
 
-	var responseDTOs []dto.GeneticaResponseDTO
+	responseDTOs := make([]dto.GeneticaResponseDTO, 0, len(geneticas))
 	for _, genetica := range geneticas {
 		responseDTOs = append(responseDTOs, dto.GeneticaResponseDTO{
 			ID:              genetica.ID,
@@ -73,8 +76,13 @@ func (s *geneticaService) ListarTodas(page, limit int) (*dto.PaginatedResponse, 
 		})
 	}
 
+	dataBytes, err := json.Marshal(responseDTOs)
+		if err != nil {
+			return nil, fmt.Errorf("falha ao serializar genéticas: %w", err)
+		}
+
 	return &dto.PaginatedResponse{
-		Data:  responseDTOs,
+		Data:  dataBytes,
 		Total: total,
 		Page:  page,
 		Limit: limit,

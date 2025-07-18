@@ -1,14 +1,14 @@
 package service_test
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
 	"time"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"gorm.io/gorm"
@@ -19,28 +19,36 @@ type MockDiarioCultivoRepository struct {
 	mock.Mock
 }
 
-func (m *MockDiarioCultivoRepository) Create(diario *models.DiarioCultivo) error {
+func (m *MockDiarioCultivoRepository) Create(diario *entity.DiarioCultivo) error {
 	args := m.Called(diario)
 	return args.Error(0)
 }
 
-func (m *MockDiarioCultivoRepository) GetByID(id uint) (*models.DiarioCultivo, error) {
+func (m *MockDiarioCultivoRepository) GetByID(id uint) (*entity.DiarioCultivo, error) {
 	args := m.Called(id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*models.DiarioCultivo), args.Error(1)
+	return args.Get(0).(*entity.DiarioCultivo), args.Error(1)
 }
 
-func (m *MockDiarioCultivoRepository) GetAll(page, limit int) ([]models.DiarioCultivo, int64, error) {
+func (m *MockDiarioCultivoRepository) GetAll(page, limit int) ([]entity.DiarioCultivo, int64, error) {
 	args := m.Called(page, limit)
 	if args.Get(0) == nil {
 		return nil, 0, args.Error(2)
 	}
-	return args.Get(0).([]models.DiarioCultivo), args.Get(1).(int64), args.Error(2)
+	return args.Get(0).([]entity.DiarioCultivo), args.Get(1).(int64), args.Error(2)
 }
 
-func (m *MockDiarioCultivoRepository) Update(diario *models.DiarioCultivo) error {
+func (m *MockDiarioCultivoRepository) GetAllByUserID(userID uint) ([]entity.DiarioCultivo, error) {
+	args := m.Called(userID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]entity.DiarioCultivo), args.Error(1)
+}
+
+func (m *MockDiarioCultivoRepository) Update(diario *entity.DiarioCultivo) error {
 	args := m.Called(diario)
 	return args.Error(0)
 }
@@ -51,39 +59,36 @@ func (m *MockDiarioCultivoRepository) Delete(id uint) error {
 }
 
 // Métodos de associação não utilizados pelo serviço principal, mas mockados para completar a interface.
-func (m *MockDiarioCultivoRepository) AddPlantas(diarioCultivoID uint, plantas []*models.Planta) error {
+func (m *MockDiarioCultivoRepository) AddPlantas(diarioCultivoID uint, plantas []*entity.Planta) error {
 	return m.Called(diarioCultivoID, plantas).Error(0)
 }
-func (m *MockDiarioCultivoRepository) RemovePlantas(diarioCultivoID uint, plantas []*models.Planta) error {
+func (m *MockDiarioCultivoRepository) RemovePlantas(diarioCultivoID uint, plantas []*entity.Planta) error {
 	return m.Called(diarioCultivoID, plantas).Error(0)
 }
-func (m *MockDiarioCultivoRepository) AddAmbientes(diarioCultivoID uint, ambientes []*models.Ambiente) error {
+func (m *MockDiarioCultivoRepository) AddAmbientes(diarioCultivoID uint, ambientes []*entity.Ambiente) error {
 	return m.Called(diarioCultivoID, ambientes).Error(0)
 }
-func (m *MockDiarioCultivoRepository) RemoveAmbientes(diarioCultivoID uint, ambientes []*models.Ambiente) error {
+func (m *MockDiarioCultivoRepository) RemoveAmbientes(diarioCultivoID uint, ambientes []*entity.Ambiente) error {
 	return m.Called(diarioCultivoID, ambientes).Error(0)
 }
 
 func TestDiarioCultivoService_Criar(t *testing.T) {
 	mockRepo := new(MockDiarioCultivoRepository)
-	mockPlantaRepo := new(test.MockPlantaRepositorio)
-	mockAmbienteRepo := new(test.MockAmbienteRepositorio)
-	diarioService := service.NewDiarioCultivoService(mockRepo, mockPlantaRepo, mockAmbienteRepo)
+	diarioService := service.NewDiarioCultivoService(mockRepo)
 
-	createDTO := &dto.CreateDiarioCultivoDTO{
+	createDTO := dto.CreateDiarioCultivoDTO{
 		Nome:        "Meu Diário de Cultivo",
 		DataInicio:  time.Now(),
 		UsuarioID:   1,
 		Privacidade: "privado",
 	}
 
-	mockRepo.On("Create", mock.AnythingOfType("*models.DiarioCultivo")).Run(func(args mock.Arguments) {
-		diario := args.Get(0).(*models.DiarioCultivo)
+	mockRepo.On("Create", mock.AnythingOfType("*entity.DiarioCultivo")).Run(func(args mock.Arguments) {
+		diario := args.Get(0).(*entity.DiarioCultivo)
 		diario.ID = 1
 	}).Return(nil)
-	mockRepo.On("GetByID", mock.AnythingOfType("uint")).Return(&models.DiarioCultivo{Model: gorm.Model{ID: 1}, Nome: createDTO.Nome, UsuarioID: createDTO.UsuarioID}, nil)
 
-	responseDTO, err := diarioService.Create(createDTO)
+	responseDTO, err := diarioService.CreateDiario(createDTO)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, responseDTO)
@@ -94,11 +99,9 @@ func TestDiarioCultivoService_Criar(t *testing.T) {
 
 func TestDiarioCultivoService_BuscarPorID(t *testing.T) {
 	mockRepo := new(MockDiarioCultivoRepository)
-	mockPlantaRepo := new(test.MockPlantaRepositorio)
-	mockAmbienteRepo := new(test.MockAmbienteRepositorio)
-	diarioService := service.NewDiarioCultivoService(mockRepo, mockPlantaRepo, mockAmbienteRepo)
+	diarioService := service.NewDiarioCultivoService(mockRepo)
 
-	diario := &models.DiarioCultivo{
+	diario := &entity.DiarioCultivo{
 		Model: gorm.Model{ID: 1},
 		Nome:  "Diário Teste",
 	}
@@ -106,7 +109,7 @@ func TestDiarioCultivoService_BuscarPorID(t *testing.T) {
 	t.Run("sucesso", func(t *testing.T) {
 		mockRepo.On("GetByID", uint(1)).Return(diario, nil).Once()
 
-		responseDTO, err := diarioService.GetByID(1)
+		responseDTO, err := diarioService.GetDiarioByID(1)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, responseDTO)
@@ -117,7 +120,7 @@ func TestDiarioCultivoService_BuscarPorID(t *testing.T) {
 	t.Run("não encontrado", func(t *testing.T) {
 		mockRepo.On("GetByID", uint(2)).Return(nil, gorm.ErrRecordNotFound).Once()
 
-		responseDTO, err := diarioService.GetByID(2)
+		responseDTO, err := diarioService.GetDiarioByID(2)
 
 		assert.Error(t, err)
 		assert.Nil(t, responseDTO)
@@ -128,11 +131,9 @@ func TestDiarioCultivoService_BuscarPorID(t *testing.T) {
 
 func TestDiarioCultivoService_ListarTodos(t *testing.T) {
 	mockRepo := new(MockDiarioCultivoRepository)
-	mockPlantaRepo := new(test.MockPlantaRepositorio)
-	mockAmbienteRepo := new(test.MockAmbienteRepositorio)
-	diarioService := service.NewDiarioCultivoService(mockRepo, mockPlantaRepo, mockAmbienteRepo)
+	diarioService := service.NewDiarioCultivoService(mockRepo)
 
-	diarios := []models.DiarioCultivo{
+	diarios := []entity.DiarioCultivo{
 		{Model: gorm.Model{ID: 1}, Nome: "Diário 1"},
 		{Model: gorm.Model{ID: 2}, Nome: "Diário 2"},
 	}
@@ -140,35 +141,38 @@ func TestDiarioCultivoService_ListarTodos(t *testing.T) {
 
 	mockRepo.On("GetAll", 1, 10).Return(diarios, total, nil).Once()
 
-	paginatedResponse, err := diarioService.GetAll(1, 10)
+	paginatedResponse, err := diarioService.GetAllDiarios(1, 10)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, paginatedResponse)
 	assert.Equal(t, total, paginatedResponse.Total)
-	assert.Len(t, paginatedResponse.Data, 2)
+
+	var actualDiarios []entity.DiarioCultivo
+	err = json.Unmarshal(paginatedResponse.Data, &actualDiarios)
+	assert.NoError(t, err)
+	assert.Equal(t, diarios, actualDiarios)
 	mockRepo.AssertExpectations(t)
 }
 
 func TestDiarioCultivoService_Atualizar(t *testing.T) {
 	mockRepo := new(MockDiarioCultivoRepository)
-	mockPlantaRepo := new(test.MockPlantaRepositorio)
-	mockAmbienteRepo := new(test.MockAmbienteRepositorio)
-	diarioService := service.NewDiarioCultivoService(mockRepo, mockPlantaRepo, mockAmbienteRepo)
+	diarioService := service.NewDiarioCultivoService(mockRepo)
 
 	updateDTO := &dto.UpdateDiarioCultivoDTO{
 		Nome: "Diário Atualizado",
 	}
 
-	existingDiario := &models.DiarioCultivo{
+	existingDiario := &entity.DiarioCultivo{
 		Model: gorm.Model{ID: 1},
 		Nome:  "Diário Antigo",
 	}
 
 	t.Run("sucesso", func(t *testing.T) {
-		mockRepo.On("GetByID", uint(1)).Return(existingDiario, nil).Once()
-		mockRepo.On("Update", mock.AnythingOfType("*models.DiarioCultivo")).Return(nil).Once()
+		mockRepo.On("GetByID", uint(1)).Return(existingDiario, nil).Twice()
+		mockRepo.On("Update", mock.AnythingOfType("*entity.DiarioCultivo")).Return(nil).Once()
 
-		responseDTO, err := diarioService.Update(1, updateDTO)
+		t.Logf("Calling diarioService.Update with ID: %d", 1)
+		responseDTO, err := diarioService.UpdateDiario(1, *updateDTO)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, responseDTO)
@@ -179,7 +183,8 @@ func TestDiarioCultivoService_Atualizar(t *testing.T) {
 	t.Run("não encontrado", func(t *testing.T) {
 		mockRepo.On("GetByID", uint(2)).Return(nil, gorm.ErrRecordNotFound).Once()
 
-		responseDTO, err := diarioService.Update(2, updateDTO)
+		t.Logf("Calling diarioService.Update with ID: %d", 2)
+		responseDTO, err := diarioService.UpdateDiario(2, *updateDTO)
 
 		assert.Error(t, err)
 		assert.Nil(t, responseDTO)
@@ -190,14 +195,12 @@ func TestDiarioCultivoService_Atualizar(t *testing.T) {
 
 func TestDiarioCultivoService_Deletar(t *testing.T) {
 	mockRepo := new(MockDiarioCultivoRepository)
-	mockPlantaRepo := new(test.MockPlantaRepositorio)
-	mockAmbienteRepo := new(test.MockAmbienteRepositorio)
-	diarioService := service.NewDiarioCultivoService(mockRepo, mockPlantaRepo, mockAmbienteRepo)
+	diarioService := service.NewDiarioCultivoService(mockRepo)
 
 	t.Run("sucesso", func(t *testing.T) {
 		mockRepo.On("Delete", uint(1)).Return(nil).Once()
 
-		err := diarioService.Delete(1)
+		err := diarioService.DeleteDiario(1)
 
 		assert.NoError(t, err)
 		mockRepo.AssertExpectations(t)
@@ -207,7 +210,7 @@ func TestDiarioCultivoService_Deletar(t *testing.T) {
 		expectedError := errors.New("erro ao deletar")
 		mockRepo.On("Delete", uint(2)).Return(expectedError).Once()
 
-		err := diarioService.Delete(2)
+		err := diarioService.DeleteDiario(2)
 
 		assert.Error(t, err)
 		assert.Equal(t, expectedError, err)

@@ -49,7 +49,7 @@ func (c *DiarioCultivoController) Create(ctx *gin.Context) {
 		return
 	}
 
-	if diarioCultivoCriado, err := c.diarioCultivoServico.Create(&createDto); err != nil {
+	if diarioCultivoCriado, err := c.diarioCultivoServico.CreateDiario(createDto); err != nil {
 		logrus.WithError(err).Error("Erro ao criar diário de cultivo")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao criar diário de cultivo", err.Error())
 		return
@@ -87,7 +87,8 @@ func (c *DiarioCultivoController) List(ctx *gin.Context) {
 		return
 	}
 
-	paginatedResponse, err := c.diarioCultivoServico.GetAll(pagination.Page, pagination.Limit)
+	
+	paginatedResponse, err := c.diarioCultivoServico.GetAllDiarios(pagination.Page, pagination.Limit)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao listar diários de cultivo com paginação")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao listar diários de cultivo", err.Error())
@@ -120,7 +121,7 @@ func (c *DiarioCultivoController) GetByID(ctx *gin.Context) {
 		return
 	}
 
-	diarioCultivo, err := c.diarioCultivoServico.GetByID(uint(id))
+	diarioCultivo, err := c.diarioCultivoServico.GetDiarioByID(uint(id))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Diário de cultivo não encontrado ao buscar por ID")
 		utils.RespondWithError(ctx, http.StatusNotFound, "Diário de cultivo não encontrado", utils.ErrNotFound.Error())
@@ -156,7 +157,7 @@ func (c *DiarioCultivoController) Update(ctx *gin.Context) {
 		return
 	}
 
-	diarioCultivoAtualizado, err := c.diarioCultivoServico.Update(uint(id), &updateDto)
+	diarioCultivoAtualizado, err := c.diarioCultivoServico.UpdateDiario(uint(id), updateDto)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logrus.WithError(err).Error("Diário de cultivo não encontrado para atualização")
 		utils.RespondWithError(ctx, http.StatusNotFound, "Diário de cultivo não encontrado", utils.ErrNotFound.Error())
@@ -193,7 +194,7 @@ func (c *DiarioCultivoController) Delete(ctx *gin.Context) {
 		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", utils.ErrInvalidInput.Error())
 		return
 	}
-	if err := c.diarioCultivoServico.Delete(uint(id)); err != nil {
+	if err := c.diarioCultivoServico.DeleteDiario(uint(id)); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			logrus.WithError(err).Error("Diário de cultivo não encontrado para deleção")
 			utils.RespondWithError(ctx, http.StatusNotFound, "Diário de cultivo não encontrado", utils.ErrNotFound.Error())

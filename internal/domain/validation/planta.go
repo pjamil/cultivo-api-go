@@ -3,7 +3,7 @@ package validation
 import (
 	"errors"
 
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
 )
 
@@ -12,7 +12,7 @@ type PlantValidator struct {
 	repo repository.PlantaRepositorio
 }
 
-func (v *PlantValidator) Validate(dto models.Planta) error {
+func (v *PlantValidator) Validate(dto entity.Planta) error {
 	if dto.Nome == "" {
 		return errors.New("nome da planta não pode ser vazio")
 	}

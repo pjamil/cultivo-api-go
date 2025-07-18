@@ -200,12 +200,18 @@ func (c *GeneticaController) Deletar(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
 		logrus.WithError(err).Error("ID inválido para deletar genética")
-		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", nil)
+		utils.RespondWithError(ctx, http.StatusBadRequest, "ID inválido", err.Error())
 		return
 	}
-	if err := c.servico.Deletar(uint(id)); err != nil {
+	err = c.servico.Deletar(uint(id))
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		logrus.WithError(err).Error("Genética não encontrada para deleção")
+		utils.RespondWithError(ctx, http.StatusNotFound, "Genética não encontrada", err.Error())
+		return
+	}
+	if err != nil {
 		logrus.WithError(err).Error("Erro ao deletar genética")
-		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao deletar genética", nil)
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao deletar genética", err.Error())
 		return
 	}
 	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Genética deletada com sucesso"})

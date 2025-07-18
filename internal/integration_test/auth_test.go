@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 )
 
@@ -26,11 +26,11 @@ func TestLoginSuccess(t *testing.T) {
 	hashedPassword, err := utils.HashPassword(password)
 	assert.NoError(t, err)
 
-	testUser := models.Usuario{
+		testUser := entity.Usuario{
 		Nome:        "Test User",
 		Email:       "test@example.com",
 		SenhaHash:   hashedPassword,
-		Preferencias: json.RawMessage("{}"),
+		Preferencias: json.RawMessage([]byte("{}")),
 	}
 	err = db.Create(&testUser).Error
 	assert.NoError(t, err)
@@ -75,11 +75,11 @@ func TestLoginInvalidCredentials(t *testing.T) {
 	hashedPassword, err := utils.HashPassword(password)
 	assert.NoError(t, err)
 
-	testUser := models.Usuario{
+	testUser := entity.Usuario{
 		Nome:        "Another User",
 		Email:       "another@example.com",
 		SenhaHash:   hashedPassword,
-		Preferencias: json.RawMessage("{}"),
+		Preferencias: json.RawMessage([]byte("{}")),
 	}
 	err = db.Create(&testUser).Error
 	assert.NoError(t, err)
@@ -127,11 +127,11 @@ func TestProtectedRouteWithValidToken(t *testing.T) {
 	hashedPassword, err := utils.HashPassword(password)
 	assert.NoError(t, err)
 
-	testUser := models.Usuario{
+	testUser := entity.Usuario{
 		Nome:        "Protected User",
 		Email:       "protected@example.com",
 		SenhaHash:   hashedPassword,
-		Preferencias: json.RawMessage("{}"),
+		Preferencias: json.RawMessage([]byte("{}")),
 	}
 	err = db.Create(&testUser).Error
 	assert.NoError(t, err)

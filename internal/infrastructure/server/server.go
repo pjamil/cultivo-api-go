@@ -2,9 +2,9 @@ package server
 
 import (
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/controller"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
 	db_infra "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/infrastructure/database"
 	repository "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/infrastructure/repository"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -14,9 +14,9 @@ import (
 )
 
 const (
-	hostRoute       = "/api/v1"
-	rotasPlantas    = "/plantas"
-	rotaPlantaPorID = "/:id"
+	hostRoute        = "/api/v1"
+	rotasPlantas     = "/plantas"
+	rotaPlantaPorID  = "/:id"
 	rotaUsuarioPorID = "/:id"
 )
 
@@ -41,14 +41,16 @@ func NewServer(db *db_infra.Database) *Server {
 	geneticaRepo := db_infra.NewGeneticaRepositorio(db.DB)
 	meioCultivoRepo := db_infra.NewMeioCultivoRepositorio(db.DB)
 	diarioCultivoRepo := repository.NewDiarioCultivoRepository(db.DB)
+	registroDiarioRepo := repository.NewRegistroDiarioRepositorio(db.DB)
 
 	// Services
-	usuarioService := service.NewUsuarioService(usuarioRepo)
-	plantaService := service.NewPlantaService(plantaRepo, geneticaRepo, ambienteRepo, meioCultivoRepo, plantaRepo)
+	usuarioService := service.NewUsuarioService(usuarioRepo) // This line is causing the error
+	plantaService := service.NewPlantaService(plantaRepo, geneticaRepo, ambienteRepo, meioCultivoRepo, registroDiarioRepo)
 	ambienteService := service.NewAmbienteService(ambienteRepo)
 	geneticaService := service.NewGeneticaService(geneticaRepo)
 	meioCultivoService := service.NewMeioCultivoService(meioCultivoRepo)
-	diarioCultivoService := service.NewDiarioCultivoService(diarioCultivoRepo, plantaRepo, ambienteRepo)
+	diarioCultivoService := service.NewDiarioCultivoService(diarioCultivoRepo)
+	registroDiarioService := service.NewRegistroDiarioService(registroDiarioRepo, diarioCultivoRepo)
 
 	// Controllers
 	controladorUsuario := controller.NewUsuarioController(usuarioService)
@@ -57,6 +59,7 @@ func NewServer(db *db_infra.Database) *Server {
 	controladorGenetica := controller.NewGeneticaController(geneticaService)
 	controladorMeioCultivo := controller.NewMeioCultivoController(meioCultivoService)
 	controladorDiarioCultivo := controller.NewDiarioCultivoController(diarioCultivoService)
+	controladorRegistroDiario := controller.NewRegistroDiarioController(registroDiarioService)
 
 	// Health check routes
 	healthController := controller.NewHealthController(db.DB)
@@ -102,11 +105,20 @@ func NewServer(db *db_infra.Database) *Server {
 		authRoutes.DELETE("/meios-cultivos/:id", controladorMeioCultivo.Deletar)
 
 		// Rotas de DiarioCultivo
+		// Rotas de DiarioCultivo
 		authRoutes.POST("/diarios-cultivo", controladorDiarioCultivo.Create)
 		authRoutes.GET("/diarios-cultivo", controladorDiarioCultivo.List)
-		authRoutes.GET("/diarios-cultivo/:id", controladorDiarioCultivo.GetByID)
-		authRoutes.PUT("/diarios-cultivo/:id", controladorDiarioCultivo.Update)
-		authRoutes.DELETE("/diarios-cultivo/:id", controladorDiarioCultivo.Delete)
+		// Grupo de rotas para operações em um diário de cultivo específico e seus registros
+		diarioCultivoRoutes := authRoutes.Group("/diarios-cultivo/:id")
+		{
+			diarioCultivoRoutes.GET("", controladorDiarioCultivo.GetByID)
+			diarioCultivoRoutes.PUT("", controladorDiarioCultivo.Update)
+			diarioCultivoRoutes.DELETE("", controladorDiarioCultivo.Delete)
+
+			// Rotas de RegistroDiario aninhadas
+			diarioCultivoRoutes.POST("/registros", controladorRegistroDiario.Create)
+			diarioCultivoRoutes.GET("/registros", controladorRegistroDiario.List)
+		}
 
 		// Rotas de Usuario (autenticadas)
 		authRoutes.GET(rotaUsuarioPorID, controladorUsuario.BuscarPorID)

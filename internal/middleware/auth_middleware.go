@@ -21,6 +21,8 @@ func AuthMiddleware() gin.HandlerFunc {
 			"path":       c.Request.URL.Path,
 		})
 
+		log.Infof("AuthMiddleware: Authorization Header: %s", authHeader)
+
 		if authHeader == "" {
 			log.Warn("Requisição sem cabeçalho de autorização")
 			utils.RespondWithError(c, http.StatusUnauthorized, "Token de autenticação ausente", nil)
@@ -37,10 +39,11 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		tokenString := parts[1]
+		log.Infof("AuthMiddleware: Token String: %s", tokenString)
 		userID, err := utils.ValidateToken(tokenString)
 		if err != nil {
 			log.WithError(err).Warn("Falha na validação do token")
-			utils.RespondWithError(c, http.StatusUnauthorized, utils.ErrInvalidCredentials.Error(), nil)
+			utils.RespondWithError(c, http.StatusUnauthorized, "Token inválido ou expirado", nil)
 			c.Abort()
 			return
 		}

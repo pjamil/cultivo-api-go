@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 	"github.com/gin-gonic/gin"
@@ -260,7 +260,7 @@ func (c *PlantaController) RegistrarFato(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.plantaServico.RegistrarFato(uint(id), models.RegistroTipo(fatoDto.Tipo), fatoDto.Titulo, fatoDto.Conteudo); err != nil {
+	if err := c.plantaServico.RegistrarFato(uint(id), entity.RegistroTipo(fatoDto.Tipo), fatoDto.Titulo, fatoDto.Conteudo); err != nil {
 		logrus.WithError(err).Error("Erro ao registrar fato para a planta")
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			utils.RespondWithError(ctx, http.StatusNotFound, "Planta não encontrada", utils.ErrNotFound.Error())

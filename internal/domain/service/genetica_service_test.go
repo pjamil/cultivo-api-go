@@ -1,11 +1,12 @@
 package service_test
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -16,22 +17,22 @@ type MockGeneticaRepositorio struct {
 	mock.Mock
 }
 
-func (m *MockGeneticaRepositorio) Criar(genetica *models.Genetica) error {
+func (m *MockGeneticaRepositorio) Criar(genetica *entity.Genetica) error {
 	args := m.Called(genetica)
 	return args.Error(0)
 }
 
-func (m *MockGeneticaRepositorio) ListarTodos(page, limit int) ([]models.Genetica, int64, error) {
+func (m *MockGeneticaRepositorio) ListarTodos(page, limit int) ([]entity.Genetica, int64, error) {
 	args := m.Called(page, limit)
-	return args.Get(0).([]models.Genetica), args.Get(1).(int64), args.Error(2)
+	return args.Get(0).([]entity.Genetica), args.Get(1).(int64), args.Error(2)
 }
 
-func (m *MockGeneticaRepositorio) BuscarPorID(id uint) (*models.Genetica, error) {
+func (m *MockGeneticaRepositorio) BuscarPorID(id uint) (*entity.Genetica, error) {
 	args := m.Called(id)
-	return args.Get(0).(*models.Genetica), args.Error(1)
+	return args.Get(0).(*entity.Genetica), args.Error(1)
 }
 
-func (m *MockGeneticaRepositorio) Atualizar(genetica *models.Genetica) error {
+func (m *MockGeneticaRepositorio) Atualizar(genetica *entity.Genetica) error {
 	args := m.Called(genetica)
 	return args.Error(0)
 }
@@ -49,8 +50,8 @@ func TestGeneticaService_Criar(t *testing.T) {
 		createDTO := &dto.CreateGeneticaDTO{Nome: "Genetica Teste", TipoGenetica: "indica", TipoEspecie: "sativa", TempoFloracao: 8, Origem: "Brasil"}
 		expectedResponse := &dto.GeneticaResponseDTO{ID: 1, Nome: "Genetica Teste", TipoGenetica: "indica", TipoEspecie: "sativa", TempoFloracao: 8, Origem: "Brasil"}
 
-		mockRepo.On("Criar", mock.AnythingOfType("*models.Genetica")).Run(func(args mock.Arguments) {
-			genetica := args.Get(0).(*models.Genetica)
+		mockRepo.On("Criar", mock.AnythingOfType("*entity.Genetica")).Run(func(args mock.Arguments) {
+			genetica := args.Get(0).(*entity.Genetica)
 			genetica.ID = 1
 		}).Return(nil).Once()
 
@@ -66,7 +67,7 @@ func TestGeneticaService_Criar(t *testing.T) {
 	t.Run("Error - Repository Error", func(t *testing.T) {
 		createDTO := &dto.CreateGeneticaDTO{Nome: "Genetica Teste", TipoGenetica: "indica", TipoEspecie: "sativa", TempoFloracao: 8, Origem: "Brasil"}
 
-		mockRepo.On("Criar", mock.AnythingOfType("*models.Genetica")).Return(errors.New("erro no repositório")).Once()
+		mockRepo.On("Criar", mock.AnythingOfType("*entity.Genetica")).Return(errors.New("erro no repositório")).Once()
 
 		response, err := service.Criar(createDTO)
 
@@ -83,7 +84,7 @@ func TestGeneticaService_ListarTodas(t *testing.T) {
 
 	t.Run("Success - Geneticas Encontradas", func(t *testing.T) {
 		// Arrange
-		mockGeneticas := []models.Genetica{
+		mockGeneticas := []entity.Genetica{
 			{Model: gorm.Model{ID: 1}, Nome: "Genetica 1", TipoGenetica: "indica", TipoEspecie: "sativa", Origem: "Brasil"},
 			{Model: gorm.Model{ID: 2}, Nome: "Genetica 2", TipoGenetica: "sativa", TipoEspecie: "indica", Origem: "Afeganistão"},
 		}
@@ -107,28 +108,31 @@ func TestGeneticaService_ListarTodas(t *testing.T) {
 		assert.Equal(t, expectedTotal, response.Total)
 		assert.Equal(t, page, response.Page)
 		assert.Equal(t, limit, response.Limit)
-		assert.Equal(t, expectedResponseData, response.Data)
+		var actualResponseData []dto.GeneticaResponseDTO
+		err = json.Unmarshal(response.Data, &actualResponseData)
+		assert.NoError(t, err)
+		assert.Equal(t, expectedResponseData, actualResponseData)
 		mockRepo.AssertExpectations(t)
 	})
 
 	t.Run("Success - Nenhuma Genetica Encontrada", func(t *testing.T) {
 		page := 1
 		limit := 10
-		mockRepo.On("ListarTodos", page, limit).Return([]models.Genetica{}, int64(0), nil).Once()
+		mockRepo.On("ListarTodos", page, limit).Return([]entity.Genetica{}, int64(0), nil).Once()
 
 		response, err := service.ListarTodas(page, limit)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, response)
 		assert.Equal(t, int64(0), response.Total)
-		assert.Empty(t, response.Data)
+		assert.Equal(t, json.RawMessage("[]"), response.Data)
 		mockRepo.AssertExpectations(t)
 	})
 
 	t.Run("Error - Repository Error", func(t *testing.T) {
 		page := 1
 		limit := 10
-		mockRepo.On("ListarTodos", page, limit).Return([]models.Genetica{}, int64(0), errors.New("erro no repositório")).Once()
+		mockRepo.On("ListarTodos", page, limit).Return([]entity.Genetica{}, int64(0), errors.New("erro no repositório")).Once()
 
 		response, err := service.ListarTodas(page, limit)
 
@@ -145,7 +149,7 @@ func TestGeneticaService_BuscarPorID(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		geneticaID := uint(1)
-		expectedGenetica := &models.Genetica{Nome: "Genetica Teste"}
+		expectedGenetica := &entity.Genetica{Nome: "Genetica Teste"}
 		expectedGenetica.ID = geneticaID
 		expectedResponse := &dto.GeneticaResponseDTO{ID: geneticaID, Nome: "Genetica Teste"}
 
@@ -163,7 +167,7 @@ func TestGeneticaService_BuscarPorID(t *testing.T) {
 	t.Run("Not Found", func(t *testing.T) {
 		geneticaID := uint(999)
 
-		mockRepo.On("BuscarPorID", geneticaID).Return((*models.Genetica)(nil), gorm.ErrRecordNotFound).Once()
+		mockRepo.On("BuscarPorID", geneticaID).Return((*entity.Genetica)(nil), gorm.ErrRecordNotFound).Once()
 
 		response, err := service.BuscarPorID(geneticaID)
 
@@ -177,7 +181,7 @@ func TestGeneticaService_BuscarPorID(t *testing.T) {
 		geneticaID := uint(1)
 		expectedError := errors.New("erro no repositório")
 
-		mockRepo.On("BuscarPorID", geneticaID).Return((*models.Genetica)(nil), expectedError).Once()
+		mockRepo.On("BuscarPorID", geneticaID).Return((*entity.Genetica)(nil), expectedError).Once()
 
 		response, err := service.BuscarPorID(geneticaID)
 
@@ -195,13 +199,13 @@ func TestGeneticaService_Atualizar(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		geneticaID := uint(1)
 		updateDTO := &dto.UpdateGeneticaDTO{Nome: "Genetica Atualizada"}
-		existingGenetica := &models.Genetica{Nome: "Genetica Antiga"}
+		existingGenetica := &entity.Genetica{Nome: "Genetica Antiga"}
 		existingGenetica.ID = geneticaID
 		expectedResponse := &dto.GeneticaResponseDTO{ID: geneticaID, Nome: "Genetica Atualizada"}
 
 		mockRepo.On("BuscarPorID", geneticaID).Return(existingGenetica, nil).Once()
-		mockRepo.On("Atualizar", mock.AnythingOfType("*models.Genetica")).Run(func(args mock.Arguments) {
-			genetica := args.Get(0).(*models.Genetica)
+		mockRepo.On("Atualizar", mock.AnythingOfType("*entity.Genetica")).Run(func(args mock.Arguments) {
+			genetica := args.Get(0).(*entity.Genetica)
 			genetica.Nome = updateDTO.Nome
 		}).Return(nil).Once()
 
@@ -217,7 +221,7 @@ func TestGeneticaService_Atualizar(t *testing.T) {
 		geneticaID := uint(999)
 		updateDTO := &dto.UpdateGeneticaDTO{Nome: "Genetica Atualizada"}
 
-		mockRepo.On("BuscarPorID", geneticaID).Return((*models.Genetica)(nil), gorm.ErrRecordNotFound).Once()
+		mockRepo.On("BuscarPorID", geneticaID).Return((*entity.Genetica)(nil), gorm.ErrRecordNotFound).Once()
 
 		response, err := service.Atualizar(geneticaID, updateDTO)
 
@@ -230,12 +234,12 @@ func TestGeneticaService_Atualizar(t *testing.T) {
 	t.Run("Repository Error on Update", func(t *testing.T) {
 		geneticaID := uint(1)
 		updateDTO := &dto.UpdateGeneticaDTO{Nome: "Genetica Atualizada"}
-		existingGenetica := &models.Genetica{Nome: "Genetica Antiga"}
+		existingGenetica := &entity.Genetica{Nome: "Genetica Antiga"}
 		existingGenetica.ID = geneticaID
 		expectedError := errors.New("erro no repositório")
 
 		mockRepo.On("BuscarPorID", geneticaID).Return(existingGenetica, nil).Once()
-		mockRepo.On("Atualizar", mock.AnythingOfType("*models.Genetica")).Return(expectedError).Once()
+		mockRepo.On("Atualizar", mock.AnythingOfType("*entity.Genetica")).Return(expectedError).Once()
 
 		response, err := service.Atualizar(geneticaID, updateDTO)
 

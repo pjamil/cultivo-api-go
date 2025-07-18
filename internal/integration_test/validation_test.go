@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 	tu "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils/test_utils"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +24,7 @@ func TestCreateWithInvalidData(t *testing.T) {
 		Nome:         "Invalid User",
 		Email:        "invalid-email", // Email inválido
 		Senha:        "password123",
-		Preferencias: json.RawMessage("{}"),
+		Preferencias: json.RawMessage([]byte("{}")),
 	}
 	jsonPayload, _ := json.Marshal(invalidUserPayload)
 
@@ -86,16 +86,18 @@ func TestUpdateWithInvalidData(t *testing.T) {
 	hashedPassword, err := utils.HashPassword(password)
 	assert.NoError(t, err)
 
-	validUser := models.Usuario{
+	validUser := entity.Usuario{
 		Nome:         "Valid User",
 		Email:        "valid@example.com",
 		SenhaHash:    hashedPassword,
-		Preferencias: json.RawMessage("{}"),
+		Preferencias: json.RawMessage([]byte("{}")),
 	}
 	err = db.Create(&validUser).Error
 	assert.NoError(t, err)
 
-	// Cenário 1: Atualizar Usuário com Email Inválido
+	// Gerar token de autenticação
+	token, err := utils.GenerateToken(validUser.ID)
+	assert.NoError(t, err)
 	invalidUpdatePayload := dto.UsuarioUpdateDTO{
 		Nome:  "Updated User",
 		Email: "invalid-email", // Email inválido
@@ -104,6 +106,7 @@ func TestUpdateWithInvalidData(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("PUT", fmt.Sprintf("/api/v1/usuarios/%d", validUser.ID), bytes.NewBuffer(jsonPayload))
+	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -111,13 +114,26 @@ func TestUpdateWithInvalidData(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "Email")
 
 	// Cenário 2: Atualizar Planta com Nome muito curto
-	// Primeiro, crie uma planta válida
-	planta := models.Planta{
-		Nome:        "Planta Original",
-		Especie:     "Especie Teste",
-		DataPlantio: tu.TimePtr(time.Now()),
-		Status:      "vegetativo",
-		UsuarioID:   validUser.ID,
+	// Primeiro, crie as dependências necessárias
+	ambiente := entity.Ambiente{Nome: "Ambiente de Teste", Tipo: "interno"}
+	db.Create(&ambiente)
+
+	genetica := entity.Genetica{Nome: "Genetica de Teste", TipoGenetica: "Hibrida", TipoEspecie: "Sativa", TempoFloracao: 60, Origem: "Origem Teste"}
+	db.Create(&genetica)
+
+	meioCultivo := entity.MeioCultivo{Tipo: "Solo", Descricao: "Solo de Teste"}
+	db.Create(&meioCultivo)
+
+	// Crie uma planta válida com as dependências
+	planta := entity.Planta{
+		Nome:          "Planta Original",
+		Especie:       "Especie Teste",
+		DataPlantio:   tu.TimePtr(time.Now()),
+		Status:        "vegetativo",
+		UsuarioID:     validUser.ID,
+		AmbienteID:    ambiente.ID,
+		GeneticaID:    genetica.ID,
+		MeioCultivoID: meioCultivo.ID,
 	}
 	err = db.Create(&planta).Error
 	assert.NoError(t, err)
@@ -129,6 +145,7 @@ func TestUpdateWithInvalidData(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	req, _ = http.NewRequest("PUT", fmt.Sprintf("/api/v1/plantas/%d", planta.ID), bytes.NewBuffer(jsonPayload))
+	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 

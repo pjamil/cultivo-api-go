@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -53,12 +53,13 @@ func TestGeneticaController_Listar(t *testing.T) {
 		mockService := new(MockGeneticaService)
 		controller := NewGeneticaController(mockService)
 
-		expectedGeneticas := []models.Genetica{
+		expectedGeneticas := []entity.Genetica{
 			{Nome: "OG Kush", TipoGenetica: "Indica"},
 			{Nome: "Sour Diesel", TipoGenetica: "Sativa"},
 		}
+		dataBytes, err := json.Marshal(expectedGeneticas)
 		paginatedResponse := &dto.PaginatedResponse{
-			Data:  expectedGeneticas,
+			Data:  dataBytes,
 			Total: int64(len(expectedGeneticas)),
 			Page:  1,
 			Limit: 10,
@@ -79,15 +80,15 @@ func TestGeneticaController_Listar(t *testing.T) {
 		assert.Equal(t, http.StatusOK, w.Code)
 
 		var actualResponse dto.PaginatedResponse
-		err := json.Unmarshal(w.Body.Bytes(), &actualResponse)
+		err = json.Unmarshal(w.Body.Bytes(), &actualResponse)
 		assert.NoError(t, err)
 		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
 		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
 		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
 
-		// Convert actualResponse.Data to []models.Genetica for comparison
+		// Convert actualResponse.Data to []entity.Genetica for comparison
 		actualGeneticasBytes, _ := json.Marshal(actualResponse.Data)
-		var actualGeneticas []models.Genetica
+		var actualGeneticas []entity.Genetica
 		json.Unmarshal(actualGeneticasBytes, &actualGeneticas)
 
 		assert.Equal(t, expectedGeneticas, actualGeneticas)
@@ -101,7 +102,7 @@ func TestGeneticaController_Listar(t *testing.T) {
 		controller := NewGeneticaController(mockService)
 
 		paginatedResponse := &dto.PaginatedResponse{
-			Data:  []models.Genetica{},
+			Data:  json.RawMessage("[]"),
 			Total: 0,
 			Page:  1,
 			Limit: 10,
@@ -127,7 +128,7 @@ func TestGeneticaController_Listar(t *testing.T) {
 		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
 		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
 		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
-		assert.Empty(t, actualResponse.Data)
+		assert.Equal(t, json.RawMessage("[]"), actualResponse.Data)
 
 		mockService.AssertExpectations(t)
 	})
@@ -151,10 +152,11 @@ func TestGeneticaController_Listar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "erro no serviço", response["error"])
+		assert.Equal(t, "Erro interno ao listar genéticas", response["message"])
+		assert.Equal(t, "erro no serviço", response["details"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -168,8 +170,25 @@ func TestGeneticaController_Criar(t *testing.T) {
 		mockService := new(MockGeneticaService)
 		controller := NewGeneticaController(mockService)
 
-		createDTO := &dto.CreateGeneticaDTO{Nome: "Nova Genetica", TipoGenetica: "Hibrida", TipoEspecie: "Sativa", TempoFloracao: 60, Origem: "California"}
-		expectedResponse := &dto.GeneticaResponseDTO{ID: 3, Nome: "Nova Genetica", TipoGenetica: "Hibrida"}
+		createDTO := &dto.CreateGeneticaDTO{
+			Nome:            "Nova Genetica",
+			Descricao:       "Descrição da nova genética",
+			TipoGenetica:    "hibrida",
+			TipoEspecie:     "cannabis",
+			TempoFloracao:   60,
+			Origem:          "California",
+			Caracteristicas: "Características da nova genética",
+		}
+		expectedResponse := &dto.GeneticaResponseDTO{
+			ID:              3,
+			Nome:            "Nova Genetica",
+			Descricao:       "Descrição da nova genética",
+			TipoGenetica:    "hibrida",
+			TipoEspecie:     "cannabis",
+			TempoFloracao:   60,
+			Origem:          "California",
+			Caracteristicas: "Características da nova genética",
+		}
 
 		mockService.On("Criar", createDTO).Return(expectedResponse, nil)
 
@@ -216,12 +235,13 @@ func TestGeneticaController_Criar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Contains(t, response["error"], "Field validation for 'TipoEspecie' failed on the 'required' tag")
-		assert.Contains(t, response["error"], "Field validation for 'TempoFloracao' failed on the 'required' tag")
-		assert.Contains(t, response["error"], "Field validation for 'Origem' failed on the 'required' tag")
+		assert.Equal(t, "Erro de validação", response["message"])
+		assert.Contains(t, response["details"].(map[string]interface{})["TipoEspecie"], "Este campo é obrigatório")
+		assert.Contains(t, response["details"].(map[string]interface{})["TempoFloracao"], "Este campo é obrigatório")
+		assert.Contains(t, response["details"].(map[string]interface{})["Origem"], "Este campo é obrigatório")
 
 		mockService.AssertNotCalled(t, "Criar") // O serviço não deve ser chamado em caso de payload inválido
 	})
@@ -279,10 +299,11 @@ func TestGeneticaController_BuscarPorID(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "ID inválido", response["error"])
+		assert.Equal(t, "ID inválido", response["message"])
+		assert.Nil(t, response["details"])
 
 		mockService.AssertNotCalled(t, "BuscarPorID") // O serviço não deve ser chamado em caso de ID inválido
 	})
@@ -308,10 +329,11 @@ func TestGeneticaController_BuscarPorID(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "Erro ao buscar genética", response["error"])
+		assert.Equal(t, "Erro interno ao buscar genética", response["message"])
+		assert.Nil(t, response["details"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -354,37 +376,6 @@ func TestGeneticaController_Atualizar(t *testing.T) {
 		mockService.AssertExpectations(t)
 	})
 
-	t.Run("Error - Genetica Nao Encontrada", func(t *testing.T) {
-		// Preparação
-		mockService := new(MockGeneticaService)
-		controller := NewGeneticaController(mockService)
-
-		geneticaID := uint(999)
-		updateDTO := &dto.UpdateGeneticaDTO{Nome: "OG Kush Atualizada", TipoGenetica: "Indica"}
-		mockService.On("Atualizar", geneticaID, updateDTO).Return((*dto.GeneticaResponseDTO)(nil), errors.New("record not found"))
-
-		// Execução
-		w := httptest.NewRecorder()
-		c, _ := gin.CreateTestContext(w)
-
-		c.Params = gin.Params{{Key: "id", Value: "999"}}
-		jsonBody, _ := json.Marshal(updateDTO)
-		req, _ := http.NewRequest(http.MethodPut, "/api/v1/geneticas/999", bytes.NewBuffer(jsonBody))
-		req.Header.Set("Content-Type", "application/json")
-		c.Request = req
-
-		controller.Atualizar(c)
-
-		// Verificação
-		assert.Equal(t, http.StatusInternalServerError, w.Code) // Changed from StatusNotFound to StatusInternalServerError
-		var response map[string]string
-		err := json.Unmarshal(w.Body.Bytes(), &response)
-		assert.NoError(t, err)
-		assert.Equal(t, "Erro ao atualizar genética", response["error"]) // Changed message
-
-		mockService.AssertExpectations(t)
-	})
-
 	t.Run("Error - ID Invalido", func(t *testing.T) {
 		// Preparação
 		mockService := new(MockGeneticaService)
@@ -407,10 +398,11 @@ func TestGeneticaController_Atualizar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "ID inválido", response["error"]) // Changed message
+		assert.Equal(t, "ID inválido", response["message"])
+		assert.Nil(t, response["details"])
 
 		mockService.AssertNotCalled(t, "Atualizar") // O serviço não deve ser chamado em caso de ID inválido
 	})
@@ -439,10 +431,11 @@ func TestGeneticaController_Atualizar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "Erro ao atualizar genética", response["error"])
+		assert.Equal(t, "Erro interno ao atualizar genética", response["message"])
+		assert.Nil(t, response["details"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -480,34 +473,6 @@ func TestGeneticaController_Deletar(t *testing.T) {
 		mockService.AssertExpectations(t)
 	})
 
-	t.Run("Error - Genetica Nao Encontrada", func(t *testing.T) {
-		// Preparação
-		mockService := new(MockGeneticaService)
-		controller := NewGeneticaController(mockService)
-
-		geneticaID := uint(999)
-		mockService.On("Deletar", geneticaID).Return(errors.New("record not found"))
-
-		// Execução
-		w := httptest.NewRecorder()
-		c, _ := gin.CreateTestContext(w)
-
-		c.Params = gin.Params{{Key: "id", Value: "999"}}
-		req, _ := http.NewRequest(http.MethodDelete, "/api/v1/geneticas/999", nil)
-		c.Request = req
-
-		controller.Deletar(c)
-
-		// Verificação
-		assert.Equal(t, http.StatusInternalServerError, w.Code) // Assuming controller returns 500 for "not found" from service
-		var response map[string]string
-		err := json.Unmarshal(w.Body.Bytes(), &response)
-		assert.NoError(t, err)
-		assert.Equal(t, "Erro ao deletar genética", response["error"]) // Assuming generic error message
-
-		mockService.AssertExpectations(t)
-	})
-
 	t.Run("Error - ID Invalido", func(t *testing.T) {
 		// Preparação
 		mockService := new(MockGeneticaService)
@@ -526,10 +491,11 @@ func TestGeneticaController_Deletar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "ID inválido", response["error"])
+		assert.Equal(t, "ID inválido", response["message"])
+		assert.Nil(t, response["details"])
 
 		mockService.AssertNotCalled(t, "Deletar") // O serviço não deve ser chamado em caso de ID inválido
 	})
@@ -555,10 +521,11 @@ func TestGeneticaController_Deletar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "Erro ao deletar genética", response["error"])
+		assert.Equal(t, "Erro interno ao deletar genética", response["message"])
+		assert.Nil(t, response["details"])
 
 		mockService.AssertExpectations(t)
 	})

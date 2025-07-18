@@ -6,7 +6,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 )
 
 // PlantaRepositorio implementa a interface repository.PlantaRepositorio
@@ -20,7 +20,7 @@ func NewPlantaRepositorio(db *gorm.DB) *PlantaRepositorio {
 }
 
 // Criar insere uma nova planta no banco de dados
-func (r *PlantaRepositorio) Criar(planta *models.Planta) error {
+func (r *PlantaRepositorio) Criar(planta *entity.Planta) error {
 	if planta == nil {
 		return errors.New("planta não pode ser nula")
 	}
@@ -34,13 +34,13 @@ func (r *PlantaRepositorio) Criar(planta *models.Planta) error {
 }
 
 // ListarTodos retorna todas as plantas cadastradas com paginação
-func (r *PlantaRepositorio) ListarTodos(page, limit int) ([]models.Planta, int64, error) {
-	var plantas []models.Planta
+func (r *PlantaRepositorio) ListarTodos(page, limit int) ([]entity.Planta, int64, error) {
+	var plantas []entity.Planta
 	var total int64
 
 	offset := (page - 1) * limit
 
-	err := r.db.Model(&models.Planta{}).Count(&total).Error
+	err := r.db.Model(&entity.Planta{}).Count(&total).Error
 	if err != nil {
 		return nil, 0, err
 	}
@@ -58,8 +58,8 @@ func (r *PlantaRepositorio) ListarTodos(page, limit int) ([]models.Planta, int64
 }
 
 // BuscarPorID busca uma planta pelo ID
-func (r *PlantaRepositorio) BuscarPorID(id uint) (*models.Planta, error) {
-	var planta models.Planta
+func (r *PlantaRepositorio) BuscarPorID(id uint) (*entity.Planta, error) {
+	var planta entity.Planta
 	if err := r.db.First(&planta, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, gorm.ErrRecordNotFound
@@ -70,7 +70,7 @@ func (r *PlantaRepositorio) BuscarPorID(id uint) (*models.Planta, error) {
 }
 
 // Atualizar atualiza uma planta existente
-func (r *PlantaRepositorio) Atualizar(planta *models.Planta) error {
+func (r *PlantaRepositorio) Atualizar(planta *entity.Planta) error {
 	if planta == nil {
 		return errors.New("planta não pode ser nula")
 	}
@@ -90,7 +90,7 @@ func (r *PlantaRepositorio) Atualizar(planta *models.Planta) error {
 
 // Deletar remove uma planta pelo ID
 func (r *PlantaRepositorio) Deletar(id uint) error {
-	result := r.db.Delete(&models.Planta{}, id)
+	result := r.db.Delete(&entity.Planta{}, id)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -101,8 +101,8 @@ func (r *PlantaRepositorio) Deletar(id uint) error {
 }
 
 // BuscarPorEspecie retorna plantas por espécie (método adicional)
-func (r *PlantaRepositorio) BuscarPorEspecie(especie models.Especie) ([]models.Planta, error) {
-	var plantas []models.Planta
+func (r *PlantaRepositorio) BuscarPorEspecie(especie entity.Especie) ([]entity.Planta, error) {
+	var plantas []entity.Planta
 
 	result := r.db.Where("species = ?", especie).Find(&plantas)
 	if result.Error != nil {
@@ -113,8 +113,8 @@ func (r *PlantaRepositorio) BuscarPorEspecie(especie models.Especie) ([]models.P
 }
 
 // BuscarPorStatus retorna plantas por status (método adicional)
-func (r *PlantaRepositorio) BuscarPorStatus(status string) ([]models.Planta, error) {
-	var plantas []models.Planta
+func (r *PlantaRepositorio) BuscarPorStatus(status string) ([]entity.Planta, error) {
+	var plantas []entity.Planta
 
 	result := r.db.Where("status = ?", status).Find(&plantas)
 	if result.Error != nil {
@@ -127,14 +127,14 @@ func (r *PlantaRepositorio) BuscarPorStatus(status string) ([]models.Planta, err
 // ExistePorNome verifica se uma planta com o mesmo nome já existe
 func (r *PlantaRepositorio) ExistePorNome(nome string) bool {
 	var count int64
-	result := r.db.Model(&models.Planta{}).Where("nome = ?", nome).Count(&count)
+	result := r.db.Model(&entity.Planta{}).Where("nome = ?", nome).Count(&count)
 	if result.Error != nil {
 		return false // Erro na consulta, assume que não existe
 	}
 	return count > 0 // Retorna true se existir pelo menos uma planta com o nome
 }
 
-func (r *PlantaRepositorio) CriarRegistroDiario(registro *models.RegistroDiario) error {
+func (r *PlantaRepositorio) CriarRegistroDiario(registro *entity.RegistroDiario) error {
 	if registro == nil {
 		return errors.New("registro diário não pode ser nulo")
 	}

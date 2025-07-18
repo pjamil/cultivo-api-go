@@ -40,10 +40,10 @@ type PlantaResponseDTO struct {
 	Nome          string    `json:"nome"`
 	ComecandoDe   string    `json:"comecando_de"`
 	Especie       string    `json:"especie"`
-	DataPlantio   time.Time `json:"data_plantio"`
+	DataPlantio   *time.Time `json:"data_plantio"`
 	DataColheita  *time.Time `json:"data_colheita,omitempty"`
 	Status        string    `json:"status"`
-	Notas         string    `json:"notas,omitempty"`
+	Notas         *string    `json:"notas,omitempty"`
 	GeneticaID    uint      `json:"genetica_id"`
 	MeioCultivoID uint      `json:"meio_cultivo_id"`
 	AmbienteID    uint      `json:"ambiente_id"`

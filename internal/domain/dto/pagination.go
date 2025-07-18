@@ -1,5 +1,7 @@
 package dto
 
+import "encoding/json"
+
 // PaginationParams define os parâmetros de paginação para requisições.
 type PaginationParams struct {
 	Page  int `form:"page,default=1" binding:"min=1"`
@@ -8,7 +10,7 @@ type PaginationParams struct {
 
 // PaginatedResponse define a estrutura de resposta para dados paginados.
 type PaginatedResponse struct {
-	Data  interface{} `json:"data"`
+	Data  json.RawMessage `json:"data"`
 	Total int64       `json:"total"`
 	Page  int         `json:"page"`
 	Limit int         `json:"limit"`

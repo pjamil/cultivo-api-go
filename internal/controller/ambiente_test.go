@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -21,9 +21,9 @@ type MockAmbienteService struct {
 	mock.Mock
 }
 
-func (m *MockAmbienteService) Criar(ambienteDto *dto.CreateAmbienteDTO) (*models.Ambiente, error) {
+func (m *MockAmbienteService) Criar(ambienteDto *dto.CreateAmbienteDTO) (*entity.Ambiente, error) {
 	args := m.Called(ambienteDto)
-	return args.Get(0).(*models.Ambiente), args.Error(1)
+	return args.Get(0).(*entity.Ambiente), args.Error(1)
 }
 
 func (m *MockAmbienteService) ListarTodos(page, limit int) (*dto.PaginatedResponse, error) {
@@ -34,14 +34,14 @@ func (m *MockAmbienteService) ListarTodos(page, limit int) (*dto.PaginatedRespon
 	return args.Get(0).(*dto.PaginatedResponse), args.Error(1)
 }
 
-func (m *MockAmbienteService) BuscarPorID(id uint) (*models.Ambiente, error) {
+func (m *MockAmbienteService) BuscarPorID(id uint) (*entity.Ambiente, error) {
 	args := m.Called(id)
-	return args.Get(0).(*models.Ambiente), args.Error(1)
+	return args.Get(0).(*entity.Ambiente), args.Error(1)
 }
 
-func (m *MockAmbienteService) Atualizar(id uint, ambienteDto *dto.UpdateAmbienteDTO) (*models.Ambiente, error) {
+func (m *MockAmbienteService) Atualizar(id uint, ambienteDto *dto.UpdateAmbienteDTO) (*entity.Ambiente, error) {
 	args := m.Called(id, ambienteDto)
-	return args.Get(0).(*models.Ambiente), args.Error(1)
+	return args.Get(0).(*entity.Ambiente), args.Error(1)
 }
 
 func (m *MockAmbienteService) Deletar(id uint) error {
@@ -57,12 +57,14 @@ func TestAmbienteController_Listar(t *testing.T) {
 		mockService := new(MockAmbienteService)
 		controller := NewAmbienteController(mockService)
 
-		expectedAmbientes := []models.Ambiente{
+		expectedAmbientes := []entity.Ambiente{
 			{Nome: "Estufa", Descricao: "Estufa de cultivo"},
 			{Nome: "Quarto", Descricao: "Quarto de cultivo"},
 		}
+		dataBytes, err := json.Marshal(expectedAmbientes)
+		assert.NoError(t, err)
 		paginatedResponse := &dto.PaginatedResponse{
-			Data:  expectedAmbientes,
+			Data:  dataBytes,
 			Total: int64(len(expectedAmbientes)),
 			Page:  1,
 			Limit: 10,
@@ -83,15 +85,15 @@ func TestAmbienteController_Listar(t *testing.T) {
 		assert.Equal(t, http.StatusOK, w.Code)
 
 		var actualResponse dto.PaginatedResponse
-		err := json.Unmarshal(w.Body.Bytes(), &actualResponse)
+		err = json.Unmarshal(w.Body.Bytes(), &actualResponse)
 		assert.NoError(t, err)
 		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
 		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
 		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
 
-		// Convert actualResponse.Data to []models.Ambiente for comparison
+		// Convert actualResponse.Data to []entity.Ambiente for comparison
 		actualAmbientesBytes, _ := json.Marshal(actualResponse.Data)
-		var actualAmbientes []models.Ambiente
+		var actualAmbientes []entity.Ambiente
 		json.Unmarshal(actualAmbientesBytes, &actualAmbientes)
 
 		assert.Equal(t, expectedAmbientes, actualAmbientes)
@@ -105,7 +107,7 @@ func TestAmbienteController_Listar(t *testing.T) {
 		controller := NewAmbienteController(mockService)
 
 		paginatedResponse := &dto.PaginatedResponse{
-			Data:  []models.Ambiente{},
+			Data:  json.RawMessage("[]"),
 			Total: 0,
 			Page:  1,
 			Limit: 10,
@@ -131,7 +133,7 @@ func TestAmbienteController_Listar(t *testing.T) {
 		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
 		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
 		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
-		assert.Empty(t, actualResponse.Data)
+		assert.Equal(t, json.RawMessage("[]"), actualResponse.Data)
 
 		mockService.AssertExpectations(t)
 	})
@@ -155,10 +157,11 @@ func TestAmbienteController_Listar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "erro no serviço", response["error"])
+		assert.Equal(t, "Erro interno ao listar ambientes", response["message"])
+		assert.Equal(t, "erro no serviço", response["details"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -173,23 +176,23 @@ func TestAmbienteController_Criar(t *testing.T) {
 		controller := NewAmbienteController(mockService)
 
 		createDTO := &dto.CreateAmbienteDTO{
-			Nome:        "Estufa Teste",
-			Descricao:   "Estufa para testes",
-			Tipo:        "interno",
-			Comprimento: 10.0,
-			Altura:      5.0,
-			Largura:     8.0,
+			Nome:           "Estufa Teste",
+			Descricao:      "Estufa para testes",
+			Tipo:           "interno",
+			Comprimento:    10.0,
+			Altura:         5.0,
+			Largura:        8.0,
 			TempoExposicao: 12,
 		}
-		expectedAmbiente := &models.Ambiente{
-			Nome:        "Estufa Teste",
-			Descricao:   "Estufa para testes",
-			Tipo:        "interno",
-			Comprimento: 10.0,
-			Altura:      5.0,
-			Largura:     8.0,
+		expectedAmbiente := &entity.Ambiente{
+			Nome:           "Estufa Teste",
+			Descricao:      "Estufa para testes",
+			Tipo:           "interno",
+			Comprimento:    10.0,
+			Altura:         5.0,
+			Largura:        8.0,
 			TempoExposicao: 12,
-			Orientacao:  "norte",
+			Orientacao:     "norte",
 		}
 
 		mockService.On("Criar", mock.AnythingOfType("*dto.CreateAmbienteDTO")).Return(expectedAmbiente, nil)
@@ -208,7 +211,7 @@ func TestAmbienteController_Criar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusCreated, w.Code)
 
-		var actualAmbiente models.Ambiente
+		var actualAmbiente entity.Ambiente
 		err := json.Unmarshal(w.Body.Bytes(), &actualAmbiente)
 		assert.NoError(t, err)
 		assert.Equal(t, expectedAmbiente.Nome, actualAmbiente.Nome)
@@ -242,16 +245,16 @@ func TestAmbienteController_Criar(t *testing.T) {
 		controller := NewAmbienteController(mockService)
 
 		createDTO := &dto.CreateAmbienteDTO{
-			Nome:        "Estufa Teste",
-			Descricao:   "Estufa para testes",
-			Tipo:        "interno",
-			Comprimento: 10.0,
-			Altura:      5.0,
-			Largura:     8.0,
+			Nome:           "Estufa Teste",
+			Descricao:      "Estufa para testes",
+			Tipo:           "interno",
+			Comprimento:    10.0,
+			Altura:         5.0,
+			Largura:        8.0,
 			TempoExposicao: 12,
 		}
 
-		mockService.On("Criar", mock.AnythingOfType("*dto.CreateAmbienteDTO")).Return((*models.Ambiente)(nil), errors.New("erro interno do serviço"))
+		mockService.On("Criar", mock.AnythingOfType("*dto.CreateAmbienteDTO")).Return((*entity.Ambiente)(nil), errors.New("erro interno do serviço"))
 
 		// Execução
 		w := httptest.NewRecorder()
@@ -279,7 +282,7 @@ func TestAmbienteController_BuscarPorID(t *testing.T) {
 		mockService := new(MockAmbienteService)
 		controller := NewAmbienteController(mockService)
 
-		expectedAmbiente := &models.Ambiente{Nome: "Estufa Teste"}
+		expectedAmbiente := &entity.Ambiente{Nome: "Estufa Teste"}
 
 		mockService.On("BuscarPorID", uint(1)).Return(expectedAmbiente, nil)
 
@@ -293,7 +296,7 @@ func TestAmbienteController_BuscarPorID(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusOK, w.Code)
 
-		var actualAmbiente models.Ambiente
+		var actualAmbiente entity.Ambiente
 		err := json.Unmarshal(w.Body.Bytes(), &actualAmbiente)
 		assert.NoError(t, err)
 		assert.Equal(t, expectedAmbiente.Nome, actualAmbiente.Nome)
@@ -306,7 +309,7 @@ func TestAmbienteController_BuscarPorID(t *testing.T) {
 		mockService := new(MockAmbienteService)
 		controller := NewAmbienteController(mockService)
 
-		mockService.On("BuscarPorID", uint(1)).Return((*models.Ambiente)(nil), gorm.ErrRecordNotFound)
+		mockService.On("BuscarPorID", uint(1)).Return((*entity.Ambiente)(nil), gorm.ErrRecordNotFound)
 
 		// Execução
 		w := httptest.NewRecorder()
@@ -347,7 +350,7 @@ func TestAmbienteController_Atualizar(t *testing.T) {
 		controller := NewAmbienteController(mockService)
 
 		updateDTO := &dto.UpdateAmbienteDTO{Nome: "Estufa Atualizada"}
-				expectedAmbiente := &models.Ambiente{Nome: "Estufa Atualizada"}
+		expectedAmbiente := &entity.Ambiente{Nome: "Estufa Atualizada"}
 
 		mockService.On("Atualizar", uint(1), mock.AnythingOfType("*dto.UpdateAmbienteDTO")).Return(expectedAmbiente, nil)
 
@@ -366,7 +369,7 @@ func TestAmbienteController_Atualizar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusOK, w.Code)
 
-		var actualAmbiente models.Ambiente
+		var actualAmbiente entity.Ambiente
 		err := json.Unmarshal(w.Body.Bytes(), &actualAmbiente)
 		assert.NoError(t, err)
 		assert.Equal(t, expectedAmbiente.Nome, actualAmbiente.Nome)
@@ -381,7 +384,7 @@ func TestAmbienteController_Atualizar(t *testing.T) {
 
 		updateDTO := &dto.UpdateAmbienteDTO{Nome: "Estufa Atualizada"}
 
-		mockService.On("Atualizar", uint(1), mock.AnythingOfType("*dto.UpdateAmbienteDTO")).Return((*models.Ambiente)(nil), gorm.ErrRecordNotFound)
+		mockService.On("Atualizar", uint(1), mock.AnythingOfType("*dto.UpdateAmbienteDTO")).Return((*entity.Ambiente)(nil), gorm.ErrRecordNotFound)
 
 		// Execução
 		w := httptest.NewRecorder()

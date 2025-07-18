@@ -11,40 +11,46 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
-	
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 	test_utils "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils/test_utils"
 )
 
 func TestDiarioCultivoCRUD(t *testing.T) {
 	router := GetTestRouter()
 	db := GetTestDB().DB
+	assert.NoError(t, db.Raw("SELECT 1").Error, "Database ping failed at start of TestDiarioCultivoCRUD")
 
 	// Limpar o banco de dados antes de cada teste
 	LimparBancoDeDados(db)
 
 	// Criar um usuário para associar ao diário de cultivo
-	usuario := models.Usuario{
+	password := "testpassword"
+	hashedPassword, err := utils.HashPassword(password)
+	assert.NoError(t, err)
+
+		usuario := entity.Usuario{
 		Nome:      "Teste Diario",
 		Email:     fmt.Sprintf("teste_diario_%d@example.com", time.Now().UnixNano()),
-		SenhaHash: "senha_hash",
-		Preferencias: json.RawMessage("{}"),
+		SenhaHash: hashedPassword,
+		Preferencias: json.RawMessage("null"),
 	}
 	assert.NoError(t, db.Create(&usuario).Error)
 
 	// Criar um ambiente para associar ao diário de cultivo
-	ambiente := models.Ambiente{
+	testAmbiente := entity.Ambiente{
 		Nome:        "Ambiente Teste Diario",
 		Descricao:   "Descrição do ambiente",
 		Tipo:        "interno",
 		Comprimento: 10,
 		Altura:      10,
 		Largura:     10,
+		TempoExposicao: 10,
 	}
-	assert.NoError(t, db.Create(&ambiente).Error)
+	assert.NoError(t, db.Create(&testAmbiente).Error)
 
 	// Criar uma genética para associar à planta
-	genetica := models.Genetica{
+	genetica := entity.Genetica{
 		Nome:         "Genetica Teste Diario",
 		TipoGenetica: "Hibrida",
 		TipoEspecie:  "Sativa",
@@ -54,13 +60,13 @@ func TestDiarioCultivoCRUD(t *testing.T) {
 	assert.NoError(t, db.Create(&genetica).Error)
 
 	// Criar um meio de cultivo para associar à planta
-	meioCultivo := models.MeioCultivo{
+	meioCultivo := entity.MeioCultivo{
 		Tipo: "solo",
 	}
 	assert.NoError(t, db.Create(&meioCultivo).Error)
 
 	// Criar uma planta para associar ao diário de cultivo
-	planta := models.Planta{
+	planta := entity.Planta{
 		Nome:        "Planta Teste Diario",
 		Especie:     "Especie Teste",
 		DataPlantio: test_utils.TimePtr(time.Now()),
@@ -68,28 +74,15 @@ func TestDiarioCultivoCRUD(t *testing.T) {
 		UsuarioID:   usuario.ID,
 		GeneticaID:  genetica.ID, // Usar o ID da genética criada
 		MeioCultivoID: meioCultivo.ID, // Usar o ID do meio de cultivo criado
-		AmbienteID:  ambiente.ID, // Usar o ID do ambiente criado
+		AmbienteID:  testAmbiente.ID, // Usar o ID do ambiente criado
 	}
 	assert.NoError(t, db.Create(&planta).Error)
 
 	// 1. Teste de Criação (POST /api/v1/diarios-cultivo)
-	createDto := dto.CreateDiarioCultivoDTO{
-		Nome:        "Meu Primeiro Cultivo",
-		DataInicio:  time.Now(),
-		UsuarioID:   usuario.ID,
-		PlantasIDs:  []uint{planta.ID},
-		AmbientesIDs: []uint{ambiente.ID},
-		Privacidade: "privado",
-		Tags:        "teste,primeiro",
-	}
-	jsonBody, _ := json.Marshal(createDto)
-	req, _ := http.NewRequest("POST", "/api/v1/diarios-cultivo", bytes.NewBuffer(jsonBody))
-	req.Header.Set("Content-Type", "application/json")
-
 	// Fazer login para obter um token
 	loginPayload := dto.LoginPayload{
 		Email:    usuario.Email,
-		Password: "senha_hash", // Use a senha real do usuário criado
+		Password: "testpassword", // Use a senha real do usuário criado
 	}
 	jsonLoginPayload, _ := json.Marshal(loginPayload)
 	wLogin := httptest.NewRecorder()
@@ -101,6 +94,19 @@ func TestDiarioCultivoCRUD(t *testing.T) {
 	json.Unmarshal(wLogin.Body.Bytes(), &loginResponse)
 	token := loginResponse["token"]
 
+	// 1. Teste de Criação (POST /api/v1/diarios-cultivo)
+	createDto := dto.CreateDiarioCultivoDTO{
+		Nome:        "Meu Primeiro Cultivo",
+		DataInicio:  time.Now(),
+		UsuarioID:   usuario.ID,
+		PlantasIDs:  []uint{planta.ID},
+		AmbientesIDs: []uint{testAmbiente.ID},
+		Privacidade: "privado",
+		Tags:        "teste,primeiro",
+	}
+	jsonBody, _ := json.Marshal(createDto)
+	req, _ := http.NewRequest("POST", "/api/v1/diarios-cultivo", bytes.NewBuffer(jsonBody))
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	w := httptest.NewRecorder()
@@ -213,18 +219,22 @@ func TestDiarioCultivoUpdateNotFound(t *testing.T) {
 	LimparBancoDeDados(db)
 
 	// Criar um usuário para associar ao diário de cultivo
-	usuario := models.Usuario{
+	password := "testpassword"
+	hashedPassword, err := utils.HashPassword(password)
+	assert.NoError(t, err)
+
+	usuario := entity.Usuario{
 		Nome:      "Teste Update",
 		Email:     fmt.Sprintf("teste_update_%d@example.com", time.Now().UnixNano()),
-		SenhaHash: "senha_hash",
-		Preferencias: json.RawMessage("{}"),
+		SenhaHash: hashedPassword,
+		Preferencias: json.RawMessage("null"),
 	}
 	assert.NoError(t, db.Create(&usuario).Error)
 
 	// Fazer login para obter um token
 	loginPayload := dto.LoginPayload{
 		Email:    usuario.Email,
-		Password: "senha_hash",
+		Password: "testpassword",
 	}
 	jsonLoginPayload, _ := json.Marshal(loginPayload)
 	wLogin := httptest.NewRecorder()
@@ -256,18 +266,22 @@ func TestDiarioCultivoDeleteNotFound(t *testing.T) {
 	LimparBancoDeDados(db)
 
 	// Criar um usuário para associar ao diário de cultivo
-	usuario := models.Usuario{
+	password := "testpassword"
+	hashedPassword, err := utils.HashPassword(password)
+	assert.NoError(t, err)
+
+	usuario := entity.Usuario{
 		Nome:      "Teste Delete",
 		Email:     fmt.Sprintf("teste_delete_%d@example.com", time.Now().UnixNano()),
-		SenhaHash: "senha_hash",
-		Preferencias: json.RawMessage("{}"),
+		SenhaHash: hashedPassword,
+		Preferencias: json.RawMessage("null"),
 	}
 	assert.NoError(t, db.Create(&usuario).Error)
 
 	// Fazer login para obter um token
 	loginPayload := dto.LoginPayload{
 		Email:    usuario.Email,
-		Password: "senha_hash",
+		Password: "testpassword",
 	}
 	jsonLoginPayload, _ := json.Marshal(loginPayload)
 	wLogin := httptest.NewRecorder()

@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -54,12 +54,13 @@ func TestMeioCultivoController_Listar(t *testing.T) {
 		mockService := new(MockMeioCultivoService)
 		controller := NewMeioCultivoController(mockService)
 
-		expectedMeiosCultivo := []models.MeioCultivo{
+		expectedMeiosCultivo := []entity.MeioCultivo{
 			{Tipo: "Solo", Descricao: "Solo orgânico"},
 			{Tipo: "Coco", Descricao: "Fibra de coco"},
 		}
+		dataBytes, err := json.Marshal(expectedMeiosCultivo)
 		paginatedResponse := &dto.PaginatedResponse{
-			Data:  expectedMeiosCultivo,
+			Data:  dataBytes,
 			Total: int64(len(expectedMeiosCultivo)),
 			Page:  1,
 			Limit: 10,
@@ -80,15 +81,15 @@ func TestMeioCultivoController_Listar(t *testing.T) {
 		assert.Equal(t, http.StatusOK, w.Code)
 
 		var actualResponse dto.PaginatedResponse
-		err := json.Unmarshal(w.Body.Bytes(), &actualResponse)
+		err = json.Unmarshal(w.Body.Bytes(), &actualResponse)
 		assert.NoError(t, err)
 		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
 		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
 		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
 
-		// Convert actualResponse.Data to []models.MeioCultivo for comparison
+		// Convert actualResponse.Data to []entity.MeioCultivo for comparison
 		actualMeiosCultivoBytes, _ := json.Marshal(actualResponse.Data)
-		var actualMeiosCultivo []models.MeioCultivo
+		var actualMeiosCultivo []entity.MeioCultivo
 		json.Unmarshal(actualMeiosCultivoBytes, &actualMeiosCultivo)
 
 		assert.Equal(t, expectedMeiosCultivo, actualMeiosCultivo)
@@ -102,7 +103,7 @@ func TestMeioCultivoController_Listar(t *testing.T) {
 		controller := NewMeioCultivoController(mockService)
 
 		paginatedResponse := &dto.PaginatedResponse{
-			Data:  []models.MeioCultivo{},
+			Data:  json.RawMessage("[]"),
 			Total: 0,
 			Page:  1,
 			Limit: 10,
@@ -128,7 +129,7 @@ func TestMeioCultivoController_Listar(t *testing.T) {
 		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
 		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
 		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
-		assert.Empty(t, actualResponse.Data)
+		assert.Equal(t, json.RawMessage("[]"), actualResponse.Data)
 
 		mockService.AssertExpectations(t)
 	})
@@ -152,10 +153,11 @@ func TestMeioCultivoController_Listar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "Erro ao recuperar meios de cultivo", response["error"])
+		assert.Equal(t, "Erro interno ao listar meios de cultivo", response["message"])
+		assert.Equal(t, "erro no serviço", response["details"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -170,13 +172,13 @@ func TestMeioCultivoController_Criar(t *testing.T) {
 		controller := NewMeioCultivoController(mockService)
 
 		createDTO := &dto.CreateMeioCultivoDTO{
-			Tipo:        "Solo Teste",
-			Descricao:   "Solo para testes",
+			Tipo:      "solo",
+			Descricao: "Solo para testes",
 		}
 		expectedMeioCultivo := &dto.MeioCultivoResponseDTO{
-			ID:          1,
-			Tipo:        "Solo Teste",
-			Descricao:   "Solo para testes",
+			ID:        1,
+			Tipo:      "solo",
+			Descricao: "Solo para testes",
 		}
 
 		mockService.On("Criar", mock.AnythingOfType("*dto.CreateMeioCultivoDTO")).Return(expectedMeioCultivo, nil)
@@ -221,6 +223,11 @@ func TestMeioCultivoController_Criar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "Requisição inválida", response["message"])
+		assert.Contains(t, response["details"], "invalid character")
 	})
 
 	t.Run("Service Error", func(t *testing.T) {
@@ -229,8 +236,8 @@ func TestMeioCultivoController_Criar(t *testing.T) {
 		controller := NewMeioCultivoController(mockService)
 
 		createDTO := &dto.CreateMeioCultivoDTO{
-			Tipo:        "Solo Teste",
-			Descricao:   "Solo para testes",
+			Tipo:      "solo", // Alterado para um tipo válido
+			Descricao: "Solo para testes",
 		}
 
 		mockService.On("Criar", mock.AnythingOfType("*dto.CreateMeioCultivoDTO")).Return((*dto.MeioCultivoResponseDTO)(nil), errors.New("erro interno do serviço"))
@@ -248,6 +255,11 @@ func TestMeioCultivoController_Criar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "Erro interno ao criar meio de cultivo", response["message"])
+		assert.Equal(t, "erro interno do serviço", response["details"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -299,6 +311,11 @@ func TestMeioCultivoController_BuscarPorID(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusNotFound, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "Meio de cultivo não encontrado", response["message"])
+		assert.Equal(t, "record not found", response["details"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -317,6 +334,11 @@ func TestMeioCultivoController_BuscarPorID(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "ID inválido", response["message"])
+		assert.Nil(t, response["details"])
 	})
 }
 
@@ -379,6 +401,11 @@ func TestMeioCultivoController_Atualizar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusNotFound, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "Meio de cultivo não encontrado", response["message"])
+		assert.Equal(t, "record not found", response["details"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -397,6 +424,11 @@ func TestMeioCultivoController_Atualizar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "ID inválido", response["message"])
+		assert.Nil(t, response["details"])
 	})
 
 	t.Run("Invalid Payload", func(t *testing.T) {
@@ -417,6 +449,11 @@ func TestMeioCultivoController_Atualizar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "Requisição inválida", response["message"])
+		assert.Contains(t, response["details"], "invalid character")
 	})
 }
 
@@ -463,11 +500,12 @@ func TestMeioCultivoController_Deletar(t *testing.T) {
 		controller.Deletar(c)
 
 		// Verificação
-		assert.Equal(t, http.StatusInternalServerError, w.Code) // Changed from StatusNotFound to StatusInternalServerError
-		var response map[string]string
+		assert.Equal(t, http.StatusNotFound, w.Code)
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "Erro ao deletar meio de cultivo", response["error"]) // Changed message
+		assert.Equal(t, "Meio de cultivo não encontrado", response["message"])
+		assert.Nil(t, response["details"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -486,6 +524,11 @@ func TestMeioCultivoController_Deletar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "ID inválido", response["message"])
+		assert.Nil(t, response["details"])
 	})
 
 	t.Run("Service Error", func(t *testing.T) {
@@ -504,6 +547,11 @@ func TestMeioCultivoController_Deletar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+		assert.Equal(t, "Erro interno ao deletar meio de cultivo", response["message"])
+		assert.Equal(t, "erro interno do serviço", response["details"])
 
 		mockService.AssertExpectations(t)
 	})

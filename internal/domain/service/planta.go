@@ -1,13 +1,15 @@
 package service
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 	"gorm.io/gorm"
 )
 
@@ -19,19 +21,19 @@ type PlantaService interface {
 	ListarTodas(page, limit int) (*dto.PaginatedResponse, error)
 	Atualizar(id uint, plantaDto *dto.UpdatePlantaDTO) (*dto.PlantaResponseDTO, error)
 	Deletar(id uint) error
-	BuscarPorEspecie(especie models.Especie) ([]models.Planta, error)
-	BuscarPorStatus(status string) ([]models.Planta, error)
-	RegistrarFato(plantaID uint, tipo models.RegistroTipo, titulo string, conteudo string) error
+	BuscarPorEspecie(especie entity.Especie) ([]entity.Planta, error)
+	BuscarPorStatus(status string) ([]entity.Planta, error)
+	RegistrarFato(plantaID uint, tipo entity.RegistroTipo, titulo string, conteudo string) error
 }
 
 // PlantaService fornece métodos para gerenciar plantas no sistema.
 // Ele interage com o PlantaRepository para realizar operações CRUD em plantas.
 type plantaService struct {
-	repositorio           repository.PlantaRepositorio
-	geneticaRepositorio   repository.GeneticaRepositorio
-	ambienteRepositorio repository.AmbienteRepositorio
-	meioRepositorio     repository.MeioCultivoRepositorio
-	registroDiarioRepositorio repository.PlantaRepositorio
+	repositorio               repository.PlantaRepositorio
+	geneticaRepositorio       repository.GeneticaRepositorio
+	ambienteRepositorio       repository.AmbienteRepositorio
+	meioRepositorio           repository.MeioCultivoRepositorio
+	registroDiarioRepositorio repository.RegistroDiarioRepositorio
 }
 
 func NewPlantaService(
@@ -39,13 +41,13 @@ func NewPlantaService(
 	geneticaRepositorio repository.GeneticaRepositorio,
 	ambienteRepositorio repository.AmbienteRepositorio,
 	meioRepositorio repository.MeioCultivoRepositorio,
-	registroDiarioRepositorio repository.PlantaRepositorio,
+	registroDiarioRepositorio repository.RegistroDiarioRepositorio,
 ) PlantaService {
 	return &plantaService{
-		repositorio:           repositorio,
-		geneticaRepositorio:   geneticaRepositorio,
-		ambienteRepositorio: ambienteRepositorio,
-		meioRepositorio:     meioRepositorio,
+		repositorio:               repositorio,
+		geneticaRepositorio:       geneticaRepositorio,
+		ambienteRepositorio:       ambienteRepositorio,
+		meioRepositorio:           meioRepositorio,
 		registroDiarioRepositorio: registroDiarioRepositorio,
 	}
 }
@@ -77,11 +79,11 @@ func (s *plantaService) Criar(plantaDto *dto.CreatePlantaDTO) (*dto.PlantaRespon
 		return nil, fmt.Errorf("falha ao buscar meio de cultivo com ID %d: %w", plantaDto.MeioCultivoID, err)
 	}
 
-	planta := models.Planta{
+	planta := entity.Planta{
 		Nome:          plantaDto.Nome,
 		ComecandoDe:   plantaDto.ComecandoDe,
-		Especie:       models.Especie(plantaDto.Especie),
-		Status:        models.PlantaStatus(plantaDto.Status),
+		Especie:       entity.Especie(plantaDto.Especie),
+		Status:        entity.PlantaStatus(plantaDto.Status),
 		GeneticaID:    plantaDto.GeneticaID,
 		MeioCultivoID: plantaDto.MeioCultivoID,
 		AmbienteID:    plantaDto.AmbienteID,
@@ -103,10 +105,10 @@ func (s *plantaService) Criar(plantaDto *dto.CreatePlantaDTO) (*dto.PlantaRespon
 		Nome:          planta.Nome,
 		ComecandoDe:   planta.ComecandoDe,
 		Especie:       string(planta.Especie),
-		DataPlantio:   *planta.DataPlantio,
+		DataPlantio:   utils.TimePtr(utils.DereferenceTimePtr(planta.DataPlantio)),
 		DataColheita:  planta.DataColheita,
 		Status:        string(planta.Status),
-		Notas:         *planta.Notas,
+		Notas:         utils.StringPtr(utils.DereferenceStringPtr(planta.Notas)),
 		GeneticaID:    planta.GeneticaID,
 		MeioCultivoID: planta.MeioCultivoID,
 		AmbienteID:    planta.AmbienteID,
@@ -129,10 +131,10 @@ func (s *plantaService) BuscarPorID(id uint) (*dto.PlantaResponseDTO, error) {
 		Nome:          planta.Nome,
 		ComecandoDe:   planta.ComecandoDe,
 		Especie:       string(planta.Especie),
-		DataPlantio:   *planta.DataPlantio,
+		DataPlantio:   utils.TimePtr(utils.DereferenceTimePtr(planta.DataPlantio)),
 		DataColheita:  planta.DataColheita,
 		Status:        string(planta.Status),
-		Notas:         *planta.Notas,
+		Notas:         utils.StringPtr(utils.DereferenceStringPtr(planta.Notas)),
 		GeneticaID:    planta.GeneticaID,
 		MeioCultivoID: planta.MeioCultivoID,
 		AmbienteID:    planta.AmbienteID,
@@ -148,17 +150,17 @@ func (s *plantaService) ListarTodas(page, limit int) (*dto.PaginatedResponse, er
 		return nil, err
 	}
 
-	var responseDTOs []dto.PlantaResponseDTO
+	responseDTOs := make([]dto.PlantaResponseDTO, 0, len(plantas))
 	for _, planta := range plantas {
 		responseDTOs = append(responseDTOs, dto.PlantaResponseDTO{
 			ID:            planta.ID,
 			Nome:          planta.Nome,
 			ComecandoDe:   planta.ComecandoDe,
 			Especie:       string(planta.Especie),
-			DataPlantio:   *planta.DataPlantio,
+			DataPlantio:   utils.TimePtr(utils.DereferenceTimePtr(planta.DataPlantio)),
 			DataColheita:  planta.DataColheita,
 			Status:        string(planta.Status),
-			Notas:         *planta.Notas,
+			Notas:         utils.StringPtr(utils.DereferenceStringPtr(planta.Notas)),
 			GeneticaID:    planta.GeneticaID,
 			MeioCultivoID: planta.MeioCultivoID,
 			AmbienteID:    planta.AmbienteID,
@@ -168,8 +170,13 @@ func (s *plantaService) ListarTodas(page, limit int) (*dto.PaginatedResponse, er
 		})
 	}
 
+		dataBytes, err := json.Marshal(responseDTOs)
+		if err != nil {
+			return nil, fmt.Errorf("falha ao serializar plantas: %w", err)
+		}
+
 	return &dto.PaginatedResponse{
-		Data:  responseDTOs,
+		Data:  dataBytes,
 		Total: total,
 		Page:  page,
 		Limit: limit,
@@ -190,7 +197,7 @@ func (s *plantaService) Atualizar(id uint, plantaDto *dto.UpdatePlantaDTO) (*dto
 		plantaExistente.ComecandoDe = plantaDto.ComecandoDe
 	}
 	if plantaDto.Especie != "" {
-		plantaExistente.Especie = models.Especie(plantaDto.Especie)
+		plantaExistente.Especie = entity.Especie(plantaDto.Especie)
 	}
 	if !plantaDto.DataPlantio.IsZero() {
 		plantaExistente.DataPlantio = &plantaDto.DataPlantio
@@ -199,9 +206,9 @@ func (s *plantaService) Atualizar(id uint, plantaDto *dto.UpdatePlantaDTO) (*dto
 		plantaExistente.DataColheita = &plantaDto.DataColheita
 	}
 	if plantaDto.Status != "" {
-		plantaExistente.Status = models.PlantaStatus(plantaDto.Status)
+		plantaExistente.Status = entity.PlantaStatus(plantaDto.Status)
 	}
-	// O campo EstagioCrescimento não existe em models.Planta, então não pode ser atribuído diretamente.
+	// O campo EstagioCrescimento não existe em entity.Planta, então não pode ser atribuído diretamente.
 	// if plantaDto.EstagioCrescimento != "" {
 	// 	plantaExistente.EstagioCrescimento = plantaDto.EstagioCrescimento
 	// }
@@ -256,10 +263,10 @@ func (s *plantaService) Atualizar(id uint, plantaDto *dto.UpdatePlantaDTO) (*dto
 		Nome:          plantaExistente.Nome,
 		ComecandoDe:   plantaExistente.ComecandoDe,
 		Especie:       string(plantaExistente.Especie),
-		DataPlantio:   *plantaExistente.DataPlantio,
+		DataPlantio:   utils.TimePtr(utils.DereferenceTimePtr(plantaExistente.DataPlantio)),
 		DataColheita:  plantaExistente.DataColheita,
 		Status:        string(plantaExistente.Status),
-		Notas:         *plantaExistente.Notas,
+		Notas:         utils.StringPtr(utils.DereferenceStringPtr(plantaExistente.Notas)),
 		GeneticaID:    plantaExistente.GeneticaID,
 		MeioCultivoID: plantaExistente.MeioCultivoID,
 		AmbienteID:    plantaExistente.AmbienteID,
@@ -278,14 +285,14 @@ func (s *plantaService) Deletar(id uint) error {
 	return s.repositorio.Deletar(id)
 }
 
-func (s *plantaService) BuscarPorEspecie(especie models.Especie) ([]models.Planta, error) {
+func (s *plantaService) BuscarPorEspecie(especie entity.Especie) ([]entity.Planta, error) {
 	return s.repositorio.BuscarPorEspecie(especie)
 }
-func (s *plantaService) BuscarPorStatus(status string) ([]models.Planta, error) {
+func (s *plantaService) BuscarPorStatus(status string) ([]entity.Planta, error) {
 	return s.repositorio.BuscarPorStatus(status)
 }
 
-func (s *plantaService) RegistrarFato(plantaID uint, tipo models.RegistroTipo, titulo string, conteudo string) error {
+func (s *plantaService) RegistrarFato(plantaID uint, tipo entity.RegistroTipo, titulo string, conteudo string) error {
 	// Verificar se a planta existe
 	_, err := s.repositorio.BuscarPorID(plantaID)
 	if err != nil {
@@ -293,17 +300,17 @@ func (s *plantaService) RegistrarFato(plantaID uint, tipo models.RegistroTipo, t
 	}
 
 	// Criar o novo registro diário
-	registro := &models.RegistroDiario{
+	registro := &entity.RegistroDiario{
 		Data:           time.Now(),
 		Tipo:           tipo,
 		Titulo:         titulo,
 		Conteudo:       conteudo,
 		ReferenciaID:   &plantaID,
-		ReferenciaTipo: models.String("planta"),
+		ReferenciaTipo: entity.String("planta"),
 	}
 
 	// Salvar o registro diário usando o repositório
-	if err := s.repositorio.CriarRegistroDiario(registro); err != nil {
+	if err := s.registroDiarioRepositorio.Create(registro); err != nil {
 		return fmt.Errorf("falha ao registrar fato para a planta %d: %w", plantaID, err)
 	}
 

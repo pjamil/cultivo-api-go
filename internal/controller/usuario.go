@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -134,6 +135,14 @@ func (c *UsuarioController) Listar(ctx *gin.Context) {
 		return
 	}
 
+	// Marshal the Data field to json.RawMessage before responding
+	dataBytes, err := json.Marshal(paginatedResponse.Data)
+	if err != nil {
+		logrus.WithError(err).Error("Erro ao serializar dados de paginação")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao listar usuários", utils.ErrInternalServer.Error())
+		return
+	}
+	paginatedResponse.Data = dataBytes
 	utils.RespondWithJSON(ctx, http.StatusOK, paginatedResponse)
 }
 

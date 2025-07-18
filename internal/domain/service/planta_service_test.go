@@ -1,28 +1,31 @@
 package service_test
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
 	"time"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service/test"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"gorm.io/gorm"
 )
 
 func TestPlantaService_Criar(t *testing.T) {
-	mockPlantaRepo := new(test.MockPlantaRepositorio)
-	mockGeneticaRepo := new(test.MockGeneticaRepositorio)
-	mockAmbienteRepo := new(test.MockAmbienteRepositorio)
-	mockMeioRepo := new(test.MockMeioCultivoRepositorio)
-
-	servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockPlantaRepo) // Usando mockPlantaRepo para registroDiarioRepositorio
-
 	t.Run("Success", func(t *testing.T) {
+		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
+		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+
+		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
+
 		now := time.Now()
 		notas := "Algumas notas."
 		plantaDto := &dto.CreatePlantaDTO{
@@ -39,11 +42,11 @@ func TestPlantaService_Criar(t *testing.T) {
 		}
 
 		mockPlantaRepo.On("ExistePorNome", plantaDto.Nome).Return(false).Once()
-		mockGeneticaRepo.On("BuscarPorID", plantaDto.GeneticaID).Return(&models.Genetica{}, nil).Once()
-		mockAmbienteRepo.On("BuscarPorID", plantaDto.AmbienteID).Return(&models.Ambiente{}, nil).Once()
-		mockMeioRepo.On("BuscarPorID", plantaDto.MeioCultivoID).Return(&models.MeioCultivo{}, nil).Once()
-		mockPlantaRepo.On("Criar", mock.AnythingOfType("*models.Planta")).Run(func(args mock.Arguments) {
-			planta := args.Get(0).(*models.Planta)
+		mockGeneticaRepo.On("BuscarPorID", plantaDto.GeneticaID).Return(&entity.Genetica{}, nil).Once()
+		mockAmbienteRepo.On("BuscarPorID", plantaDto.AmbienteID).Return(&entity.Ambiente{}, nil).Once()
+		mockMeioRepo.On("BuscarPorID", plantaDto.MeioCultivoID).Return(&entity.MeioCultivo{}, nil).Once()
+		mockPlantaRepo.On("Criar", mock.AnythingOfType("*entity.Planta")).Run(func(args mock.Arguments) {
+			planta := args.Get(0).(*entity.Planta)
 			planta.ID = 1 // Simula o ID sendo atribuído pelo banco de dados
 			planta.DataPlantio = &now
 			planta.Notas = &notas
@@ -56,7 +59,7 @@ func TestPlantaService_Criar(t *testing.T) {
 		assert.Equal(t, plantaDto.Nome, response.Nome)
 		assert.Equal(t, uint(1), response.ID) // Verifica se o ID foi atribuído
 		assert.Equal(t, plantaDto.DataPlantio.Format("2006-01-02"), response.DataPlantio.Format("2006-01-02"))
-		assert.Equal(t, plantaDto.Notas, response.Notas)
+		assert.Equal(t, plantaDto.Notas, *response.Notas)
 		mockPlantaRepo.AssertExpectations(t)
 		mockGeneticaRepo.AssertExpectations(t)
 		mockAmbienteRepo.AssertExpectations(t)
@@ -64,6 +67,14 @@ func TestPlantaService_Criar(t *testing.T) {
 	})
 
 	t.Run("Error - Empty Name", func(t *testing.T) {
+		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
+		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+
+		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
+
 		plantaDto := &dto.CreatePlantaDTO{
 			Nome: "",
 		}
@@ -76,7 +87,15 @@ func TestPlantaService_Criar(t *testing.T) {
 		mockPlantaRepo.AssertNotCalled(t, "ExistePorNome")
 	})
 
-	t.Run("Error - Duplicate Name", func(t *testing.T) {
+		t.Run("Error - Duplicate Name", func(t *testing.T) {
+		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
+		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+
+		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
+
 		plantaDto := &dto.CreatePlantaDTO{
 			Nome: "Planta Existente",
 		}
@@ -92,6 +111,14 @@ func TestPlantaService_Criar(t *testing.T) {
 	})
 
 	t.Run("Error - Genetica Not Found", func(t *testing.T) {
+		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
+		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+
+		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
+
 		plantaDto := &dto.CreatePlantaDTO{
 			Nome:          "Nova Planta",
 			GeneticaID:    999,
@@ -100,7 +127,7 @@ func TestPlantaService_Criar(t *testing.T) {
 		}
 
 		mockPlantaRepo.On("ExistePorNome", plantaDto.Nome).Return(false).Once()
-		mockGeneticaRepo.On("BuscarPorID", plantaDto.GeneticaID).Return((*models.Genetica)(nil), gorm.ErrRecordNotFound).Once()
+		mockGeneticaRepo.On("BuscarPorID", plantaDto.GeneticaID).Return((*entity.Genetica)(nil), gorm.ErrRecordNotFound).Once()
 
 		response, err := servico.Criar(plantaDto)
 
@@ -112,6 +139,14 @@ func TestPlantaService_Criar(t *testing.T) {
 	})
 
 	t.Run("Error - Ambiente Not Found", func(t *testing.T) {
+		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
+		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+
+		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
+
 		plantaDto := &dto.CreatePlantaDTO{
 			Nome:          "Nova Planta",
 			GeneticaID:    1,
@@ -120,8 +155,8 @@ func TestPlantaService_Criar(t *testing.T) {
 		}
 
 		mockPlantaRepo.On("ExistePorNome", plantaDto.Nome).Return(false).Once()
-		mockGeneticaRepo.On("BuscarPorID", plantaDto.GeneticaID).Return(&models.Genetica{}, nil).Once()
-		mockAmbienteRepo.On("BuscarPorID", plantaDto.AmbienteID).Return((*models.Ambiente)(nil), gorm.ErrRecordNotFound).Once()
+		mockGeneticaRepo.On("BuscarPorID", plantaDto.GeneticaID).Return(&entity.Genetica{}, nil).Once()
+		mockAmbienteRepo.On("BuscarPorID", plantaDto.AmbienteID).Return((*entity.Ambiente)(nil), gorm.ErrRecordNotFound).Once()
 
 		response, err := servico.Criar(plantaDto)
 
@@ -134,6 +169,14 @@ func TestPlantaService_Criar(t *testing.T) {
 	})
 
 	t.Run("Error - MeioCultivo Not Found", func(t *testing.T) {
+		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
+		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+
+		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
+
 		plantaDto := &dto.CreatePlantaDTO{
 			Nome:          "Nova Planta",
 			GeneticaID:    1,
@@ -142,9 +185,9 @@ func TestPlantaService_Criar(t *testing.T) {
 		}
 
 		mockPlantaRepo.On("ExistePorNome", plantaDto.Nome).Return(false).Once()
-		mockGeneticaRepo.On("BuscarPorID", plantaDto.GeneticaID).Return(&models.Genetica{}, nil).Once()
-		mockAmbienteRepo.On("BuscarPorID", plantaDto.AmbienteID).Return(&models.Ambiente{}, nil).Once()
-	mockMeioRepo.On("BuscarPorID", plantaDto.MeioCultivoID).Return((*models.MeioCultivo)(nil), gorm.ErrRecordNotFound).Once()
+		mockGeneticaRepo.On("BuscarPorID", plantaDto.GeneticaID).Return(&entity.Genetica{}, nil).Once()
+		mockAmbienteRepo.On("BuscarPorID", plantaDto.AmbienteID).Return(&entity.Ambiente{}, nil).Once()
+	mockMeioRepo.On("BuscarPorID", plantaDto.MeioCultivoID).Return((*entity.MeioCultivo)(nil), gorm.ErrRecordNotFound).Once()
 
 		response, err := servico.Criar(plantaDto)
 
@@ -158,6 +201,14 @@ func TestPlantaService_Criar(t *testing.T) {
 	})
 
 	t.Run("Error - Repository Create Error", func(t *testing.T) {
+		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
+		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+
+		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
+
 		now := time.Now()
 		notas := "Algumas notas."
 		plantaDto := &dto.CreatePlantaDTO{
@@ -174,11 +225,11 @@ func TestPlantaService_Criar(t *testing.T) {
 		}
 
 		mockPlantaRepo.On("ExistePorNome", plantaDto.Nome).Return(false).Once()
-		mockGeneticaRepo.On("BuscarPorID", plantaDto.GeneticaID).Return(&models.Genetica{}, nil).Once()
-		mockAmbienteRepo.On("BuscarPorID", plantaDto.AmbienteID).Return(&models.Ambiente{}, nil).Once()
-	mockMeioRepo.On("BuscarPorID", plantaDto.MeioCultivoID).Return(&models.MeioCultivo{}, nil).Once()
-		mockPlantaRepo.On("Criar", mock.AnythingOfType("*models.Planta")).Run(func(args mock.Arguments) {
-			planta := args.Get(0).(*models.Planta)
+		mockGeneticaRepo.On("BuscarPorID", plantaDto.GeneticaID).Return(&entity.Genetica{}, nil).Once()
+		mockAmbienteRepo.On("BuscarPorID", plantaDto.AmbienteID).Return(&entity.Ambiente{}, nil).Once()
+		mockMeioRepo.On("BuscarPorID", plantaDto.MeioCultivoID).Return(&entity.MeioCultivo{}, nil).Once()
+		mockPlantaRepo.On("Criar", mock.AnythingOfType("*entity.Planta")).Run(func(args mock.Arguments) {
+			planta := args.Get(0).(*entity.Planta)
 			planta.DataPlantio = &now
 			planta.Notas = &notas
 		}).Return(errors.New("erro no repositório")).Once()
@@ -195,23 +246,112 @@ func TestPlantaService_Criar(t *testing.T) {
 	})
 }
 
+func TestPlantaService_ListarTodas(t *testing.T) {
+	t.Run("Success - Plantas Encontradas", func(t *testing.T) {
+		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
+		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
+
+		now := time.Now()
+		notas := "Algumas notas."
+		mockPlantas := []entity.Planta{
+			{Model: gorm.Model{ID: 1}, Nome: "Planta 1", Especie: "Sativa", DataPlantio: &now, Notas: &notas},
+			{Model: gorm.Model{ID: 2}, Nome: "Planta 2", Especie: "Indica", DataPlantio: &now, Notas: &notas},
+		}
+		expectedTotal := int64(len(mockPlantas))
+		page := 1
+		limit := 10
+
+		expectedResponseData := []dto.PlantaResponseDTO{
+			{ID: 1, Nome: "Planta 1", Especie: "Sativa", DataPlantio: utils.TimePtr(now), Notas: utils.StringPtr(notas)},
+			{ID: 2, Nome: "Planta 2", Especie: "Indica", DataPlantio: utils.TimePtr(now), Notas: utils.StringPtr(notas)},
+		}
+
+		mockPlantaRepo.On("ListarTodos", page, limit).Return(mockPlantas, expectedTotal, nil).Once()
+
+		response, err := servico.ListarTodas(page, limit)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, response)
+		assert.Equal(t, expectedTotal, response.Total)
+		assert.Equal(t, page, response.Page)
+		assert.Equal(t, limit, response.Limit)
+
+		var actualResponseData []dto.PlantaResponseDTO
+		err = json.Unmarshal(response.Data, &actualResponseData)
+		assert.NoError(t, err)
+		assert.Len(t, actualResponseData, len(expectedResponseData))
+		for i, expected := range expectedResponseData {
+			assert.Equal(t, expected.ID, actualResponseData[i].ID)
+			assert.Equal(t, expected.Nome, actualResponseData[i].Nome)
+			assert.Equal(t, expected.Especie, actualResponseData[i].Especie)
+			assert.Equal(t, expected.DataPlantio.Format("2006-01-02"), actualResponseData[i].DataPlantio.Format("2006-01-02"))
+			assert.Equal(t, *expected.Notas, *actualResponseData[i].Notas)
+		}
+		mockPlantaRepo.AssertExpectations(t)
+	})
+
+	t.Run("Success - Nenhuma Planta Encontrada", func(t *testing.T) {
+		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
+		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
+
+		page := 1
+		limit := 10
+		mockPlantaRepo.On("ListarTodos", page, limit).Return([]entity.Planta{}, int64(0), nil).Once()
+
+		response, err := servico.ListarTodas(page, limit)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, response)
+		assert.Equal(t, int64(0), response.Total)
+		assert.Equal(t, json.RawMessage("[]"), response.Data)
+		mockPlantaRepo.AssertExpectations(t)
+	})
+
+	t.Run("Error - Repository Error", func(t *testing.T) {
+		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
+		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
+
+		page := 1
+		limit := 10
+		mockPlantaRepo.On("ListarTodos", page, limit).Return([]entity.Planta{}, int64(0), errors.New("erro no repositório")).Once()
+
+		response, err := servico.ListarTodas(page, limit)
+
+		assert.Error(t, err)
+		assert.Nil(t, response)
+		assert.EqualError(t, err, "erro no repositório")
+		mockPlantaRepo.AssertExpectations(t)
+	})
+}
+
 func TestPlantaService_BuscarPorID(t *testing.T) {
-	mockPlantaRepo := new(test.MockPlantaRepositorio)
-	mockGeneticaRepo := new(test.MockGeneticaRepositorio)
-	mockAmbienteRepo := new(test.MockAmbienteRepositorio)
-	mockMeioRepo := new(test.MockMeioCultivoRepositorio)
-
-	servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockPlantaRepo)
-
 	t.Run("Success", func(t *testing.T) {
+		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
+		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
+
 		plantID := uint(1)
 		now := time.Now()
 		notas := "Notas de teste"
-		// Removed ID from struct literal as it's part of gorm.Model and might cause issues
-		expectedPlanta := &models.Planta{Nome: "Planta Teste", DataPlantio: &now, Notas: &notas}
-		expectedPlanta.ID = plantID // Set ID after initialization
+		expectedPlanta := &entity.Planta{Nome: "Planta Teste", DataPlantio: &now, Notas: &notas}
+		expectedPlanta.ID = plantID
 
-		expectedResponse := &dto.PlantaResponseDTO{ID: plantID, Nome: "Planta Teste", DataPlantio: now, Notas: notas}
+		expectedResponse := &dto.PlantaResponseDTO{ID: plantID, Nome: "Planta Teste", DataPlantio: utils.TimePtr(now), Notas: utils.StringPtr(notas)}
 
 		mockPlantaRepo.On("BuscarPorID", plantID).Return(expectedPlanta, nil).Once()
 
@@ -227,9 +367,16 @@ func TestPlantaService_BuscarPorID(t *testing.T) {
 	})
 
 	t.Run("Not Found", func(t *testing.T) {
+		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
+		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
+
 		plantID := uint(999)
 
-		mockPlantaRepo.On("BuscarPorID", plantID).Return((*models.Planta)(nil), gorm.ErrRecordNotFound).Once()
+		mockPlantaRepo.On("BuscarPorID", plantID).Return((*entity.Planta)(nil), gorm.ErrRecordNotFound).Once()
 
 		response, err := servico.BuscarPorID(plantID)
 
@@ -240,10 +387,17 @@ func TestPlantaService_BuscarPorID(t *testing.T) {
 	})
 
 	t.Run("Repository Error", func(t *testing.T) {
+		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
+		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
+
 		plantID := uint(1)
 		expectedError := errors.New("erro no repositório")
 
-		mockPlantaRepo.On("BuscarPorID", plantID).Return((*models.Planta)(nil), expectedError).Once()
+		mockPlantaRepo.On("BuscarPorID", plantID).Return((*entity.Planta)(nil), expectedError).Once()
 
 		response, err := servico.BuscarPorID(plantID)
 

@@ -2,6 +2,8 @@ package utils
 
 import (
 	"errors"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
@@ -53,4 +55,30 @@ func GetErrorMsg(fe validator.FieldError) string {
 		return "Deve ser um dos valores: " + fe.Param()
 	}
 	return "Erro de validação desconhecido"
+}
+
+// DereferenceTimePtr retorna o valor de um ponteiro *time.Time ou um valor zero se for nulo.
+func DereferenceTimePtr(t *time.Time) time.Time {
+	if t != nil {
+		return *t
+	}
+	return time.Time{}
+}
+
+// DereferenceStringPtr retorna o valor de um ponteiro *string ou uma string vazia se for nulo.
+func DereferenceStringPtr(s *string) string {
+	if s != nil {
+		return *s
+	}
+	return ""
+}
+
+// TimePtr retorna um ponteiro para um valor time.Time.
+func TimePtr(t time.Time) *time.Time {
+	return &t
+}
+
+// StringPtr retorna um ponteiro para um valor string.
+func StringPtr(s string) *string {
+	return &s
 }

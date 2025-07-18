@@ -1,19 +1,20 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
 	"gorm.io/gorm"
 )
 
 type AmbienteService interface {
-	Criar(ambienteDto *dto.CreateAmbienteDTO) (*models.Ambiente, error)
+	Criar(ambienteDto *dto.CreateAmbienteDTO) (*entity.Ambiente, error)
 	ListarTodos(page, limit int) (*dto.PaginatedResponse, error)
-	BuscarPorID(id uint) (*models.Ambiente, error)
-	Atualizar(id uint, ambienteDto *dto.UpdateAmbienteDTO) (*models.Ambiente, error)
+	BuscarPorID(id uint) (*entity.Ambiente, error)
+	Atualizar(id uint, ambienteDto *dto.UpdateAmbienteDTO) (*entity.Ambiente, error)
 	Deletar(id uint) error
 }
 
@@ -30,8 +31,8 @@ func NewAmbienteService(repositorio repository.AmbienteRepositorio) AmbienteServ
 	return &ambienteService{repositorio}
 }
 
-func (s *ambienteService) Criar(ambienteDto *dto.CreateAmbienteDTO) (*models.Ambiente, error) {
-	ambiente := models.Ambiente{
+func (s *ambienteService) Criar(ambienteDto *dto.CreateAmbienteDTO) (*entity.Ambiente, error) {
+	ambiente := entity.Ambiente{
 		Nome:           ambienteDto.Nome,
 		Descricao:      ambienteDto.Descricao,
 		Tipo:           ambienteDto.Tipo,
@@ -52,7 +53,7 @@ func (s *ambienteService) ListarTodos(page, limit int) (*dto.PaginatedResponse, 
 		return nil, err
 	}
 
-	var responseDTOs []dto.AmbienteResponseDTO
+	responseDTOs := make([]dto.AmbienteResponseDTO, 0, len(ambientes))
 	for _, ambiente := range ambientes {
 		responseDTOs = append(responseDTOs, dto.AmbienteResponseDTO{
 			ID:             ambiente.ID,
@@ -67,15 +68,20 @@ func (s *ambienteService) ListarTodos(page, limit int) (*dto.PaginatedResponse, 
 		})
 	}
 
+	dataBytes, err := json.Marshal(responseDTOs)
+		if err != nil {
+			return nil, fmt.Errorf("falha ao serializar ambientes: %w", err)
+		}
+
 	return &dto.PaginatedResponse{
-		Data:  responseDTOs,
+		Data:  dataBytes,
 		Total: total,
 		Page:  page,
 		Limit: limit,
 	}, nil
 }
 
-func (s *ambienteService) BuscarPorID(id uint) (*models.Ambiente, error) {
+func (s *ambienteService) BuscarPorID(id uint) (*entity.Ambiente, error) {
 	if id == 0 {
 		return nil, gorm.ErrInvalidValue
 	}
@@ -83,7 +89,7 @@ func (s *ambienteService) BuscarPorID(id uint) (*models.Ambiente, error) {
 	return s.repositorio.BuscarPorID(id)
 }
 
-func (s *ambienteService) Atualizar(id uint, ambienteDto *dto.UpdateAmbienteDTO) (*models.Ambiente, error) {
+func (s *ambienteService) Atualizar(id uint, ambienteDto *dto.UpdateAmbienteDTO) (*entity.Ambiente, error) {
 	ambienteExistente, err := s.repositorio.BuscarPorID(id)
 	if err != nil {
 		return nil, fmt.Errorf("falha ao buscar ambiente com ID %d: %w", id, err)

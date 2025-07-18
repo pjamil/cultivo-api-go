@@ -1,7 +1,7 @@
 package database
 
 import (
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gorm.io/gorm"
 )
 
@@ -14,21 +14,21 @@ func NewMeioCultivoRepositorio(db *gorm.DB) *MeioCultivoRepositorio {
 	return &MeioCultivoRepositorio{db: db}
 }
 
-func (r *MeioCultivoRepositorio) Criar(meioCultivo *models.MeioCultivo) error {
+func (r *MeioCultivoRepositorio) Criar(meioCultivo *entity.MeioCultivo) error {
 	return r.db.Create(meioCultivo).Error
 }
 
-func (r *MeioCultivoRepositorio) BuscarPorID(id uint) (*models.MeioCultivo, error) {
-	var meioCultivo models.MeioCultivo
+func (r *MeioCultivoRepositorio) BuscarPorID(id uint) (*entity.MeioCultivo, error) {
+	var meioCultivo entity.MeioCultivo
 	err := r.db.First(&meioCultivo, id).Error
 	return &meioCultivo, err
 }
 
-func (r *MeioCultivoRepositorio) ListarTodos(page, limit int) ([]models.MeioCultivo, int64, error) {
-	var meiosCultivo []models.MeioCultivo
+func (r *MeioCultivoRepositorio) ListarTodos(page, limit int) ([]entity.MeioCultivo, int64, error) {
+	var meiosCultivo []entity.MeioCultivo
 	var total int64
 	offset := (page - 1) * limit
-	err := r.db.Model(&models.MeioCultivo{}).Count(&total).Error
+	err := r.db.Model(&entity.MeioCultivo{}).Count(&total).Error
 	if err != nil {
 		return nil, 0, err
 	}
@@ -36,12 +36,12 @@ func (r *MeioCultivoRepositorio) ListarTodos(page, limit int) ([]models.MeioCult
 	return meiosCultivo, total, err
 }
 
-func (r *MeioCultivoRepositorio) Atualizar(meioCultivo *models.MeioCultivo) error {
+func (r *MeioCultivoRepositorio) Atualizar(meioCultivo *entity.MeioCultivo) error {
 	return r.db.Save(meioCultivo).Error
 }
 
 func (r *MeioCultivoRepositorio) Deletar(id uint) error {
-	result := r.db.Delete(&models.MeioCultivo{}, id)
+	result := r.db.Delete(&entity.MeioCultivo{}, id)
 	if result.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}

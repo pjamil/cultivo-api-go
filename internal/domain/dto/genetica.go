@@ -1,6 +1,6 @@
 package dto
 
-import "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+import "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 
 type CreateGeneticaDTO struct {
 	Nome            string          `json:"nome" binding:"required"`
@@ -10,7 +10,7 @@ type CreateGeneticaDTO struct {
 	TempoFloracao   int             `json:"tempoFloracao" binding:"required,gt=0"`
 	Origem          string          `json:"origem" binding:"required"`
 	Caracteristicas string          `json:"caracteristicas"`
-	Plantas         []models.Planta `json:"plantas,omitempty"`
+	Plantas         []entity.Planta `json:"plantas,omitempty"`
 }
 
 type UpdateGeneticaDTO struct {

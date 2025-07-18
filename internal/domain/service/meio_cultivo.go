@@ -1,10 +1,11 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
 	"gorm.io/gorm"
 )
@@ -31,7 +32,7 @@ func NewMeioCultivoService(repositorio repository.MeioCultivoRepositorio) MeioCu
 }
 
 func (s *meioCultivoService) Criar(meioCultivoDto *dto.CreateMeioCultivoDTO) (*dto.MeioCultivoResponseDTO, error) {
-	meioCultivo := models.MeioCultivo{
+	meioCultivo := entity.MeioCultivo{
 		Tipo:      meioCultivoDto.Tipo,
 		Descricao: meioCultivoDto.Descricao,
 	}
@@ -51,7 +52,7 @@ func (s *meioCultivoService) ListarTodos(page, limit int) (*dto.PaginatedRespons
 		return nil, err
 	}
 
-	var responseDTOs []dto.MeioCultivoResponseDTO
+	responseDTOs := make([]dto.MeioCultivoResponseDTO, 0, len(meioCultivos))
 	for _, meioCultivo := range meioCultivos {
 		responseDTOs = append(responseDTOs, dto.MeioCultivoResponseDTO{
 			ID:        meioCultivo.ID,
@@ -60,8 +61,13 @@ func (s *meioCultivoService) ListarTodos(page, limit int) (*dto.PaginatedRespons
 		})
 	}
 
+	dataBytes, err := json.Marshal(responseDTOs)
+		if err != nil {
+			return nil, fmt.Errorf("falha ao serializar meios de cultivo: %w", err)
+		}
+
 	return &dto.PaginatedResponse{
-		Data:  responseDTOs,
+		Data:  dataBytes,
 		Total: total,
 		Page:  page,
 		Limit: limit,

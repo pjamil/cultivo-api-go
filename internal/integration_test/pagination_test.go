@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 	tu "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils/test_utils"
 	"github.com/stretchr/testify/assert"
@@ -19,6 +19,7 @@ import (
 func TestListagemComPaginacaoPadrao(t *testing.T) {
 	router := GetTestRouter()
 	db := GetTestDB().DB
+	assert.NoError(t, db.Raw("SELECT 1").Error, "Database ping failed at start of TestListagemComPaginacaoPadrao")
 
 	// Limpar o banco de dados antes do teste
 	db.Exec("DELETE FROM plantas")
@@ -28,7 +29,7 @@ func TestListagemComPaginacaoPadrao(t *testing.T) {
 	password := "userpassword"
 	hashedPassword, err := utils.HashPassword(password)
 	assert.NoError(t, err)
-	user := models.Usuario{
+	user := entity.Usuario{
 		Nome:      "Paginacao User",
 		Email:     "paginacao@example.com",
 		SenhaHash: hashedPassword,
@@ -37,23 +38,23 @@ func TestListagemComPaginacaoPadrao(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Criar uma genética para associar às plantas
-	genetica := models.Genetica{
-		Nome:         "Genetica Paginacao",
-		TipoGenetica: "Indica",
-		TipoEspecie:  "Indica",
+	genetica := entity.Genetica{
+		Nome:          "Genetica Paginacao",
+		TipoGenetica:  "Indica",
+		TipoEspecie:   "Indica",
 		TempoFloracao: 50,
-		Origem:       "Teste",
+		Origem:        "Teste",
 	}
 	assert.NoError(t, db.Create(&genetica).Error)
 
 	// Criar um meio de cultivo para associar às plantas
-	meioCultivo := models.MeioCultivo{
+	meioCultivo := entity.MeioCultivo{
 		Tipo: "solo",
 	}
 	assert.NoError(t, db.Create(&meioCultivo).Error)
 
 	// Criar um ambiente para associar às plantas
-	ambiente := models.Ambiente{
+	ambiente := entity.Ambiente{
 		Nome:        "Ambiente Paginacao",
 		Descricao:   "Descrição do ambiente de paginação",
 		Tipo:        "interno",
@@ -65,15 +66,15 @@ func TestListagemComPaginacaoPadrao(t *testing.T) {
 
 	// Criar 25 plantas para testar a paginação
 	for i := 1; i <= 25; i++ {
-		planta := models.Planta{
-			Nome:        fmt.Sprintf("Planta %d", i),
-			Especie:     "Especie Teste",
-			DataPlantio: tu.TimePtr(time.Now()),
-			Status:      "vegetativo",
-			UsuarioID:   user.ID,
-			GeneticaID:  genetica.ID, // Usar o ID da genética criada
+		planta := entity.Planta{
+			Nome:          fmt.Sprintf("Planta %d", i),
+			Especie:       "Especie Teste",
+			DataPlantio:   tu.TimePtr(time.Now()),
+			Status:        "vegetativo",
+			UsuarioID:     user.ID,
+			GeneticaID:    genetica.ID,    // Usar o ID da genética criada
 			MeioCultivoID: meioCultivo.ID, // Usar o ID do meio de cultivo criado
-			AmbienteID:  ambiente.ID, // Usar o ID do ambiente criado
+			AmbienteID:    ambiente.ID,    // Usar o ID do ambiente criado
 		}
 		err = db.Create(&planta).Error
 		assert.NoError(t, err)
@@ -109,13 +110,23 @@ func TestListagemComPaginacaoPadrao(t *testing.T) {
 
 	assert.Equal(t, int64(25), paginatedResponse.Total) // Total de registros
 	assert.Equal(t, 1, paginatedResponse.Page)          // Página padrão
-	assert.Equal(t, 10, paginatedResponse.Limit)         // Limite padrão
-	assert.Len(t, paginatedResponse.Data.([]interface{}), 10) // Deve retornar 10 itens na primeira página
+	assert.Equal(t, 10, paginatedResponse.Limit)        // Limite padrão
+
+	var plantas []entity.Planta
+	// Ensure paginatedResponse.Data is not nil before unmarshaling.
+	// If it's nil (e.g., from "data": null in JSON), treat it as an empty array.
+	if paginatedResponse.Data == nil {
+		paginatedResponse.Data = []byte("[]")
+	}
+	err = json.Unmarshal(paginatedResponse.Data, &plantas)
+	assert.NoError(t, err)
+	assert.Len(t, plantas, 10) // Deve retornar 10 itens na primeira página
 }
 
 func TestListagemComPaginacaoCustomizada(t *testing.T) {
 	router := GetTestRouter()
 	db := GetTestDB().DB
+	assert.NoError(t, db.Raw("SELECT 1").Error, "Database ping failed at start of TestListagemComPaginacaoCustomizada")
 
 	// Limpar o banco de dados antes do teste
 	db.Exec("DELETE FROM plantas")
@@ -125,7 +136,7 @@ func TestListagemComPaginacaoCustomizada(t *testing.T) {
 	password := "userpassword"
 	hashedPassword, err := utils.HashPassword(password)
 	assert.NoError(t, err)
-	user := models.Usuario{
+	user := entity.Usuario{
 		Nome:      "Paginacao User 2",
 		Email:     "paginacao2@example.com",
 		SenhaHash: hashedPassword,
@@ -134,23 +145,23 @@ func TestListagemComPaginacaoCustomizada(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Criar uma genética para associar às plantas
-	genetica := models.Genetica{
-		Nome:         "Genetica Paginacao Custom",
-		TipoGenetica: "Sativa",
-		TipoEspecie:  "Sativa",
+	genetica := entity.Genetica{
+		Nome:          "Genetica Paginacao Custom",
+		TipoGenetica:  "Sativa",
+		TipoEspecie:   "Sativa",
 		TempoFloracao: 70,
-		Origem:       "Teste Custom",
+		Origem:        "Teste Custom",
 	}
 	assert.NoError(t, db.Create(&genetica).Error)
 
 	// Criar um meio de cultivo para associar às plantas
-	meioCultivo := models.MeioCultivo{
+	meioCultivo := entity.MeioCultivo{
 		Tipo: "coco",
 	}
 	assert.NoError(t, db.Create(&meioCultivo).Error)
 
 	// Criar um ambiente para associar às plantas
-	ambiente := models.Ambiente{
+	ambiente := entity.Ambiente{
 		Nome:        "Ambiente Paginacao Custom",
 		Descricao:   "Descrição do ambiente de paginação customizada",
 		Tipo:        "externo",
@@ -162,15 +173,15 @@ func TestListagemComPaginacaoCustomizada(t *testing.T) {
 
 	// Criar 25 plantas para testar a paginação
 	for i := 1; i <= 25; i++ {
-		planta := models.Planta{
-			Nome:        fmt.Sprintf("Planta Custom %d", i),
-			Especie:     "Especie Teste Custom",
-			DataPlantio: tu.TimePtr(time.Now()),
-			Status:      "vegetativo",
-			UsuarioID:   user.ID,
-			GeneticaID:  genetica.ID, // Usar o ID da genética criada
+		planta := entity.Planta{
+			Nome:          fmt.Sprintf("Planta Custom %d", i),
+			Especie:       "Especie Teste Custom",
+			DataPlantio:   tu.TimePtr(time.Now()),
+			Status:        "vegetativo",
+			UsuarioID:     user.ID,
+			GeneticaID:    genetica.ID,    // Usar o ID da genética criada
 			MeioCultivoID: meioCultivo.ID, // Usar o ID do meio de cultivo criado
-			AmbienteID:  ambiente.ID, // Usar o ID do ambiente criado
+			AmbienteID:    ambiente.ID,    // Usar o ID do ambiente criado
 		}
 		err = db.Create(&planta).Error
 		assert.NoError(t, err)
@@ -206,7 +217,13 @@ func TestListagemComPaginacaoCustomizada(t *testing.T) {
 	assert.Equal(t, int64(25), paginatedResponse.Total)
 	assert.Equal(t, 2, paginatedResponse.Page)
 	assert.Equal(t, 5, paginatedResponse.Limit)
-	assert.Len(t, paginatedResponse.Data.([]interface{}), 5)
+	var plantasPage2 []entity.Planta
+	if paginatedResponse.Data == nil {
+		paginatedResponse.Data = []byte("[]")
+	}
+	err = json.Unmarshal(paginatedResponse.Data, &plantasPage2)
+	assert.NoError(t, err)
+	assert.Len(t, plantasPage2, 5)
 
 	// Cenário 2: Última página (Página 5, Limite 5)
 	w = httptest.NewRecorder()
@@ -222,7 +239,13 @@ func TestListagemComPaginacaoCustomizada(t *testing.T) {
 	assert.Equal(t, int64(25), paginatedResponse.Total)
 	assert.Equal(t, 5, paginatedResponse.Page)
 	assert.Equal(t, 5, paginatedResponse.Limit)
-	assert.Len(t, paginatedResponse.Data.([]interface{}), 5)
+	var plantasPage5 []entity.Planta
+	if paginatedResponse.Data == nil {
+		paginatedResponse.Data = []byte("[]")
+	}
+	err = json.Unmarshal(paginatedResponse.Data, &plantasPage5)
+	assert.NoError(t, err)
+	assert.Len(t, plantasPage5, 5)
 
 	// Cenário 3: Página que não existe (Página 10, Limite 5) - deve retornar vazio
 	w = httptest.NewRecorder()
@@ -238,12 +261,19 @@ func TestListagemComPaginacaoCustomizada(t *testing.T) {
 	assert.Equal(t, int64(25), paginatedResponse.Total)
 	assert.Equal(t, 10, paginatedResponse.Page)
 	assert.Equal(t, 5, paginatedResponse.Limit)
-	assert.Len(t, paginatedResponse.Data.([]interface{}), 0)
+	var plantasPage10 []entity.Planta
+	if paginatedResponse.Data == nil {
+		paginatedResponse.Data = []byte("[]")
+	}
+	err = json.Unmarshal(paginatedResponse.Data, &plantasPage10)
+	assert.NoError(t, err)
+	assert.Len(t, plantasPage10, 0)
 }
 
 func TestListagemComPaginacaoVazia(t *testing.T) {
 	router := GetTestRouter()
 	db := GetTestDB().DB
+	assert.NoError(t, db.Raw("SELECT 1").Error, "Database ping failed at start of TestListagemComPaginacaoVazia")
 
 	// Limpar o banco de dados para garantir que não há registros
 	db.Exec("DELETE FROM plantas")
@@ -253,7 +283,7 @@ func TestListagemComPaginacaoVazia(t *testing.T) {
 	password := "userpassword"
 	hashedPassword, err := utils.HashPassword(password)
 	assert.NoError(t, err)
-	user := models.Usuario{
+	user := entity.Usuario{
 		Nome:      "Empty Pagination User",
 		Email:     "empty@example.com",
 		SenhaHash: hashedPassword,
@@ -290,7 +320,13 @@ func TestListagemComPaginacaoVazia(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.Equal(t, int64(0), paginatedResponse.Total) // Total deve ser 0
-	assert.Equal(t, 1, paginatedResponse.Page)          // Página padrão
-	assert.Equal(t, 10, paginatedResponse.Limit)         // Limite padrão
-	assert.Len(t, paginatedResponse.Data.([]interface{}), 0) // Data deve ser um array vazio
+	assert.Equal(t, 1, paginatedResponse.Page)         // Página padrão
+	assert.Equal(t, 10, paginatedResponse.Limit)       // Limite padrão
+	var plantasEmpty []entity.Planta
+	if paginatedResponse.Data == nil {
+		paginatedResponse.Data = []byte("[]")
+	}
+	err = json.Unmarshal(paginatedResponse.Data, &plantasEmpty)
+	assert.NoError(t, err)
+	assert.Len(t, plantasEmpty, 0) // Data deve ser um array vazio
 }

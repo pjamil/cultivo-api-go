@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -60,17 +60,24 @@ func TestUsuarioController_Criar(t *testing.T) {
 		controller := NewUsuarioController(mockService)
 
 		createDTO := &dto.UsuarioCreateDTO{
-			Nome:  "Teste",
-			Email: "teste@example.com",
-			Senha: "password123",
+			Nome:         "Teste",
+			Email:        "teste@example.com",
+			Senha:        "password123",
+			Preferencias: json.RawMessage([]byte("null")),
 		}
 		expectedUsuario := &dto.UsuarioResponseDTO{
-			ID:    1,
-			Nome:  "Teste",
-			Email: "teste@example.com",
+			ID:           1,
+			Nome:         "Teste",
+			Email:        "teste@example.com",
+			Preferencias: json.RawMessage([]byte("null")),
 		}
 
-		mockService.On("Criar", createDTO).Return(expectedUsuario, nil)
+		mockService.On("Criar", mock.MatchedBy(func(arg *dto.UsuarioCreateDTO) bool {
+			return assert.Equal(t, createDTO.Nome, arg.Nome) &&
+				   assert.Equal(t, createDTO.Email, arg.Email) &&
+				   assert.Equal(t, createDTO.Senha, arg.Senha) &&
+				   bytes.Equal(createDTO.Preferencias, arg.Preferencias)
+		})).Return(expectedUsuario, nil)
 
 		// Execução
 		w := httptest.NewRecorder()
@@ -119,12 +126,18 @@ func TestUsuarioController_Criar(t *testing.T) {
 		controller := NewUsuarioController(mockService)
 
 		createDTO := &dto.UsuarioCreateDTO{
-			Nome:  "Teste",
-			Email: "teste@example.com",
-			Senha: "password123",
+			Nome:         "Teste",
+			Email:        "teste@example.com",
+			Senha:        "password123",
+			Preferencias: json.RawMessage([]byte("null")),
 		}
 
-		mockService.On("Criar", createDTO).Return((*dto.UsuarioResponseDTO)(nil), errors.New("duplicate entry for key 'email'"))
+		mockService.On("Criar", mock.MatchedBy(func(arg *dto.UsuarioCreateDTO) bool {
+			return assert.Equal(t, createDTO.Nome, arg.Nome) &&
+				   assert.Equal(t, createDTO.Email, arg.Email) &&
+				   assert.Equal(t, createDTO.Senha, arg.Senha) &&
+				   bytes.Equal(createDTO.Preferencias, arg.Preferencias)
+		})).Return((*dto.UsuarioResponseDTO)(nil), errors.New("duplicate entry for key 'email'"))
 
 		// Execução
 		w := httptest.NewRecorder()
@@ -139,10 +152,11 @@ func TestUsuarioController_Criar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusConflict, w.Code)
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "E-mail já cadastrado", response["error"])
+		assert.Equal(t, "E-mail já cadastrado", response["message"])
+		assert.Nil(t, response["details"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -153,12 +167,18 @@ func TestUsuarioController_Criar(t *testing.T) {
 		controller := NewUsuarioController(mockService)
 
 		createDTO := &dto.UsuarioCreateDTO{
-			Nome:  "Teste",
-			Email: "teste@example.com",
-			Senha: "password123",
+			Nome:         "Teste",
+			Email:        "teste@example.com",
+			Senha:        "password123",
+			Preferencias: json.RawMessage([]byte("null")),
 		}
 
-		mockService.On("Criar", createDTO).Return((*dto.UsuarioResponseDTO)(nil), errors.New("erro interno do serviço"))
+		mockService.On("Criar", mock.MatchedBy(func(arg *dto.UsuarioCreateDTO) bool {
+			return assert.Equal(t, createDTO.Nome, arg.Nome) &&
+				   assert.Equal(t, createDTO.Email, arg.Email) &&
+				   assert.Equal(t, createDTO.Senha, arg.Senha) &&
+				   bytes.Equal(createDTO.Preferencias, arg.Preferencias)
+		})).Return((*dto.UsuarioResponseDTO)(nil), errors.New("erro interno do serviço"))
 
 		// Execução
 		w := httptest.NewRecorder()
@@ -173,10 +193,11 @@ func TestUsuarioController_Criar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "erro interno do serviço", response["error"])
+		assert.Equal(t, "Erro interno ao criar usuário", response["message"])
+		assert.Equal(t, "erro interno do serviço", response["details"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -190,12 +211,13 @@ func TestUsuarioController_Listar(t *testing.T) {
 		mockService := new(MockUsuarioService)
 		controller := NewUsuarioController(mockService)
 
-		expectedUsuarios := []models.Usuario{
-			{Nome: "Usuario 1", Email: "user1@example.com"},
-			{Nome: "Usuario 2", Email: "user2@example.com"},
+		expectedUsuarios := []entity.Usuario{
+			{Nome: "Usuario 1", Email: "user1@example.com", Preferencias: json.RawMessage("null")},
+			{Nome: "Usuario 2", Email: "user2@example.com", Preferencias: json.RawMessage("null")},
 		}
+		dataBytes, err := json.Marshal(expectedUsuarios)
 		paginatedResponse := &dto.PaginatedResponse{
-			Data:  expectedUsuarios,
+			Data:  dataBytes,
 			Total: int64(len(expectedUsuarios)),
 			Page:  1,
 			Limit: 10,
@@ -215,19 +237,19 @@ func TestUsuarioController_Listar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusOK, w.Code)
 
-		var actualResponse dto.PaginatedResponse
-		err := json.Unmarshal(w.Body.Bytes(), &actualResponse)
+		var actualPaginatedResponse dto.PaginatedResponse
+		err = json.Unmarshal(w.Body.Bytes(), &actualPaginatedResponse)
 		assert.NoError(t, err)
-		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
-		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
-		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
+		assert.Equal(t, paginatedResponse.Total, actualPaginatedResponse.Total)
+		assert.Equal(t, paginatedResponse.Page, actualPaginatedResponse.Page)
+		assert.Equal(t, paginatedResponse.Limit, actualPaginatedResponse.Limit)
 
-		// Convert actualResponse.Data to []models.Usuario for comparison
-		actualUsuariosBytes, _ := json.Marshal(actualResponse.Data)
-		var actualUsuarios []models.Usuario
-		json.Unmarshal(actualUsuariosBytes, &actualUsuarios)
+		// Unmarshal the Data field into a slice of entity.Usuario
+		var actualUsers []entity.Usuario
+		err = json.Unmarshal(actualPaginatedResponse.Data, &actualUsers)
+		assert.NoError(t, err)
 
-		assert.Equal(t, expectedUsuarios, actualUsuarios)
+		assert.Equal(t, expectedUsuarios, actualUsers)
 
 		mockService.AssertExpectations(t)
 	})
@@ -238,7 +260,7 @@ func TestUsuarioController_Listar(t *testing.T) {
 		controller := NewUsuarioController(mockService)
 
 		paginatedResponse := &dto.PaginatedResponse{
-			Data:  []models.Usuario{},
+			Data:  json.RawMessage("[]"),
 			Total: 0,
 			Page:  1,
 			Limit: 10,
@@ -264,7 +286,7 @@ func TestUsuarioController_Listar(t *testing.T) {
 		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
 		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
 		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
-		assert.Empty(t, actualResponse.Data)
+		assert.Equal(t, json.RawMessage("[]"), actualResponse.Data)
 
 		mockService.AssertExpectations(t)
 	})
@@ -288,12 +310,11 @@ func TestUsuarioController_Listar(t *testing.T) {
 		// Verificação
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "erro interno do serviço", response["error"])
-
-		mockService.AssertExpectations(t)
+		assert.Equal(t, "Erro interno ao listar usuários", response["message"])
+		assert.Equal(t, "erro interno do servidor", response["details"])
 	})
 }
 
@@ -305,7 +326,7 @@ func TestUsuarioController_BuscarPorID(t *testing.T) {
 		mockService := new(MockUsuarioService)
 		controller := NewUsuarioController(mockService)
 
-																																																																				expectedUsuario := &dto.UsuarioResponseDTO{ID: 1, Nome: "Usuario Teste", Email: "teste@example.com"}
+		expectedUsuario := &dto.UsuarioResponseDTO{ID: 1, Nome: "Usuario Teste", Email: "teste@example.com", Preferencias: json.RawMessage("null")}
 
 		mockService.On("BuscarPorID", uint(1)).Return(expectedUsuario, nil)
 
@@ -343,6 +364,11 @@ func TestUsuarioController_BuscarPorID(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusNotFound, w.Code)
+		var response map[string]interface{}
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		assert.NoError(t, err)
+				assert.Equal(t, "Usuário não encontrado", response["message"])
+		assert.Equal(t, "recurso não encontrado", response["details"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -361,10 +387,11 @@ func TestUsuarioController_BuscarPorID(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusBadRequest, w.Code)
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "ID inválido, deve ser um número inteiro positivo", response["error"])
+		assert.Equal(t, "ID inválido", response["message"])
+		assert.Equal(t, "entrada inválida", response["details"])
 	})
 }
 
@@ -376,9 +403,16 @@ func TestUsuarioController_Atualizar(t *testing.T) {
 		mockService := new(MockUsuarioService)
 		controller := NewUsuarioController(mockService)
 
-		updateDTO := &dto.UsuarioUpdateDTO{Nome: "Usuario Atualizado"}
-		expectedUsuario := &dto.UsuarioResponseDTO{Nome: "Usuario Atualizado", Email: "teste@example.com"}
-		expectedUsuario.ID = 1
+		updateDTO := &dto.UsuarioUpdateDTO{
+			Nome: "Usuario Atualizado",
+			Preferencias: json.RawMessage([]byte("null")),
+		}
+		expectedUsuario := &dto.UsuarioResponseDTO{
+			ID:    1,
+			Nome:  "Usuario Atualizado",
+			Email: "teste@example.com",
+			Preferencias: json.RawMessage([]byte("null")),
+		}
 
 		mockService.On("Atualizar", uint(1), updateDTO).Return(expectedUsuario, nil)
 
@@ -410,9 +444,9 @@ func TestUsuarioController_Atualizar(t *testing.T) {
 		mockService := new(MockUsuarioService)
 		controller := NewUsuarioController(mockService)
 
-		updateDTO := &dto.UsuarioUpdateDTO{Nome: "Usuario Atualizado"}
+		updateDTO := &dto.UsuarioUpdateDTO{Nome: "Usuario Atualizado", Preferencias: json.RawMessage([]byte("null"))}
 
-		mockService.On("Atualizar", uint(1), updateDTO).Return((*dto.UsuarioResponseDTO)(nil), gorm.ErrRecordNotFound)
+		mockService.On("Atualizar", uint(1), mock.AnythingOfType("*dto.UsuarioUpdateDTO")).Return((*dto.UsuarioResponseDTO)(nil), gorm.ErrRecordNotFound)
 
 		// Execução
 		w := httptest.NewRecorder()
@@ -453,10 +487,11 @@ func TestUsuarioController_Atualizar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusBadRequest, w.Code)
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "ID inválido, deve ser um número inteiro positivo", response["error"])
+		assert.Equal(t, "ID inválido", response["message"])
+		assert.Equal(t, "entrada inválida", response["details"])
 
 		mockService.AssertNotCalled(t, "Atualizar")
 	})
@@ -486,7 +521,7 @@ func TestUsuarioController_Atualizar(t *testing.T) {
 		mockService := new(MockUsuarioService)
 		controller := NewUsuarioController(mockService)
 
-		updateDTO := &dto.UsuarioUpdateDTO{Nome: "Usuario Atualizado"}
+		updateDTO := &dto.UsuarioUpdateDTO{Nome: "Usuario Atualizado", Preferencias: json.RawMessage([]byte("null"))}
 
 		mockService.On("Atualizar", uint(1), updateDTO).Return((*dto.UsuarioResponseDTO)(nil), errors.New("erro interno do serviço"))
 
@@ -504,10 +539,11 @@ func TestUsuarioController_Atualizar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "erro interno do serviço", response["error"])
+		assert.Equal(t, "Erro interno ao atualizar usuário", response["message"])
+		assert.Equal(t, "erro interno do servidor", response["details"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -569,10 +605,11 @@ func TestUsuarioController_Deletar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusNotFound, w.Code)
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "registro não encontrado", response["error"])
+		assert.Equal(t, "Usuário não encontrado", response["message"])
+		assert.Equal(t, gorm.ErrRecordNotFound.Error(), response["details"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -594,10 +631,11 @@ func TestUsuarioController_Deletar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusBadRequest, w.Code)
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "ID inválido, deve ser um número inteiro positivo", response["error"])
+		assert.Equal(t, "ID inválido", response["message"])
+		assert.Equal(t, "entrada inválida", response["details"])
 
 		mockService.AssertNotCalled(t, "Deletar")
 	})
@@ -622,10 +660,11 @@ func TestUsuarioController_Deletar(t *testing.T) {
 
 		// Verificação
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
-		var response map[string]string
+		var response map[string]interface{}
 		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, "erro interno do serviço", response["error"])
+		assert.Equal(t, "Erro interno ao deletar usuário", response["message"])
+		assert.Equal(t, "erro interno do servidor", response["details"])
 
 		mockService.AssertExpectations(t)
 	})

@@ -1,10 +1,11 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/models"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 )
@@ -31,7 +32,7 @@ func (s *usuarioService) Criar(usuarioDto *dto.UsuarioCreateDTO) (*dto.UsuarioRe
 	if err != nil {
 		return nil, fmt.Errorf("falha ao fazer o hash da senha do usuário %s: %w", usuarioDto.Nome, err)
 	}
-	usuario := models.Usuario{
+	usuario := entity.Usuario{
 		Nome:         usuarioDto.Nome,
 		Email:        usuarioDto.Email,
 		SenhaHash:    hash,
@@ -77,8 +78,13 @@ func (s *usuarioService) ListarTodos(page, limit int) (*dto.PaginatedResponse, e
 		})
 	}
 
+	dataBytes, err := json.Marshal(responseDTOs)
+		if err != nil {
+			return nil, fmt.Errorf("falha ao serializar usuários: %w", err)
+		}
+
 	return &dto.PaginatedResponse{
-		Data:  responseDTOs,
+		Data:  dataBytes,
 		Total: total,
 		Page:  page,
 		Limit: limit,
