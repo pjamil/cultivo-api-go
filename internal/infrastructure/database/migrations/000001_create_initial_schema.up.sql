@@ -255,24 +255,7 @@ CREATE TABLE IF NOT EXISTS registro_plantas (
     observacao TEXT
 );
 
--- Cria a tabela registro_diarios
-CREATE TABLE IF NOT EXISTS registro_diarios (
-    id SERIAL PRIMARY KEY,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP WITH TIME ZONE,
-    data TIMESTAMP WITH TIME ZONE,
-    tipo VARCHAR(50),
-    diario_cultivo_id INTEGER REFERENCES diario_cultivos(id) ON DELETE CASCADE,
-    titulo VARCHAR(100),
-    conteudo TEXT,
-    referencia_id INTEGER,
-    referencia_tipo VARCHAR(50),
-    clima_temperatura NUMERIC,
-    clima_umidade NUMERIC,
-    clima_luminosidade NUMERIC,
-    clima_precipitacao NUMERIC
-);
+
 
 -- Cria a tabela tarefa_plantas (tabela de junção para TarefaPlanta)
 CREATE TABLE IF NOT EXISTS tarefa_plantas (
@@ -302,7 +285,7 @@ CREATE TABLE IF NOT EXISTS tarefa_templates (
 );
 
 -- Cria a tabela diario_plantas (tabela de junção para many2many)
-CREATE TABLE IF NOT EXISTS diario_plantas (
+CREATE TABLE IF NOT EXISTS diario_cultivo_plantas (
     diario_cultivo_id INTEGER REFERENCES diario_cultivos(id) ON DELETE CASCADE,
     planta_id INTEGER REFERENCES plantas(id) ON DELETE CASCADE,
     PRIMARY KEY (diario_cultivo_id, planta_id)

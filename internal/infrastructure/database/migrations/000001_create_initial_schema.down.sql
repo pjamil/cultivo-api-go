@@ -1,6 +1,6 @@
 -- 000001_create_initial_schema.down.sql
 -- Drop junction tables first
-DROP TABLE IF EXISTS diario_plantas;
+DROP TABLE IF EXISTS diario_cultivo_plantas;
 DROP TABLE IF EXISTS diario_ambientes;
 DROP TABLE IF EXISTS tarefa_plantas;
 

@@ -4,6 +4,7 @@
 DROP TABLE IF EXISTS registro_crescimento;
 DROP TABLE IF EXISTS registro_planta;
 DROP TABLE IF EXISTS planta_foto_ids;
+DROP TABLE IF EXISTS registro_diarios;
 
 -- Adicionar coluna DiarioCultivoID na tabela tarefas, se ainda não existir
 ALTER TABLE tarefas ADD COLUMN IF NOT EXISTS diario_cultivo_id BIGINT;
