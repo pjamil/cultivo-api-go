@@ -1,4 +1,30 @@
 definitions:
+  controller.HealthDependencies:
+    properties:
+      database:
+        example: ok
+        type: string
+    type: object
+  controller.HealthStatusResponse:
+    properties:
+      dependencies:
+        $ref: '#/definitions/controller.HealthDependencies'
+      status:
+        example: ok
+        type: string
+      version:
+        example: 1.0.0
+        type: string
+    type: object
+  controller.StatusResponse:
+    properties:
+      error:
+        example: database not available
+        type: string
+      status:
+        example: ready
+        type: string
+    type: object
   gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.AmbienteResponseDTO:
     properties:
       altura:
@@ -40,6 +66,11 @@ definitions:
         type: integer
       tipo:
         description: 'Ex: "interno", "externo", "húmido", "seco"'
+        enum:
+        - interno
+        - externo
+        - húmido
+        - seco
         type: string
     required:
     - altura
@@ -48,6 +79,38 @@ definitions:
     - nome
     - tempo_exposicao
     - tipo
+    type: object
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreateDiarioCultivoDTO:
+    properties:
+      ambientes_ids:
+        items:
+          type: integer
+        type: array
+      data_fim:
+        type: string
+      data_inicio:
+        type: string
+      nome:
+        maxLength: 255
+        minLength: 3
+        type: string
+      plantas_ids:
+        items:
+          type: integer
+        type: array
+      privacidade:
+        enum:
+        - publico
+        - privado
+        type: string
+      tags:
+        type: string
+      usuario_id:
+        type: integer
+    required:
+    - data_inicio
+    - nome
+    - usuario_id
     type: object
   gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreateGeneticaDTO:
     properties:
@@ -61,13 +124,20 @@ definitions:
         type: string
       plantas:
         items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Planta'
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Planta'
         type: array
       tempoFloracao:
         type: integer
       tipoEspecie:
+        enum:
+        - cannabis
+        - outra
         type: string
       tipoGenetica:
+        enum:
+        - sativa
+        - indica
+        - hibrida
         type: string
     required:
     - nome
@@ -79,8 +149,15 @@ definitions:
   gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreateMeioCultivoDTO:
     properties:
       descricao:
+        maxLength: 255
         type: string
       tipo:
+        enum:
+        - solo
+        - hidroponia
+        - coco
+        - lã de rocha
+        - turfa
         type: string
     required:
     - tipo
@@ -90,26 +167,101 @@ definitions:
       ambiente_id:
         type: integer
       comecando_de:
+        enum:
+        - semente
+        - clone
+        - muda
         type: string
       data_plantio:
         type: string
       especie:
+        maxLength: 100
+        minLength: 3
         type: string
       genetica_id:
         type: integer
       meio_cultivo_id:
         type: integer
       nome:
+        maxLength: 100
+        minLength: 3
         type: string
       notas:
+        maxLength: 500
         type: string
       status:
+        enum:
+        - semente
+        - vegetativo
+        - floracao
+        - colheita
+        - curando
+        - finalizado
+        - problema
         type: string
       usuario_id:
         type: integer
     required:
+    - data_plantio
     - especie
     - nome
+    type: object
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreateRegistroDiarioDTO:
+    properties:
+      conteudo:
+        minLength: 5
+        type: string
+      data:
+        type: string
+      tipo:
+        allOf:
+        - $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.RegistroTipo'
+        enum:
+        - observacao
+        - evento
+        - aprendizado
+        - tratamento
+        - problema
+        - colheita
+        - crescimento
+      titulo:
+        maxLength: 255
+        minLength: 3
+        type: string
+    required:
+    - conteudo
+    - data
+    - tipo
+    - titulo
+    type: object
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.DiarioCultivoResponseDTO:
+    properties:
+      ambientes:
+        items:
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.AmbienteResponseDTO'
+        type: array
+      created_at:
+        type: string
+      data_fim:
+        type: string
+      data_inicio:
+        type: string
+      id:
+        type: integer
+      nome:
+        type: string
+      plantas:
+        items:
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.PlantaResponseDTO'
+        type: array
+      privacidade:
+        type: string
+      tags:
+        type: string
+      updated_at:
+        type: string
+      usuario_id:
+        type: integer
     type: object
   gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.GeneticaResponseDTO:
     properties:
@@ -130,6 +282,16 @@ definitions:
       tipoGenetica:
         type: string
     type: object
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.LoginPayload:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
   gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.MeioCultivoResponseDTO:
     properties:
       descricao:
@@ -138,6 +300,19 @@ definitions:
         type: integer
       tipo:
         type: string
+    type: object
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.PaginatedResponse:
+    properties:
+      data:
+        items:
+          type: integer
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
     type: object
   gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.PlantaResponseDTO:
     properties:
@@ -193,6 +368,19 @@ definitions:
     - tipo
     - titulo
     type: object
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.RegistroDiarioResponseDTO:
+    properties:
+      conteudo:
+        type: string
+      data:
+        type: string
+      id:
+        type: integer
+      tipo:
+        $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.RegistroTipo'
+      titulo:
+        type: string
+    type: object
   gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UpdateAmbienteDTO:
     properties:
       altura:
@@ -209,6 +397,34 @@ definitions:
         type: integer
       tipo:
         type: string
+    type: object
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UpdateDiarioCultivoDTO:
+    properties:
+      ambientes_ids:
+        items:
+          type: integer
+        type: array
+      data_fim:
+        type: string
+      data_inicio:
+        type: string
+      nome:
+        maxLength: 255
+        minLength: 3
+        type: string
+      plantas_ids:
+        items:
+          type: integer
+        type: array
+      privacidade:
+        enum:
+        - publico
+        - privado
+        type: string
+      tags:
+        type: string
+      usuario_id:
+        type: integer
     type: object
   gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UpdateGeneticaDTO:
     properties:
@@ -239,12 +455,18 @@ definitions:
       ambiente_id:
         type: integer
       comecando_de:
+        enum:
+        - semente
+        - clone
+        - muda
         type: string
       data_colheita:
         type: string
       data_plantio:
         type: string
       especie:
+        maxLength: 100
+        minLength: 3
         type: string
       estagio_crescimento:
         type: string
@@ -253,10 +475,21 @@ definitions:
       meio_cultivo_id:
         type: integer
       nome:
+        maxLength: 100
+        minLength: 3
         type: string
       notas:
+        maxLength: 500
         type: string
       status:
+        enum:
+        - semente
+        - vegetativo
+        - floracao
+        - colheita
+        - curando
+        - finalizado
+        - problema
         type: string
       usuario_id:
         type: integer
@@ -266,9 +499,13 @@ definitions:
       email:
         type: string
       nome:
+        maxLength: 100
+        minLength: 3
         type: string
       preferencias:
-        type: string
+        items:
+          type: integer
+        type: array
       senha:
         minLength: 6
         type: string
@@ -286,16 +523,24 @@ definitions:
       nome:
         type: string
       preferencias:
-        type: string
+        items:
+          type: integer
+        type: array
     type: object
   gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UsuarioUpdateDTO:
     properties:
+      email:
+        type: string
       nome:
+        maxLength: 100
+        minLength: 3
         type: string
       preferencias:
-        type: string
+        items:
+          type: integer
+        type: array
     type: object
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Ambiente:
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Ambiente:
     properties:
       altura:
         description: em centímetros
@@ -312,7 +557,7 @@ definitions:
       fotos:
         description: Fotos do ambiente
         items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Foto'
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Foto'
         type: array
       id:
         type: integer
@@ -322,7 +567,7 @@ definitions:
       microclima:
         description: Microclimas do ambiente
         items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Microclima'
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Microclima'
         type: array
       nome:
         description: Nome do ambiente
@@ -338,7 +583,7 @@ definitions:
       plantas:
         description: Plantas associadas a este ambiente
         items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Planta'
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Planta'
         type: array
       tempo_exposicao:
         description: em horas
@@ -362,65 +607,17 @@ definitions:
     - tempo_exposicao
     - tipo
     type: object
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.ClimaRegistro:
-    properties:
-      luminosidade:
-        description: lux
-        type: number
-      precipitacao:
-        description: mm
-        type: number
-      temperatura:
-        description: °C
-        type: number
-      umidade:
-        description: '%'
-        type: number
-    type: object
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.ColecaoMidia:
-    properties:
-      capa_url:
-        type: string
-      createdAt:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      descricao:
-        type: string
-      diario_cultivo_id:
-        description: <-- Adicione esta linha
-        type: integer
-      id:
-        type: integer
-      itens:
-        items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Midia'
-        type: array
-      nome:
-        type: string
-      tipo:
-        description: evolucao, colheita, etc.
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.DiarioCultivo:
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.DiarioCultivo:
     properties:
       ambientes:
         items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Ambiente'
-        type: array
-      ativo:
-        type: boolean
-      colecoes:
-        items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.ColecaoMidia'
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Ambiente'
         type: array
       createdAt:
         type: string
-      data_fim:
+      dataFim:
         type: string
-      data_inicio:
+      dataInicio:
         type: string
       deletedAt:
         $ref: '#/definitions/gorm.DeletedAt'
@@ -429,30 +626,28 @@ definitions:
       nome:
         type: string
       plantas:
-        description: Relacionamentos
         items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Planta'
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Planta'
         type: array
       privacidade:
-        description: Configurações
+        description: 'Ex: "publico", "privado"'
         type: string
       registros:
         items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroDiario'
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.RegistroDiario'
         type: array
       tags:
-        description: separadas por vírgula
         type: string
-      tarefas:
-        items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Tarefa'
-        type: array
       updatedAt:
         type: string
-      usuario_id:
+      usuario:
+        allOf:
+        - $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Usuario'
+        description: Relacionamentos
+      usuarioID:
         type: integer
     type: object
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Especie:
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Especie:
     enum:
     - sativa
     - indica
@@ -462,7 +657,7 @@ definitions:
     - EspecieSativa
     - EspecieIndica
     - EspecieRuderalis
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Foto:
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Foto:
     properties:
       ambiente_id:
         description: <-- Adicione esta linha
@@ -487,7 +682,7 @@ definitions:
       usuario_id:
         type: integer
     type: object
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Genetica:
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Genetica:
     properties:
       caracteristicas:
         type: string
@@ -507,7 +702,7 @@ definitions:
         type: string
       plantas:
         items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Planta'
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Planta'
         type: array
       tempoFloracao:
         description: em dias
@@ -538,7 +733,7 @@ definitions:
     - tipoEspecie
     - tipoGenetica
     type: object
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.MeioCultivo:
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.MeioCultivo:
     properties:
       createdAt:
         type: string
@@ -550,7 +745,7 @@ definitions:
         type: integer
       plantas:
         items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Planta'
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Planta'
         type: array
       tipo:
         description: Tipo do meio de cultivo (solo, hidroponia, aeroponia, substrato)
@@ -565,7 +760,7 @@ definitions:
     required:
     - tipo
     type: object
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Microclima:
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Microclima:
     properties:
       ambiente_id:
         type: integer
@@ -589,40 +784,10 @@ definitions:
       updatedAt:
         type: string
     type: object
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Midia:
-    properties:
-      autor_id:
-        type: integer
-      colecao_midia_id:
-        description: ID da coleção de mídia associada
-        type: integer
-      coordenadas:
-        description: formato "lat,long"
-        type: string
-      createdAt:
-        type: string
-      data_captura:
-        type: string
-      deletedAt:
-        $ref: '#/definitions/gorm.DeletedAt'
-      descricao:
-        type: string
-      id:
-        type: integer
-      thumbnail_url:
-        type: string
-      tipo:
-        description: foto, video, audio
-        type: string
-      updatedAt:
-        type: string
-      url:
-        type: string
-    type: object
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Planta:
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Planta:
     properties:
       ambiente:
-        $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Ambiente'
+        $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Ambiente'
       ambiente_id:
         type: integer
       comecando_de:
@@ -640,27 +805,27 @@ definitions:
         $ref: '#/definitions/gorm.DeletedAt'
       diarios:
         items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.DiarioCultivo'
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.DiarioCultivo'
         type: array
       especie:
         allOf:
-        - $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Especie'
+        - $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Especie'
         enum:
         - sativa
         - indica
         - ruderalis
       foto_capa:
-        $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Foto'
+        $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Foto'
       foto_capa_id:
         type: integer
       genetica:
-        $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Genetica'
+        $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Genetica'
       genetica_id:
         type: integer
       id:
         type: integer
       meio_cultivo:
-        $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.MeioCultivo'
+        $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.MeioCultivo'
       meio_cultivo_id:
         type: integer
       nome:
@@ -670,16 +835,16 @@ definitions:
       notas:
         type: string
       planta_mae:
-        $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Planta'
+        $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Planta'
       planta_mae_id:
         type: integer
       registros:
         items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroDiario'
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.RegistroDiario'
         type: array
       status:
         allOf:
-        - $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.PlantaStatus'
+        - $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.PlantaStatus'
         enum:
         - ativa
         - colhida
@@ -687,7 +852,7 @@ definitions:
       updatedAt:
         type: string
       usuario:
-        $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Usuario'
+        $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Usuario'
       usuario_id:
         type: integer
     required:
@@ -697,7 +862,7 @@ definitions:
     - nome
     - status
     type: object
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.PlantaStatus:
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.PlantaStatus:
     enum:
     - ativa
     - colhida
@@ -707,12 +872,8 @@ definitions:
     - StatusGerminating
     - StatusVegetative
     - StatusFlowering
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroDiario:
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.RegistroDiario:
     properties:
-      clima:
-        allOf:
-        - $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.ClimaRegistro'
-        description: Métricas opcionais
       conteudo:
         type: string
       createdAt:
@@ -726,27 +887,25 @@ definitions:
       fotos:
         description: Mídia
         items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Foto'
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Foto'
         type: array
       id:
         type: integer
       referencia_id:
-        description: ID de planta/tarefa relacionada
+        description: Campos polimórficos para associar o registro a uma entidade específica
+          (opcional)
         type: integer
       referencia_tipo:
         description: '"planta", "tarefa", etc.'
         type: string
       tipo:
-        allOf:
-        - $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroTipo'
-        description: observacao, evento, aprendizado, tratamento, problema, colheita
+        $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.RegistroTipo'
       titulo:
-        description: Campos polimórficos
         type: string
       updatedAt:
         type: string
     type: object
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.RegistroTipo:
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.RegistroTipo:
     enum:
     - observacao
     - evento
@@ -764,7 +923,7 @@ definitions:
     - RegistroTipoProblema
     - RegistroTipoColheita
     - RegistroTipoCrescimento
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Tarefa:
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Tarefa:
     properties:
       ambiente_id:
         type: integer
@@ -782,7 +941,7 @@ definitions:
         type: integer
       fotos:
         items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Foto'
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Foto'
         type: array
       frequencia_dias:
         description: NULL para tarefas únicas
@@ -808,7 +967,7 @@ definitions:
       usuario_id:
         type: integer
     type: object
-  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Usuario:
+  gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Usuario:
     properties:
       createdAt:
         type: string
@@ -822,14 +981,16 @@ definitions:
         type: string
       plantas:
         items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Planta'
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Planta'
         type: array
       preferencias:
         description: Configurações em JSON
-        type: string
+        items:
+          type: integer
+        type: array
       tarefas:
         items:
-          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_models.Tarefa'
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_entity.Tarefa'
         type: array
       updatedAt:
         type: string
@@ -842,39 +1003,48 @@ definitions:
         description: Valid is true if Time is not NULL
         type: boolean
     type: object
-host: localhost:8080
 info:
-  contact:
-    email: support@plantcultivation.com
-    name: API Support
-    url: http://www.example.com/support
-  description: API para gerenciamento de cultivo de plantas
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: Plant Cultivation API
-  version: "1.0"
+  contact: {}
 paths:
   /api/v1/ambientes:
     get:
-      description: Retorna uma lista de todos os ambientes cadastrados
+      description: Retorna uma lista paginada de todos os ambientes cadastrados
+      parameters:
+      - description: 'Número da página (padrão: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Limite de itens por página (padrão: 10)'
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.AmbienteResponseDTO'
-            type: array
+            allOf:
+            - $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.AmbienteResponseDTO'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "500":
           description: Internal Server Error
           schema:
             additionalProperties:
               type: string
             type: object
-      summary: Lista todos os ambientes
+      summary: Lista todos os ambientes com paginação
       tags:
       - ambiente
     post:
@@ -1032,25 +1202,314 @@ paths:
       summary: Atualiza um ambiente
       tags:
       - ambiente
-  /api/v1/geneticas:
+  /api/v1/diarios-cultivo:
     get:
-      description: Retorna uma lista de todas as genéticas cadastrados
+      consumes:
+      - application/json
+      description: Retorna uma lista paginada de todos os diários de cultivo
+      parameters:
+      - description: 'Número da página (padrão: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Limite de itens por página (padrão: 10)'
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.GeneticaResponseDTO'
-            type: array
+            allOf:
+            - $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.DiarioCultivoResponseDTO'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Lista todos os diários de cultivo com paginação
+      tags:
+      - diarios-cultivo
+    post:
+      consumes:
+      - application/json
+      description: Adiciona um novo diário de cultivo ao sistema
+      parameters:
+      - description: Dados para criação do diário de cultivo
+        in: body
+        name: diarioCultivo
+        required: true
+        schema:
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreateDiarioCultivoDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.DiarioCultivoResponseDTO'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Cria um novo diário de cultivo
+      tags:
+      - diarios-cultivo
+  /api/v1/diarios-cultivo/{diario_id}/registros:
+    get:
+      consumes:
+      - application/json
+      description: Retorna uma lista paginada de todos os registros diários de um
+        diário de cultivo específico
+      parameters:
+      - description: ID do Diário de Cultivo
+        in: path
+        name: diario_id
+        required: true
+        type: integer
+      - description: 'Número da página (padrão: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Limite de itens por página (padrão: 10)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.RegistroDiarioResponseDTO'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Lista todos os registros diários de um diário de cultivo com paginação
+      tags:
+      - registros-diario
+    post:
+      consumes:
+      - application/json
+      description: Adiciona um novo registro diário a um diário de cultivo específico
+      parameters:
+      - description: ID do Diário de Cultivo
+        in: path
+        name: diario_id
+        required: true
+        type: integer
+      - description: Dados para criação do registro diário
+        in: body
+        name: registroDiario
+        required: true
+        schema:
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.CreateRegistroDiarioDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.RegistroDiarioResponseDTO'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Cria um novo registro diário para um diário de cultivo
+      tags:
+      - registros-diario
+  /api/v1/diarios-cultivo/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deleta um diário de cultivo existente
+      parameters:
+      - description: ID do Diário de Cultivo
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Deleta um diário de cultivo
+      tags:
+      - diarios-cultivo
+    get:
+      consumes:
+      - application/json
+      description: Retorna os detalhes de um diário de cultivo específico
+      operationId: get-diario-cultivo-by-id
+      parameters:
+      - description: ID do Diário de Cultivo
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.DiarioCultivoResponseDTO'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Busca um diário de cultivo por ID
+      tags:
+      - diarios-cultivo
+    put:
+      consumes:
+      - application/json
+      description: Atualiza um diário de cultivo existente
+      parameters:
+      - description: ID do Diário de Cultivo
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Dados para atualização do diário de cultivo
+        in: body
+        name: diarioCultivo
+        required: true
+        schema:
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UpdateDiarioCultivoDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.DiarioCultivoResponseDTO'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Atualiza um diário de cultivo
+      tags:
+      - diarios-cultivo
+  /api/v1/geneticas:
+    get:
+      description: Retorna uma lista paginada de todas as genéticas cadastradas
+      parameters:
+      - description: 'Número da página (padrão: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Limite de itens por página (padrão: 10)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.GeneticaResponseDTO'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "500":
           description: Internal Server Error
           schema:
             additionalProperties:
               type: string
             type: object
-      summary: Lista todas as genéticas
+      summary: Lista todas as genéticas com paginação
       tags:
       - genetica
     post:
@@ -1208,25 +1667,88 @@ paths:
       summary: Atualiza uma genética
       tags:
       - genetica
-  /api/v1/meios-cultivos:
-    get:
-      description: Retorna uma lista de todos os meios de cultivo cadastrados
+  /api/v1/login:
+    post:
+      consumes:
+      - application/json
+      description: Recebe credenciais de usuário (email e senha) e retorna um token
+        JWT para acesso autenticado.
+      parameters:
+      - description: Credenciais do Usuário
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.LoginPayload'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: token
           schema:
-            items:
-              $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.MeioCultivoResponseDTO'
-            type: array
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "500":
           description: Internal Server Error
           schema:
             additionalProperties:
               type: string
             type: object
-      summary: Lista todos os meios de cultivo
+      summary: Autentica um usuário e retorna um token JWT
+      tags:
+      - usuario
+  /api/v1/meios-cultivos:
+    get:
+      description: Retorna uma lista paginada de todos os meios de cultivo cadastrados
+      parameters:
+      - description: 'Número da página (padrão: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Limite de itens por página (padrão: 10)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.MeioCultivoResponseDTO'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Lista todos os meios de cultivo com paginação
       tags:
       - meio_cultivo
     post:
@@ -1388,22 +1910,41 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retorna os detalhes de todas as plantas
+      description: Retorna uma lista paginada de todas as plantas
+      parameters:
+      - description: 'Número da página (padrão: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Limite de itens por página (padrão: 10)'
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.PlantaResponseDTO'
-            type: array
+            allOf:
+            - $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.PlantaResponseDTO'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
         "500":
           description: Internal Server Error
           schema:
             additionalProperties: true
             type: object
-      summary: Lista todas as plantas
+      summary: Lista todas as plantas com paginação
       tags:
       - plantas
     post:
@@ -1586,23 +2127,43 @@ paths:
       - plantas
   /api/v1/usuarios:
     get:
-      description: Retorna uma lista de todos os usuários cadastrados
+      description: Retorna uma lista paginada de todos os usuários cadastrados
+      parameters:
+      - description: 'Número da página (padrão: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Limite de itens por página (padrão: 10)'
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UsuarioResponseDTO'
-            type: array
+            allOf:
+            - $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.UsuarioResponseDTO'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "500":
           description: Internal Server Error
           schema:
             additionalProperties:
               type: string
             type: object
-      summary: Lista todos os usuários
+      summary: Lista todos os usuários com paginação
       tags:
       - usuario
     post:
@@ -1665,6 +2226,12 @@ paths:
             type: object
         "400":
           description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
           schema:
             additionalProperties:
               type: string
@@ -1769,10 +2336,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'status": "ok'
+          description: API e dependências estão saudáveis
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controller.HealthStatusResponse'
       summary: Verifica a saúde da aplicação
       tags:
       - health
@@ -1785,10 +2351,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'status": "alive'
+          description: Aplicação está viva
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controller.StatusResponse'
       summary: Verifica se a aplicação está viva
       tags:
       - health
@@ -1801,18 +2366,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: 'status": "ready'
+          description: Aplicação está pronta
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controller.StatusResponse'
         "503":
-          description: 'status": "not ready'
+          description: Aplicação não está pronta
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/controller.StatusResponse'
       summary: Verifica se a aplicação está pronta para receber tráfego
       tags:
       - health
-schemes:
-- http
 swagger: "2.0"
