@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"errors"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -21,14 +20,6 @@ func RespondWithError(c *gin.Context, code int, message string, details interfac
 func RespondWithJSON(c *gin.Context, code int, payload interface{}) {
 	c.JSON(code, payload)
 }
-
-// Common API errors
-var (
-	ErrInvalidInput     = errors.New("entrada inválida")
-	ErrNotFound         = errors.New("recurso não encontrado")
-	ErrInternalServer   = errors.New("erro interno do servidor")
-	ErrInvalidCredentials = errors.New("credenciais inválidas")
-)
 
 // GetErrorMsg returns a user-friendly error message for validation errors.
 func GetErrorMsg(fe validator.FieldError) string {

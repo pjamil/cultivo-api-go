@@ -8,14 +8,14 @@ import (
 	"gorm.io/gorm"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/config"
-	)
+)
 
 type Database struct {
 	DB *gorm.DB
 }
 
 func NewDatabase(config *config.Config) (*Database, error) {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC",
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=America/Sao_Paulo",
 		config.DBHost, config.DBUser, config.DBPassword, config.DBName, config.DBPort)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})

@@ -1,30 +1,5 @@
+basePath: /api/v1
 definitions:
-  controller.HealthDependencies:
-    properties:
-      database:
-        example: ok
-        type: string
-    type: object
-  controller.HealthStatusResponse:
-    properties:
-      dependencies:
-        $ref: '#/definitions/controller.HealthDependencies'
-      status:
-        example: ok
-        type: string
-      version:
-        example: 1.0.0
-        type: string
-    type: object
-  controller.StatusResponse:
-    properties:
-      error:
-        example: database not available
-        type: string
-      status:
-        example: ready
-        type: string
-    type: object
   gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.AmbienteResponseDTO:
     properties:
       altura:
@@ -891,6 +866,8 @@ definitions:
         type: array
       id:
         type: integer
+      planta_id:
+        type: integer
       referencia_id:
         description: Campos polimórficos para associar o registro a uma entidade específica
           (opcional)
@@ -1003,8 +980,45 @@ definitions:
         description: Valid is true if Time is not NULL
         type: boolean
     type: object
+  internal_controller.HealthDependencies:
+    properties:
+      database:
+        example: ok
+        type: string
+    type: object
+  internal_controller.HealthStatusResponse:
+    properties:
+      dependencies:
+        $ref: '#/definitions/internal_controller.HealthDependencies'
+      status:
+        example: ok
+        type: string
+      version:
+        example: 1.0.0
+        type: string
+    type: object
+  internal_controller.StatusResponse:
+    properties:
+      error:
+        example: database not available
+        type: string
+      status:
+        example: ready
+        type: string
+    type: object
+host: localhost:8080
 info:
-  contact: {}
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the API for the Cultivo app.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Cultivo API
+  version: "1.0"
 paths:
   /api/v1/ambientes:
     get:
@@ -2338,7 +2352,7 @@ paths:
         "200":
           description: API e dependências estão saudáveis
           schema:
-            $ref: '#/definitions/controller.HealthStatusResponse'
+            $ref: '#/definitions/internal_controller.HealthStatusResponse'
       summary: Verifica a saúde da aplicação
       tags:
       - health
@@ -2353,7 +2367,7 @@ paths:
         "200":
           description: Aplicação está viva
           schema:
-            $ref: '#/definitions/controller.StatusResponse'
+            $ref: '#/definitions/internal_controller.StatusResponse'
       summary: Verifica se a aplicação está viva
       tags:
       - health
@@ -2368,11 +2382,11 @@ paths:
         "200":
           description: Aplicação está pronta
           schema:
-            $ref: '#/definitions/controller.StatusResponse'
+            $ref: '#/definitions/internal_controller.StatusResponse'
         "503":
           description: Aplicação não está pronta
           schema:
-            $ref: '#/definitions/controller.StatusResponse'
+            $ref: '#/definitions/internal_controller.StatusResponse'
       summary: Verifica se a aplicação está pronta para receber tráfego
       tags:
       - health

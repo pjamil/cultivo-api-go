@@ -1,13 +1,10 @@
 package service
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
-	"gorm.io/gorm"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 )
 
 type GeneticaService interface {

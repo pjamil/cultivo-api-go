@@ -2,7 +2,7 @@ package controller
 
 import (
 	"errors"
-	
+
 	"net/http"
 	"strconv"
 
@@ -15,8 +15,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
-
-
 
 // PlantaController lida com as requisições HTTP para plantas
 type PlantaController struct {
@@ -93,7 +91,7 @@ func (c *PlantaController) Listar(ctx *gin.Context) {
 		return
 	}
 
-	paginatedResponse, err := c.plantaServico.ListarTodas(pagination.Page, pagination.Limit)
+	paginatedResponse, _, err := c.plantaServico.ListarTodas(pagination.Page, pagination.Limit)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao listar plantas com paginação")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao listar plantas", err.Error())

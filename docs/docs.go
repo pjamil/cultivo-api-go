@@ -9,7 +9,16 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -2036,7 +2045,7 @@ const docTemplate = `{
                     "200": {
                         "description": "API e dependências estão saudáveis",
                         "schema": {
-                            "$ref": "#/definitions/controller.HealthStatusResponse"
+                            "$ref": "#/definitions/internal_controller.HealthStatusResponse"
                         }
                     }
                 }
@@ -2059,7 +2068,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Aplicação está viva",
                         "schema": {
-                            "$ref": "#/definitions/controller.StatusResponse"
+                            "$ref": "#/definitions/internal_controller.StatusResponse"
                         }
                     }
                 }
@@ -2082,13 +2091,13 @@ const docTemplate = `{
                     "200": {
                         "description": "Aplicação está pronta",
                         "schema": {
-                            "$ref": "#/definitions/controller.StatusResponse"
+                            "$ref": "#/definitions/internal_controller.StatusResponse"
                         }
                     },
                     "503": {
                         "description": "Aplicação não está pronta",
                         "schema": {
-                            "$ref": "#/definitions/controller.StatusResponse"
+                            "$ref": "#/definitions/internal_controller.StatusResponse"
                         }
                     }
                 }
@@ -2096,44 +2105,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "controller.HealthDependencies": {
-            "type": "object",
-            "properties": {
-                "database": {
-                    "type": "string",
-                    "example": "ok"
-                }
-            }
-        },
-        "controller.HealthStatusResponse": {
-            "type": "object",
-            "properties": {
-                "dependencies": {
-                    "$ref": "#/definitions/controller.HealthDependencies"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "ok"
-                },
-                "version": {
-                    "type": "string",
-                    "example": "1.0.0"
-                }
-            }
-        },
-        "controller.StatusResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string",
-                    "example": "database not available"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "ready"
-                }
-            }
-        },
         "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.AmbienteResponseDTO": {
             "type": "object",
             "properties": {
@@ -3376,6 +3347,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "planta_id": {
+                    "type": "integer"
+                },
                 "referencia_id": {
                     "description": "Campos polimórficos para associar o registro a uma entidade específica (opcional)",
                     "type": "integer"
@@ -3533,18 +3507,56 @@ const docTemplate = `{
                     "type": "boolean"
                 }
             }
+        },
+        "internal_controller.HealthDependencies": {
+            "type": "object",
+            "properties": {
+                "database": {
+                    "type": "string",
+                    "example": "ok"
+                }
+            }
+        },
+        "internal_controller.HealthStatusResponse": {
+            "type": "object",
+            "properties": {
+                "dependencies": {
+                    "$ref": "#/definitions/internal_controller.HealthDependencies"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ok"
+                },
+                "version": {
+                    "type": "string",
+                    "example": "1.0.0"
+                }
+            }
+        },
+        "internal_controller.StatusResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "database not available"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ready"
+                }
+            }
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "1.0",
+	Host:             "localhost:8080",
+	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Cultivo API",
+	Description:      "This is the API for the Cultivo app.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

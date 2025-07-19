@@ -98,12 +98,12 @@ func (c *RegistroDiarioController) List(ctx *gin.Context) {
 
 	var pagination dto.PaginationParams
 	if err := ctx.ShouldBindQuery(&pagination); err != nil {
-				logrus.WithError(err).Error("Parâmetros de paginação inválidos para listar registros diários")
+		logrus.WithError(err).Error("Parâmetros de paginação inválidos para listar registros diários")
 		utils.RespondWithError(ctx, http.StatusBadRequest, "Requisição inválida", utils.ErrInvalidInput.Error())
 		return
 	}
 
-	paginatedResponse, err := c.registroDiarioService.ListarRegistrosPorDiarioID(uint(diarioID), pagination.Page, pagination.Limit)
+	paginatedResponse, _, err := c.registroDiarioService.ListarRegistrosPorDiarioID(uint(diarioID), pagination.Page, pagination.Limit)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao listar registros diários com paginação")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao listar registros diários", err.Error())

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -33,7 +32,7 @@ type plantaService struct {
 	geneticaRepositorio       repository.GeneticaRepositorio
 	ambienteRepositorio       repository.AmbienteRepositorio
 	meioRepositorio           repository.MeioCultivoRepositorio
-	registroDiarioRepositorio repository.RegistroDiarioRepositorio
+	registroDiarioRepositorio repository.RegistroDiarioRepository
 }
 
 func NewPlantaService(
@@ -41,7 +40,7 @@ func NewPlantaService(
 	geneticaRepositorio repository.GeneticaRepositorio,
 	ambienteRepositorio repository.AmbienteRepositorio,
 	meioRepositorio repository.MeioCultivoRepositorio,
-	registroDiarioRepositorio repository.RegistroDiarioRepositorio,
+	registroDiarioRepositorio repository.RegistroDiarioRepository,
 ) PlantaService {
 	return &plantaService{
 		repositorio:               repositorio,
@@ -300,7 +299,7 @@ func (s *plantaService) RegistrarFato(plantaID uint, tipo entity.RegistroTipo, t
 	}
 
 	// Salvar o registro diário usando o repositório
-	if err := s.registroDiarioRepositorio.Create(registro); err != nil {
+	if err := s.registroDiarioRepositorio.Criar(registro); err != nil {
 		return fmt.Errorf("falha ao registrar fato para a planta %d: %w", plantaID, err)
 	}
 

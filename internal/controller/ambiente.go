@@ -2,7 +2,8 @@ package controller
 
 import (
 	"errors"
-	
+
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -91,13 +92,27 @@ func (c *AmbienteController) Listar(ctx *gin.Context) {
 		return
 	}
 
-	paginatedResponse, err := c.servico.ListarTodos(pagination.Page, pagination.Limit)
+	ambientesDTOs, total, err := c.servico.ListarTodos(pagination.Page, pagination.Limit)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao listar ambientes com paginação")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao listar ambientes", err.Error())
 		return
 	}
 
+	// Manually construct PaginatedResponse
+	dataBytes, err := json.Marshal(ambientesDTOs)
+	if err != nil {
+		logrus.WithError(err).Error("Erro ao serializar ambientes para resposta paginada")
+		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao listar ambientes", err.Error())
+		return
+	}
+
+	paginatedResponse := &dto.PaginatedResponse{
+		Data:  dataBytes,
+		Total: total,
+		Page:  pagination.Page,
+		Limit: pagination.Limit,
+	}
 	utils.RespondWithJSON(ctx, http.StatusOK, paginatedResponse)
 }
 

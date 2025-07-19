@@ -87,8 +87,8 @@ func (c *DiarioCultivoController) List(ctx *gin.Context) {
 		return
 	}
 
-	
-	paginatedResponse, err := c.diarioCultivoServico.GetAllDiarios(pagination.Page, pagination.Limit)
+	// The service returns paginatedResponse, total, err. We only need paginatedResponse and err here.
+	paginatedResponse, _, err := c.diarioCultivoServico.GetAllDiarios(pagination.Page, pagination.Limit)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao listar diários de cultivo com paginação")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao listar diários de cultivo", err.Error())
@@ -165,9 +165,9 @@ func (c *DiarioCultivoController) Update(ctx *gin.Context) {
 	}
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
-			"operation": "update_diario_cultivo",
-			"diario_cultivo_id":  id,
-			"error":     err,
+			"operation":         "update_diario_cultivo",
+			"diario_cultivo_id": id,
+			"error":             err,
 		}).Error("Erro ao atualizar diário de cultivo")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao atualizar diário de cultivo", err.Error())
 		return
@@ -205,8 +205,8 @@ func (c *DiarioCultivoController) Delete(ctx *gin.Context) {
 		return
 	}
 	logrus.WithFields(logrus.Fields{
-		"operation": "delete_diario_cultivo",
-		"diario_cultivo_id":  id,
+		"operation":         "delete_diario_cultivo",
+		"diario_cultivo_id": id,
 	}).Info("Diário de cultivo deletado com sucesso")
 	utils.RespondWithJSON(ctx, http.StatusOK, gin.H{"message": "Diário de cultivo deletado com sucesso"})
 }

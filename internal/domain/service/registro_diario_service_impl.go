@@ -1,13 +1,13 @@
 package service
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 	"gorm.io/gorm"
 )
 

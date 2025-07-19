@@ -1,9 +1,6 @@
 package service
 
 import (
-	"errors"
-	"fmt"
-
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
@@ -94,7 +91,7 @@ func (s *diarioCultivoService) GetAllDiarios(page, limit int) ([]dto.DiarioCulti
 }
 
 func (s *diarioCultivoService) UpdateDiario(id uint, input dto.UpdateDiarioCultivoDTO) (*dto.DiarioCultivoResponseDTO, error) {
-	
+
 	diarioCultivo, err := s.repo.GetByID(id)
 	if err != nil {
 		return nil, err

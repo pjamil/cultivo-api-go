@@ -1,8 +1,22 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "This is the API for the Cultivo app.",
+        "title": "Cultivo API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
     },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
     "paths": {
         "/api/v1/ambientes": {
             "get": {
@@ -2025,7 +2039,7 @@
                     "200": {
                         "description": "API e dependências estão saudáveis",
                         "schema": {
-                            "$ref": "#/definitions/controller.HealthStatusResponse"
+                            "$ref": "#/definitions/internal_controller.HealthStatusResponse"
                         }
                     }
                 }
@@ -2048,7 +2062,7 @@
                     "200": {
                         "description": "Aplicação está viva",
                         "schema": {
-                            "$ref": "#/definitions/controller.StatusResponse"
+                            "$ref": "#/definitions/internal_controller.StatusResponse"
                         }
                     }
                 }
@@ -2071,13 +2085,13 @@
                     "200": {
                         "description": "Aplicação está pronta",
                         "schema": {
-                            "$ref": "#/definitions/controller.StatusResponse"
+                            "$ref": "#/definitions/internal_controller.StatusResponse"
                         }
                     },
                     "503": {
                         "description": "Aplicação não está pronta",
                         "schema": {
-                            "$ref": "#/definitions/controller.StatusResponse"
+                            "$ref": "#/definitions/internal_controller.StatusResponse"
                         }
                     }
                 }
@@ -2085,44 +2099,6 @@
         }
     },
     "definitions": {
-        "controller.HealthDependencies": {
-            "type": "object",
-            "properties": {
-                "database": {
-                    "type": "string",
-                    "example": "ok"
-                }
-            }
-        },
-        "controller.HealthStatusResponse": {
-            "type": "object",
-            "properties": {
-                "dependencies": {
-                    "$ref": "#/definitions/controller.HealthDependencies"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "ok"
-                },
-                "version": {
-                    "type": "string",
-                    "example": "1.0.0"
-                }
-            }
-        },
-        "controller.StatusResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string",
-                    "example": "database not available"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "ready"
-                }
-            }
-        },
         "gitea_paulojamil_dev_br_paulojamil_dev_br_cultivo-api-go_internal_domain_dto.AmbienteResponseDTO": {
             "type": "object",
             "properties": {
@@ -3365,6 +3341,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "planta_id": {
+                    "type": "integer"
+                },
                 "referencia_id": {
                     "description": "Campos polimórficos para associar o registro a uma entidade específica (opcional)",
                     "type": "integer"
@@ -3520,6 +3499,44 @@
                 "valid": {
                     "description": "Valid is true if Time is not NULL",
                     "type": "boolean"
+                }
+            }
+        },
+        "internal_controller.HealthDependencies": {
+            "type": "object",
+            "properties": {
+                "database": {
+                    "type": "string",
+                    "example": "ok"
+                }
+            }
+        },
+        "internal_controller.HealthStatusResponse": {
+            "type": "object",
+            "properties": {
+                "dependencies": {
+                    "$ref": "#/definitions/internal_controller.HealthDependencies"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ok"
+                },
+                "version": {
+                    "type": "string",
+                    "example": "1.0.0"
+                }
+            }
+        },
+        "internal_controller.StatusResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "database not available"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ready"
                 }
             }
         }

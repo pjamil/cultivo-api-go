@@ -1,13 +1,10 @@
 package config
 
 import (
-	"fmt"
 	"log"
 	"os"
 
 	"github.com/joho/godotenv"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 type Config struct {
@@ -46,7 +43,7 @@ func LoadConfig() *Config {
 	} else {
 		config = &Config{
 			DBDriver:   getEnv("DB_DRIVER", "postgres"),
-			DBHost:     getEnv("DB_HOST", "db"),
+			DBHost:     getEnv("DB_HOST", "localhost"),
 			DBPort:     getEnv("DB_PORT", "5435"),
 			DBUser:     getEnv("DB_USER", "paulo"),
 			DBPassword: getEnv("DB_PASSWORD", "753951465827PJamil"),
@@ -64,18 +61,4 @@ func getEnv(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
-}
-
-// ConnectDatabase inicializa e retorna uma conexão GORM com o banco de dados.
-func ConnectDatabase(cfg *Config) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=America/Sao_Paulo",
-		cfg.DBHost, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBPort)
-
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		return nil, fmt.Errorf("falha ao conectar ao banco de dados: %w", err)
-	}
-
-	log.Println("Conexão com o banco de dados estabelecida")
-	return db, nil
 }

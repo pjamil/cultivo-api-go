@@ -1,12 +1,12 @@
 package controller
 
 import (
-	"encoding/json"
 	"errors"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
@@ -15,8 +15,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
-
-
 
 type UsuarioController struct {
 	servico service.UsuarioService
@@ -128,7 +126,7 @@ func (c *UsuarioController) Listar(ctx *gin.Context) {
 		return
 	}
 
-	paginatedResponse, err := c.servico.ListarTodos(pagination.Page, pagination.Limit)
+	paginatedResponse, _, err := c.servico.ListarTodos(pagination.Page, pagination.Limit)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao listar usuários com paginação")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao listar usuários", utils.ErrInternalServer.Error())

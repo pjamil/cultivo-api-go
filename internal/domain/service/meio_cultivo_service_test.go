@@ -1,13 +1,13 @@
 package service_test
 
 import (
-	"encoding/json"
 	"errors"
 	"testing"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"gorm.io/gorm"
@@ -169,7 +169,7 @@ func TestMeioCultivoService_BuscarPorID(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
-		assert.Equal(t, service.ErrNotFound, err)
+		assert.Equal(t, utils.ErrNotFound, err)
 		mockRepo.AssertExpectations(t)
 	})
 
@@ -223,7 +223,7 @@ func TestMeioCultivoService_Atualizar(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
-		assert.Equal(t, service.ErrNotFound, err)
+		assert.Equal(t, utils.ErrNotFound, err)
 		mockRepo.AssertExpectations(t)
 	})
 
@@ -267,7 +267,7 @@ func TestMeioCultivoService_Deletar(t *testing.T) {
 		err := service.Deletar(meioCultivoID)
 
 		assert.Error(t, err)
-		assert.Equal(t, service.ErrNotFound, err)
+		assert.Equal(t, utils.ErrNotFound, err)
 		mockRepo.AssertExpectations(t)
 	})
 

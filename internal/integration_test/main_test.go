@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/config"
-	db_infra "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/infrastructure/database"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/infrastructure/database"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/infrastructure/server"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -28,14 +28,14 @@ func TestMain(m *testing.M) {
 	os.Setenv("DB_USER_TEST", "testuser")
 	os.Setenv("DB_PASSWORD_TEST", "testpassword")
 	os.Setenv("DB_NAME_TEST", "cultivo_test_db")
-os.Setenv("JWT_SECRET", "your_test_secret_key")
+	os.Setenv("JWT_SECRET", "your_test_secret_key")
 
 	// Carregar a configuração de teste
 	cfg := config.LoadConfig()
 
 	// Inicializar o banco de dados de teste
 	var err error
-	testDB, err = db_infra.NewDatabase(cfg)
+	testDB, err = database.NewDatabase(cfg)
 	if err != nil {
 		log.Fatalf("Failed to initialize test database: %v", err)
 	}
@@ -68,7 +68,6 @@ os.Setenv("JWT_SECRET", "your_test_secret_key")
 	}
 	log.Println("Migrations applied successfully.")
 
-	
 	log.Println("Migrations applied successfully.")
 
 	// Criar o servidor Gin para testes

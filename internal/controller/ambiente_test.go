@@ -26,12 +26,12 @@ func (m *MockAmbienteService) Criar(ambienteDto *dto.CreateAmbienteDTO) (*entity
 	return args.Get(0).(*entity.Ambiente), args.Error(1)
 }
 
-func (m *MockAmbienteService) ListarTodos(page, limit int) (*dto.PaginatedResponse, error) {
+func (m *MockAmbienteService) ListarTodos(page, limit int) ([]dto.AmbienteResponseDTO, int64, error) {
 	args := m.Called(page, limit)
 	if args.Get(0) == nil {
-		return nil, args.Error(1)
+		return nil, 0, args.Error(2)
 	}
-	return args.Get(0).(*dto.PaginatedResponse), args.Error(1)
+	return args.Get(0).([]dto.AmbienteResponseDTO), args.Get(1).(int64), args.Error(2)
 }
 
 func (m *MockAmbienteService) BuscarPorID(id uint) (*entity.Ambiente, error) {
@@ -57,15 +57,15 @@ func TestAmbienteController_Listar(t *testing.T) {
 		mockService := new(MockAmbienteService)
 		controller := NewAmbienteController(mockService)
 
-		expectedAmbientes := []entity.Ambiente{
-			{Nome: "Estufa", Descricao: "Estufa de cultivo"},
-			{Nome: "Quarto", Descricao: "Quarto de cultivo"},
+		expectedAmbientes := []dto.AmbienteResponseDTO{
+			{Nome: "Estufa", Descricao: "Estufa de cultivo", Tipo: "interno"},
+			{Nome: "Quarto", Descricao: "Quarto de cultivo", Tipo: "interno"},
 		}
 		dataBytes, err := json.Marshal(expectedAmbientes)
 		assert.NoError(t, err)
 		paginatedResponse := &dto.PaginatedResponse{
 			Data:  dataBytes,
-			Total: int64(len(expectedAmbientes)),
+			Total: int64(len(expectedAmbientes)), // This will be the second return value
 			Page:  1,
 			Limit: 10,
 		}
@@ -90,10 +90,10 @@ func TestAmbienteController_Listar(t *testing.T) {
 		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
 		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
 		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
-
-		// Convert actualResponse.Data to []entity.Ambiente for comparison
+		// Convert actualResponse.Data to []dto.AmbienteResponseDTO for comparison
 		actualAmbientesBytes, _ := json.Marshal(actualResponse.Data)
-		var actualAmbientes []entity.Ambiente
+		var actualAmbientes []dto.AmbienteResponseDTO
+
 		json.Unmarshal(actualAmbientesBytes, &actualAmbientes)
 
 		assert.Equal(t, expectedAmbientes, actualAmbientes)
@@ -106,14 +106,12 @@ func TestAmbienteController_Listar(t *testing.T) {
 		mockService := new(MockAmbienteService)
 		controller := NewAmbienteController(mockService)
 
-		paginatedResponse := &dto.PaginatedResponse{
-			Data:  json.RawMessage("[]"),
-			Total: 0,
-			Page:  1,
-			Limit: 10,
-		}
-
-		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return(paginatedResponse, nil)
+		// The service returns []dto.AmbienteResponseDTO, total, error
+		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return(
+			[]dto.AmbienteResponseDTO{}, // Empty slice for Data
+			int64(0),                    // Total count
+			nil,                         // No error
+		)
 
 		// Execução
 		w := httptest.NewRecorder()
@@ -130,10 +128,10 @@ func TestAmbienteController_Listar(t *testing.T) {
 		var actualResponse dto.PaginatedResponse
 		err := json.Unmarshal(w.Body.Bytes(), &actualResponse)
 		assert.NoError(t, err)
-		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
-		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
-		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
-		assert.Equal(t, json.RawMessage("[]"), actualResponse.Data)
+		assert.Equal(t, int64(0), actualResponse.Total)
+		assert.Equal(t, 1, actualResponse.Page)
+		assert.Equal(t, 10, actualResponse.Limit)
+		assert.Equal(t, json.RawMessage("[]"), actualResponse.Data) // Data should be an empty JSON array
 
 		mockService.AssertExpectations(t)
 	})
@@ -143,7 +141,7 @@ func TestAmbienteController_Listar(t *testing.T) {
 		mockService := new(MockAmbienteService)
 		controller := NewAmbienteController(mockService)
 
-		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return((*dto.PaginatedResponse)(nil), errors.New("erro no serviço"))
+		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return([]dto.AmbienteResponseDTO{}, int64(0), errors.New("erro no serviço"))
 
 		// Execução
 		w := httptest.NewRecorder()
@@ -380,6 +378,7 @@ func TestAmbienteController_BuscarPorID(t *testing.T) {
 		mockService.AssertExpectations(t)
 	})
 
+}
 func TestAmbienteController_Atualizar(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -520,6 +519,8 @@ func TestAmbienteController_Atualizar(t *testing.T) {
 
 		mockService.AssertExpectations(t)
 	})
+
+}
 
 func TestAmbienteController_Deletar(t *testing.T) {
 	gin.SetMode(gin.TestMode)

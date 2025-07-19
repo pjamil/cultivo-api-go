@@ -6,6 +6,7 @@ import (
 
 	"gorm.io/gorm"
 
+	domain_repository "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/repository"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 )
 
@@ -15,12 +16,12 @@ type RegistroDiarioRepositorio struct {
 }
 
 // NewRegistroDiarioRepositorio cria uma nova instância do RegistroDiarioRepositorio
-func NewRegistroDiarioRepositorio(db *gorm.DB) *RegistroDiarioRepositorio {
+func NewRegistroDiarioRepositorio(db *gorm.DB) domain_repository.RegistroDiarioRepository {
 	return &RegistroDiarioRepositorio{db: db}
 }
 
 // Criar insere um novo registro diário no banco de dados
-func (r *RegistroDiarioRepositorio) Create(registro *entity.RegistroDiario) error {
+func (r *RegistroDiarioRepositorio) Criar(registro *entity.RegistroDiario) error {
 	if registro == nil {
 		return errors.New("registro diário não pode ser nulo")
 	}
@@ -34,7 +35,7 @@ func (r *RegistroDiarioRepositorio) Create(registro *entity.RegistroDiario) erro
 }
 
 // ListarTodos retorna todos os registros diários com paginação
-func (r *RegistroDiarioRepositorio) GetAll(page, limit int) ([]entity.RegistroDiario, int64, error) {
+func (r *RegistroDiarioRepositorio) ListarTodos(page, limit int) ([]entity.RegistroDiario, int64, error) {
 	var registros []entity.RegistroDiario
 	var total int64
 
@@ -53,7 +54,7 @@ func (r *RegistroDiarioRepositorio) GetAll(page, limit int) ([]entity.RegistroDi
 }
 
 // BuscarPorID busca um registro diário pelo ID
-func (r *RegistroDiarioRepositorio) GetByID(id uint) (*entity.RegistroDiario, error) {
+func (r *RegistroDiarioRepositorio) BuscarPorID(id uint) (*entity.RegistroDiario, error) {
 	var registro entity.RegistroDiario
 	if err := r.db.First(&registro, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -65,7 +66,7 @@ func (r *RegistroDiarioRepositorio) GetByID(id uint) (*entity.RegistroDiario, er
 }
 
 // Atualizar atualiza um registro diário existente
-func (r *RegistroDiarioRepositorio) Update(registro *entity.RegistroDiario) error {
+func (r *RegistroDiarioRepositorio) Atualizar(registro *entity.RegistroDiario) error {
 	if registro == nil {
 		return errors.New("registro diário não pode ser nulo")
 	}
@@ -78,7 +79,7 @@ func (r *RegistroDiarioRepositorio) Update(registro *entity.RegistroDiario) erro
 }
 
 // Deletar remove um registro diário pelo ID
-func (r *RegistroDiarioRepositorio) Delete(id uint) error {
+func (r *RegistroDiarioRepositorio) Deletar(id uint) error {
 	result := r.db.Delete(&entity.RegistroDiario{}, id)
 	if result.Error != nil {
 		return fmt.Errorf("falha ao deletar registro diário: %w", result.Error)

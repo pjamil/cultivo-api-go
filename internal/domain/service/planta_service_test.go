@@ -1,7 +1,6 @@
 package service_test
 
 import (
-	"encoding/json"
 	"errors"
 	"testing"
 	"time"
@@ -22,7 +21,7 @@ func TestPlantaService_Criar(t *testing.T) {
 		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
 		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
 		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
-		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		mockRegistroDiarioRepo := new(MockRegistroDiarioRepositorio)
 
 		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
 
@@ -67,11 +66,11 @@ func TestPlantaService_Criar(t *testing.T) {
 	})
 
 	t.Run("Error - Empty Name", func(t *testing.T) {
-		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockPlantaRepo := new(test.MockPlantaRepositorio) // Keep this as test.MockPlantaRepositorio
 		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
 		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
 		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
-		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		mockRegistroDiarioRepo := new(MockRegistroDiarioRepositorio)
 
 		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
 
@@ -87,12 +86,12 @@ func TestPlantaService_Criar(t *testing.T) {
 		mockPlantaRepo.AssertNotCalled(t, "ExistePorNome")
 	})
 
-		t.Run("Error - Duplicate Name", func(t *testing.T) {
-		mockPlantaRepo := new(test.MockPlantaRepositorio)
+	t.Run("Error - Duplicate Name", func(t *testing.T) {
+		mockPlantaRepo := new(test.MockPlantaRepositorio) // Keep this as test.MockPlantaRepositorio
 		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
 		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
 		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
-		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		mockRegistroDiarioRepo := new(MockRegistroDiarioRepositorio)
 
 		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
 
@@ -111,11 +110,11 @@ func TestPlantaService_Criar(t *testing.T) {
 	})
 
 	t.Run("Error - Genetica Not Found", func(t *testing.T) {
-		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockPlantaRepo := new(test.MockPlantaRepositorio) // Keep this as test.MockPlantaRepositorio
 		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
 		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
 		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
-		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		mockRegistroDiarioRepo := new(MockRegistroDiarioRepositorio)
 
 		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
 
@@ -139,11 +138,11 @@ func TestPlantaService_Criar(t *testing.T) {
 	})
 
 	t.Run("Error - Ambiente Not Found", func(t *testing.T) {
-		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockPlantaRepo := new(test.MockPlantaRepositorio) // Keep this as test.MockPlantaRepositorio
 		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
 		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
 		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
-		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		mockRegistroDiarioRepo := new(MockRegistroDiarioRepositorio)
 
 		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
 
@@ -169,11 +168,11 @@ func TestPlantaService_Criar(t *testing.T) {
 	})
 
 	t.Run("Error - MeioCultivo Not Found", func(t *testing.T) {
-		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockPlantaRepo := new(test.MockPlantaRepositorio) // Keep this as test.MockPlantaRepositorio
 		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
 		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
 		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
-		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		mockRegistroDiarioRepo := new(MockRegistroDiarioRepositorio)
 
 		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
 
@@ -187,7 +186,7 @@ func TestPlantaService_Criar(t *testing.T) {
 		mockPlantaRepo.On("ExistePorNome", plantaDto.Nome).Return(false).Once()
 		mockGeneticaRepo.On("BuscarPorID", plantaDto.GeneticaID).Return(&entity.Genetica{}, nil).Once()
 		mockAmbienteRepo.On("BuscarPorID", plantaDto.AmbienteID).Return(&entity.Ambiente{}, nil).Once()
-	mockMeioRepo.On("BuscarPorID", plantaDto.MeioCultivoID).Return((*entity.MeioCultivo)(nil), gorm.ErrRecordNotFound).Once()
+		mockMeioRepo.On("BuscarPorID", plantaDto.MeioCultivoID).Return((*entity.MeioCultivo)(nil), gorm.ErrRecordNotFound).Once()
 
 		response, err := servico.Criar(plantaDto)
 
@@ -201,11 +200,11 @@ func TestPlantaService_Criar(t *testing.T) {
 	})
 
 	t.Run("Error - Repository Create Error", func(t *testing.T) {
-		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockPlantaRepo := new(test.MockPlantaRepositorio) // Keep this as test.MockPlantaRepositorio
 		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
 		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
 		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
-		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		mockRegistroDiarioRepo := new(MockRegistroDiarioRepositorio)
 
 		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
 
@@ -250,9 +249,9 @@ func TestPlantaService_ListarTodas(t *testing.T) {
 	t.Run("Success - Plantas Encontradas", func(t *testing.T) {
 		mockPlantaRepo := new(test.MockPlantaRepositorio)
 		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
-		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio) // Keep this as test.MockAmbienteRepositorio
 		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
-		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		mockRegistroDiarioRepo := new(MockRegistroDiarioRepositorio)
 		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
 
 		now := time.Now()
@@ -284,11 +283,11 @@ func TestPlantaService_ListarTodas(t *testing.T) {
 	})
 
 	t.Run("Success - Nenhuma Planta Encontrada", func(t *testing.T) {
-		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockPlantaRepo := new(test.MockPlantaRepositorio) // Keep this as test.MockPlantaRepositorio
 		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
-		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio) // Keep this as test.MockAmbienteRepositorio
 		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
-		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		mockRegistroDiarioRepo := new(MockRegistroDiarioRepositorio)
 		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
 
 		page := 1
@@ -305,11 +304,11 @@ func TestPlantaService_ListarTodas(t *testing.T) {
 	})
 
 	t.Run("Error - Repository Error", func(t *testing.T) {
-		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockPlantaRepo := new(test.MockPlantaRepositorio) // Keep this as test.MockPlantaRepositorio
 		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
-		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio) // Keep this as test.MockAmbienteRepositorio
 		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
-		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		mockRegistroDiarioRepo := new(MockRegistroDiarioRepositorio)
 		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
 
 		page := 1
@@ -328,11 +327,11 @@ func TestPlantaService_ListarTodas(t *testing.T) {
 
 func TestPlantaService_BuscarPorID(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockPlantaRepo := new(test.MockPlantaRepositorio) // Keep this as test.MockPlantaRepositorio
 		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
-		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio) // Keep this as test.MockAmbienteRepositorio
 		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
-		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		mockRegistroDiarioRepo := new(MockRegistroDiarioRepositorio)
 		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
 
 		plantID := uint(1)
@@ -357,11 +356,11 @@ func TestPlantaService_BuscarPorID(t *testing.T) {
 	})
 
 	t.Run("Not Found", func(t *testing.T) {
-		mockPlantaRepo := new(test.MockPlantaRepositorio)
+		mockPlantaRepo := new(test.MockPlantaRepositorio) // Keep this as test.MockPlantaRepositorio
 		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
-		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
+		mockAmbienteRepo := new(test.MockAmbienteRepositorio) // Keep this as test.MockAmbienteRepositorio
 		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
-		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		mockRegistroDiarioRepo := new(MockRegistroDiarioRepositorio)
 		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
 
 		plantID := uint(999)
@@ -372,16 +371,16 @@ func TestPlantaService_BuscarPorID(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Nil(t, response)
-		assert.Equal(t, service.ErrNotFound, err)
+		assert.Equal(t, utils.ErrNotFound, err)
 		mockPlantaRepo.AssertExpectations(t)
 	})
 
 	t.Run("Repository Error", func(t *testing.T) {
-		mockPlantaRepo := new(test.MockPlantaRepositorio)
-		mockGeneticaRepo := new(test.MockGeneticaRepositorio)
+		mockPlantaRepo := new(test.MockPlantaRepositorio)     // Keep this as test.MockPlantaRepositorio
+		mockGeneticaRepo := new(test.MockGeneticaRepositorio) // Keep this as test.MockGeneticaRepositorio
 		mockAmbienteRepo := new(test.MockAmbienteRepositorio)
 		mockMeioRepo := new(test.MockMeioCultivoRepositorio)
-		mockRegistroDiarioRepo := new(test.MockRegistroDiarioRepositorio)
+		mockRegistroDiarioRepo := new(MockRegistroDiarioRepositorio)
 		servico := service.NewPlantaService(mockPlantaRepo, mockGeneticaRepo, mockAmbienteRepo, mockMeioRepo, mockRegistroDiarioRepo)
 
 		plantID := uint(1)

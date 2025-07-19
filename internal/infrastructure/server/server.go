@@ -4,7 +4,7 @@ import (
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/controller"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
 	db_infra "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/infrastructure/database"
-	repository "gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/infrastructure/repository"
+	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/infrastructure/repository"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -44,7 +44,7 @@ func NewServer(db *db_infra.Database) *Server {
 	registroDiarioRepo := repository.NewRegistroDiarioRepositorio(db.DB)
 
 	// Services
-	usuarioService := service.NewUsuarioService(usuarioRepo) // This line is causing the error
+	usuarioService := service.NewUsuarioService(usuarioRepo)
 	plantaService := service.NewPlantaService(plantaRepo, geneticaRepo, ambienteRepo, meioCultivoRepo, registroDiarioRepo)
 	ambienteService := service.NewAmbienteService(ambienteRepo)
 	geneticaService := service.NewGeneticaService(geneticaRepo)

@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
-	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/entity"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -26,9 +25,12 @@ func (m *MockMeioCultivoService) Criar(meioCultivoDto *dto.CreateMeioCultivoDTO)
 	return args.Get(0).(*dto.MeioCultivoResponseDTO), args.Error(1)
 }
 
-func (m *MockMeioCultivoService) ListarTodos(page, limit int) (*dto.PaginatedResponse, error) {
+func (m *MockMeioCultivoService) ListarTodos(page, limit int) ([]dto.MeioCultivoResponseDTO, int64, error) {
 	args := m.Called(page, limit)
-	return args.Get(0).(*dto.PaginatedResponse), args.Error(1)
+	if args.Get(0) == nil {
+		return nil, 0, args.Error(2)
+	}
+	return args.Get(0).([]dto.MeioCultivoResponseDTO), args.Get(1).(int64), args.Error(2)
 }
 
 func (m *MockMeioCultivoService) BuscarPorID(id uint) (*dto.MeioCultivoResponseDTO, error) {
@@ -54,14 +56,14 @@ func TestMeioCultivoController_Listar(t *testing.T) {
 		mockService := new(MockMeioCultivoService)
 		controller := NewMeioCultivoController(mockService)
 
-		expectedMeiosCultivo := []entity.MeioCultivo{
-			{Tipo: "Solo", Descricao: "Solo orgânico"},
-			{Tipo: "Coco", Descricao: "Fibra de coco"},
+		expectedMeiosCultivo := []dto.MeioCultivoResponseDTO{
+			{ID: 1, Tipo: "Solo", Descricao: "Solo orgânico"},
+			{ID: 2, Tipo: "Coco", Descricao: "Fibra de coco"},
 		}
 		dataBytes, err := json.Marshal(expectedMeiosCultivo)
 		paginatedResponse := &dto.PaginatedResponse{
 			Data:  dataBytes,
-			Total: int64(len(expectedMeiosCultivo)),
+			Total: int64(len(expectedMeiosCultivo)), // This will be the second return value
 			Page:  1,
 			Limit: 10,
 		}
@@ -88,8 +90,8 @@ func TestMeioCultivoController_Listar(t *testing.T) {
 		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
 
 		// Convert actualResponse.Data to []entity.MeioCultivo for comparison
-		actualMeiosCultivoBytes, _ := json.Marshal(actualResponse.Data)
-		var actualMeiosCultivo []entity.MeioCultivo
+		actualMeiosCultivoBytes, _ := json.Marshal(actualResponse.Data) // This is already a JSON array of DTOs
+		var actualMeiosCultivo []dto.MeioCultivoResponseDTO
 		json.Unmarshal(actualMeiosCultivoBytes, &actualMeiosCultivo)
 
 		assert.Equal(t, expectedMeiosCultivo, actualMeiosCultivo)
@@ -102,14 +104,13 @@ func TestMeioCultivoController_Listar(t *testing.T) {
 		mockService := new(MockMeioCultivoService)
 		controller := NewMeioCultivoController(mockService)
 
-		paginatedResponse := &dto.PaginatedResponse{
-			Data:  json.RawMessage("[]"),
-			Total: 0,
-			Page:  1,
-			Limit: 10,
-		}
+		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return(
+			[]dto.MeioCultivoResponseDTO{}, // Empty slice for Data
+			int64(0),                       // Total count
+			nil,                            // No error
+		).Once()
 
-		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return(paginatedResponse, nil)
+		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return(&dto.PaginatedResponse{Data: json.RawMessage("[]"), Total: 0, Page: 1, Limit: 10}, nil)
 
 		// Execução
 		w := httptest.NewRecorder()
@@ -126,9 +127,9 @@ func TestMeioCultivoController_Listar(t *testing.T) {
 		var actualResponse dto.PaginatedResponse
 		err := json.Unmarshal(w.Body.Bytes(), &actualResponse)
 		assert.NoError(t, err)
-		assert.Equal(t, paginatedResponse.Total, actualResponse.Total)
-		assert.Equal(t, paginatedResponse.Page, actualResponse.Page)
-		assert.Equal(t, paginatedResponse.Limit, actualResponse.Limit)
+		assert.Equal(t, int64(0), actualResponse.Total)
+		assert.Equal(t, 1, actualResponse.Page)
+		assert.Equal(t, 10, actualResponse.Limit)
 		assert.Equal(t, json.RawMessage("[]"), actualResponse.Data)
 
 		mockService.AssertExpectations(t)
@@ -139,7 +140,7 @@ func TestMeioCultivoController_Listar(t *testing.T) {
 		mockService := new(MockMeioCultivoService)
 		controller := NewMeioCultivoController(mockService)
 
-		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return((*dto.PaginatedResponse)(nil), errors.New("erro no serviço"))
+		mockService.On("ListarTodos", mock.Anything, mock.Anything).Return([]dto.MeioCultivoResponseDTO{}, int64(0), errors.New("erro no serviço"))
 
 		// Execução
 		w := httptest.NewRecorder()
@@ -323,7 +324,7 @@ func TestMeioCultivoController_BuscarPorID(t *testing.T) {
 	t.Run("Invalid ID", func(t *testing.T) {
 		// Preparação
 		mockService := new(MockMeioCultivoService)
-		controller := NewMeioCultivoController(mock(MockMeioCultivoService))
+		controller := NewMeioCultivoController(mockService)
 
 		// Execução
 		w := httptest.NewRecorder()

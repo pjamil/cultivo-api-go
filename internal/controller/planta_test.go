@@ -27,9 +27,12 @@ func (m *MockPlantaService) Criar(createDto *dto.CreatePlantaDTO) (*dto.PlantaRe
 	return args.Get(0).(*dto.PlantaResponseDTO), args.Error(1)
 }
 
-func (m *MockPlantaService) ListarTodas(page, limit int) (*dto.PaginatedResponse, error) {
+func (m *MockPlantaService) ListarTodas(page, limit int) ([]dto.PlantaResponseDTO, int64, error) {
 	args := m.Called(page, limit)
-	return args.Get(0).(*dto.PaginatedResponse), args.Error(1)
+	if args.Get(0) == nil {
+		return nil, 0, args.Error(2)
+	}
+	return args.Get(0).([]dto.PlantaResponseDTO), args.Get(1).(int64), args.Error(2)
 }
 
 func (m *MockPlantaService) BuscarPorID(id uint) (*dto.PlantaResponseDTO, error) {
@@ -71,14 +74,17 @@ func TestPlantaController_Listar(t *testing.T) {
 		mockService := new(MockPlantaService)
 		controller := NewPlantaController(mockService)
 
-		expectedPlantas := []entity.Planta{
-			{Nome: "Sativa", Usuario: entity.Usuario{Preferencias: json.RawMessage([]byte("null"))}},
-			{Nome: "Indica", Usuario: entity.Usuario{Preferencias: json.RawMessage([]byte("null"))}},
+		expectedPlantas := []dto.PlantaResponseDTO{
+			{ID: 1, Nome: "Sativa"},
+			{ID: 2, Nome: "Indica"},
 		}
 		dataBytes, err := json.Marshal(expectedPlantas)
 		paginatedResponse := &dto.PaginatedResponse{
 			Data:  dataBytes,
 			Total: int64(len(expectedPlantas)),
+			// The ListarTodas mock expects a []dto.PlantaResponseDTO and an int64 for total.
+			// The PaginatedResponse struct is used for the controller's response, not the service's return.
+			// So, we need to pass the actual slice and total count to the mock.
 			Page:  1,
 			Limit: 10,
 		}
@@ -106,7 +112,7 @@ func TestPlantaController_Listar(t *testing.T) {
 
 		// Convert actualResponse.Data to []entity.Planta for comparison
 		actualPlantasBytes, _ := json.Marshal(actualResponse.Data)
-		var actualPlantas []entity.Planta
+		var actualPlantas []dto.PlantaResponseDTO
 		json.Unmarshal(actualPlantasBytes, &actualPlantas)
 
 		assert.Equal(t, expectedPlantas, actualPlantas)
@@ -119,7 +125,7 @@ func TestPlantaController_Listar(t *testing.T) {
 		mockService := new(MockPlantaService)
 		controller := NewPlantaController(mockService)
 
-		mockService.On("ListarTodas", mock.Anything, mock.Anything).Return((*dto.PaginatedResponse)(nil), errors.New("erro no serviço"))
+		mockService.On("ListarTodas", mock.Anything, mock.Anything).Return([]dto.PlantaResponseDTO{}, int64(0), errors.New("erro no serviço"))
 
 		// Execução
 		w := httptest.NewRecorder()

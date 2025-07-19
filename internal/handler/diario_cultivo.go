@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/dto"
 	"gitea.paulojamil.dev.br/paulojamil.dev.br/cultivo-api-go/internal/domain/service"
+	"github.com/gin-gonic/gin"
 )
 
 // DiarioCultivoHandler encapsula as dependências do handler de diário de cultivo.
@@ -68,13 +68,13 @@ func (h *DiarioCultivoHandler) GetAllDiarios(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 
-	paginatedResponse, err := h.service.GetAllDiarios(page, limit)
+	diarios, total, err := h.service.GetAllDiarios(page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "erro ao buscar os diários"})
 		return
 	}
 
-	c.JSON(http.StatusOK, paginatedResponse)
+	c.JSON(http.StatusOK, gin.H{"data": diarios, "total": total})
 }
 
 // UpdateDiario lida com a atualização de um diário existente.

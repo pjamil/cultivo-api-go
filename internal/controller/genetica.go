@@ -89,7 +89,7 @@ func (c *GeneticaController) Listar(ctx *gin.Context) {
 		return
 	}
 
-	paginatedResponse, err := c.servico.ListarTodas(pagination.Page, pagination.Limit)
+	paginatedResponse, _, err := c.servico.ListarTodas(pagination.Page, pagination.Limit)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao listar genéticas com paginação")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao listar genéticas", err.Error())

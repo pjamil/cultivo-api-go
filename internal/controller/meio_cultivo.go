@@ -88,7 +88,7 @@ func (c *MeioCultivoController) Listar(ctx *gin.Context) {
 		return
 	}
 
-	paginatedResponse, err := c.servico.ListarTodos(pagination.Page, pagination.Limit)
+	paginatedResponse, _, err := c.servico.ListarTodos(pagination.Page, pagination.Limit)
 	if err != nil {
 		logrus.WithError(err).Error("Erro ao listar meios de cultivo com paginação")
 		utils.RespondWithError(ctx, http.StatusInternalServerError, "Erro interno ao listar meios de cultivo", err.Error())

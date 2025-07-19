@@ -1,7 +1,6 @@
 package service_test
 
 import (
-	"encoding/json"
 	"errors"
 	"testing"
 	"time"
@@ -176,7 +175,7 @@ func TestDiarioCultivoService_Atualizar(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 
-		t.Run("não encontrado", func(t *testing.T) {
+	t.Run("não encontrado", func(t *testing.T) {
 		mockRepo.On("GetByID", uint(2)).Return(nil, gorm.ErrRecordNotFound).Once()
 
 		t.Logf("Calling diarioService.Update with ID: %d", 2)
